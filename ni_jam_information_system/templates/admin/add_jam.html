@@ -1,0 +1,32 @@
+{%include 'header.html'%}
+
+<div class="container">
+  <h2>Raspberry Jams</h2>
+  <p>Currently added Jams can be seen below.</p>
+    <table class="table table-hover">
+        <tr>
+            <th>Jam ID</th>
+            <th>Jam Name</th>
+            <th>Jam Date</th>
+        </tr>
+        {% for jam_in_db in jams_in_db %}
+        <tr>
+            <td>{{jam_in_db.jam_id}}</td>
+            <td>{{jam_in_db.name}}</td>
+            <td>{{jam_in_db.date}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <p>Select a Raspberry Jam from the list below to add to the system.</p>
+  <div class="dropdown">
+    <button class="btn btn-default dropdown-toggle" type="button" id="menu1" data-toggle="dropdown">Add new Jam
+    <span class="caret"></span></button>
+    <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
+        {% for jam in jams %}
+      <li role="presentation"><a role="menuitem" tabindex="-1" href=/admin/add_jam/{{jam.id}}>{{jam.name}}</a></li>
+        {% endfor %}
+    </ul>
+  </div>
+</div>
+
+{%include 'footer.html'%}
