@@ -1,0 +1,13 @@
+{%include 'header.html'%}
+
+{% from "_formhelpers.html" import render_field %}
+<form method=post>
+  <dl>
+    {{ render_field(form.workshop) }}
+    {{ render_field(form.volunteer) }}
+  </dl>
+  <p><input type=submit value="Add workshop to Jam">
+</form>
+{%include 'render_workshops_in_slots.html'%}
+
+{%include 'footer.html'%}

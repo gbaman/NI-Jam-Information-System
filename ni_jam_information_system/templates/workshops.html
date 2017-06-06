@@ -1,0 +1,24 @@
+{%include 'header.html'%}
+
+<div class="container">
+  <h2>Workshops</h2>
+  <p>Currently available workshops can be found below</p>
+    <table class="table table-hover">
+        <tr>
+            <th>Workshop title</th>
+            <th>Workshop description</th>
+            <th>Workshop level</th>
+            <th>Workshop timeslot</th>
+        </tr>
+        {% for workshop in workshops %}
+        <tr>
+            <td>{{workshop.workshop_title}}</td>
+            <td>{{workshop.workshop_description}}</td>
+            <td>{{workshop.workshop_level}}</td>
+            <td>{{workshop.workshop_time}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{%include 'footer.html'%}

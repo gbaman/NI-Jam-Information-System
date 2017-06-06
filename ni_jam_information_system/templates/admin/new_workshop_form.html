@@ -1,0 +1,14 @@
+{%include 'header.html'%}
+
+{% from "_formhelpers.html" import render_field %}
+<form method=post>
+  <dl>
+    {{ render_field(form.workshop_title) }}
+    {{ render_field(form.workshop_description) }}
+    {{ render_field(form.workshop_limit) }}
+    {{ render_field(form.workshop_level) }}
+  </dl>
+  <p><input type=submit value="Add workshop">
+</form>
+
+{%include 'footer.html'%}

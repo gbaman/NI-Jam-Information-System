@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, BigInteger
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, BigInteger, Time
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -27,6 +27,7 @@ class Attendee(Base):
     town = Column(String(45))
     experience_level = Column(String(45))
     school = Column(String(45))
+    order_id = Column(BigInteger)
 
     workshop_runs = relationship('RaspberryJamWorkshop', secondary='workshop_attendee')
 
@@ -97,12 +98,15 @@ class RaspberryJam(Base):
 class RaspberryJamWorkshop(Base):
     __tablename__ = 'raspberry_jam_workshop'
 
-    workshop_run_id = Column(Integer, primary_key=True, unique=True)
+    workshop_run_id = Column(Integer, primary_key=True, nullable=False, unique=True)
     jam_id = Column(ForeignKey('raspberry_jam.jam_id'), nullable=False, index=True)
     workshop_id = Column(ForeignKey('workshop.workshop_id'), nullable=False, index=True)
     workshop_room_id = Column(ForeignKey('workshop_room.room_id'), nullable=False, index=True)
+    workshop_time_slot = Column(String(45))
+    slot_id = Column(ForeignKey('workshop_slots.slot_id'), primary_key=True, nullable=False, index=True)
 
     jam = relationship('RaspberryJam')
+    slot = relationship('WorkshopSlot')
     workshop = relationship('Workshop')
     workshop_room = relationship('WorkshopRoom')
 
@@ -144,6 +148,14 @@ class WorkshopRoom(Base):
     room_id = Column(Integer, primary_key=True, unique=True)
     room_name = Column(String(45))
     room_capacity = Column(String(45))
+
+
+class WorkshopSlot(Base):
+    __tablename__ = 'workshop_slots'
+
+    slot_id = Column(Integer, primary_key=True)
+    slot_time_start = Column(Time, nullable=False)
+    slot_time_end = Column(Time, nullable=False)
 
 
 t_workshop_volunteers = Table(
