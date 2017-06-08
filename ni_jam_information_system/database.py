@@ -115,7 +115,17 @@ def get_workshops_to_select():
 
 def get_time_slots_to_select(jam_id):
     workshop_slots = []
-    for workshop_slot in db_session.query(RaspberryJamWorkshop, RaspberryJam, WorkshopSlot, Workshop, WorkshopRoom).filter(RaspberryJamWorkshop.jam_id == jam_id):
-        print(workshop_slot.WorkshopSlot.slot_id)
+    for workshop_slot in db_session.query(WorkshopSlot):
+        workshop_slots.append({"title":str("{} - {}".format(workshop_slot.slot_time_start, workshop_slot.slot_time_end)), "workshops":[]})
+    a = db_session.query(RaspberryJamWorkshop, RaspberryJam, WorkshopSlot, Workshop, WorkshopRoom).filter(RaspberryJamWorkshop.jam_id == jam_id,
+                                                                                                                           RaspberryJamWorkshop.workshop_room_id == WorkshopRoom.room_id,
+                                                                                                                           RaspberryJamWorkshop.slot_id == WorkshopSlot.slot_id,
+                                                                                                                           RaspberryJamWorkshop.jam_id == RaspberryJam.jam_id,
+                                                                                                                           RaspberryJamWorkshop.workshop_id == Workshop.workshop_id)
+    for workshop in a:
+        new_workshop = {"workshop_room":workshop.WorkshopRoom.room_name, "workshop_title":workshop.Workshop.workshop_title, "workshop_description":workshop.Workshop.workshop_description}
+        workshop_slots[workshop.WorkshopSlot.slot_id - 1]["workshops"].append(new_workshop)
+
+    return workshop_slots
 
 

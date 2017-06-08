@@ -1,15 +1,20 @@
-   {% for workshop_slot in workshop_slots %}
+   <div class="workshop_table">
+       {% for workshop_slot in workshop_slots %}
+
    <h2>{{workshop_slot.title}}</h2>
     <table class="table table-hover">
         <tr>
-            {% for workshop_room in workshop_slot.workshop_rooms %}
-            <th>{{workshop_room}}</th>
-            {% endfor %}
+            <th>Workshop title</th>
+            <th>Workshop room</th>
+            <th>Workshop description</th>
         </tr>
-        {% for workshop_title in workshop_slot.workshop_titles %}
+        {% for workshop in workshop_slot.workshops %}
         <tr>
-            <td>{{jam_in_db.jam_id}}</td>
+            <td>{{workshop.workshop_title}}</td>
+            <td>{{workshop.workshop_room}}</td>
+            <td>{{workshop.workshop_description}}</td>
         </tr>
         {% endfor %}
     </table>
    {% endfor %}
+   </div>

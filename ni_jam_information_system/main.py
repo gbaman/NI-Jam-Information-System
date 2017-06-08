@@ -79,5 +79,5 @@ def add_workshop_to_jam():
 
 @app.route("/workshops")
 def display_workshops():
-    return render_template("workshops.html", workshops=database.get_workshops_for_jam(34595287436))
+    return render_template("workshops.html", workshop_slots=database.get_time_slots_to_select(34595287436))
 

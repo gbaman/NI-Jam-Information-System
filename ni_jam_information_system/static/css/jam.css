@@ -2,6 +2,20 @@
     Padding : 10px
 }
 
+.workshop_table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+.workshop_table.table.th {
+    width: 150px;
+}
+
+.workshop_table.table.td {
+    width: 150px;
+}
+
+
 li{
     List-style-type:none
 }
