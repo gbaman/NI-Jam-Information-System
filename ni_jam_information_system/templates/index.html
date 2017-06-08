@@ -1,4 +1,14 @@
 {%include 'header.html'%}
 <h1>Northern Ireland Raspberry Jam</h1>
 <p>Welcome to the Northern Ireland Raspberry Jam Information System.</p>
+
+
+{% from "_formhelpers.html" import render_field %}
+<form method=post>
+  <dl>
+    {{ render_field(form.order_id) }}
+  </dl>
+  <p><input type=submit value="Log in">
+</form>
+<p>{{status}}</p>
 {%include 'footer.html'%}

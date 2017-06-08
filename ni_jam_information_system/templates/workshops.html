@@ -1,10 +1,17 @@
 {%include 'header.html'%}
 
 <div class="container">
-  <h2>Workshops</h2>
-  <p>Currently available workshops can be found below</p>
+    <h2>Workshops</h2>
+    <p>Currently available workshops can be found below</p>
+
+    <select class="form-control">
+        {% for jam_attendee in jam_attendees %}
+        <option value="{{jam_attendee.id}}">{{jam_attendee.name}}</option>
+        {% endfor %}
+    </select>
 
     {%include 'render_workshops_in_slots.html'%}
+
 </div>
 
 {%include 'footer.html'%}

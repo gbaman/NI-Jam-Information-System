@@ -28,8 +28,7 @@ class Attendee(Base):
     experience_level = Column(String(45))
     school = Column(String(45))
     order_id = Column(BigInteger)
-
-    workshop_runs = relationship('RaspberryJamWorkshop', secondary='workshop_attendee')
+    ticket_type = Column(String(45))
 
 
 class Group(Base):
@@ -99,9 +98,9 @@ class RaspberryJamWorkshop(Base):
     __tablename__ = 'raspberry_jam_workshop'
 
     workshop_run_id = Column(Integer, primary_key=True, nullable=False, unique=True)
-    jam_id = Column(ForeignKey('raspberry_jam.jam_id'), nullable=False, index=True)
-    workshop_id = Column(ForeignKey('workshop.workshop_id'), nullable=False, index=True)
-    workshop_room_id = Column(ForeignKey('workshop_room.room_id'), nullable=False, index=True)
+    jam_id = Column(ForeignKey('raspberry_jam.jam_id'), primary_key=True, nullable=False, index=True)
+    workshop_id = Column(ForeignKey('workshop.workshop_id'), primary_key=True, nullable=False, index=True)
+    workshop_room_id = Column(ForeignKey('workshop_room.room_id'), primary_key=True, nullable=False, index=True)
     workshop_time_slot = Column(String(45))
     slot_id = Column(ForeignKey('workshop_slots.slot_id'), primary_key=True, nullable=False, index=True)
 
@@ -135,11 +134,15 @@ class Workshop(Base):
     workshop_level = Column(String(45))
 
 
-t_workshop_attendee = Table(
-    'workshop_attendee', metadata,
-    Column('attendee_id', ForeignKey('attendees.attendee_id'), primary_key=True, nullable=False, index=True),
-    Column('workshop_run_id', ForeignKey('raspberry_jam_workshop.workshop_run_id'), primary_key=True, nullable=False, index=True)
-)
+class WorkshopAttendee(Base):
+    __tablename__ = 'workshop_attendee'
+
+    attendee_id = Column(ForeignKey('attendees.attendee_id'), primary_key=True, nullable=False, index=True)
+    workshop_run_id = Column(ForeignKey('raspberry_jam_workshop.workshop_run_id'), primary_key=True, nullable=False, index=True)
+    attended = Column(Integer)
+
+    attendee = relationship('Attendee')
+    workshop_run = relationship('RaspberryJamWorkshop')
 
 
 class WorkshopRoom(Base):

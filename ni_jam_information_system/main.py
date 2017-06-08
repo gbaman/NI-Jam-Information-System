@@ -3,6 +3,7 @@ from flask import Flask, render_template, request, make_response, redirect
 app = Flask(__name__)
 app.debug = True
 #app.run(host='0.0.0.0')
+from datetime import datetime, timedelta
 from ni_jam_information_system.logins import *
 import ni_jam_information_system.database as database
 import ni_jam_information_system.forms as forms
@@ -23,22 +24,33 @@ def check_permission():
         request.logged_in_user = user
 
 @app.route("/test")
-def test_feature():
-    print("TESTING")
+def test():
+    database.get_attendees_in_workshop(5)
+
+
+@app.route("/admin/import_attendees_from_eventbrite")
+def import_from_eventbrite():
+    print("Importing...")
     update_attendees_from_eventbrite(34595287436)
-    #eventbrite.get_eventbrite_attendees_for_event(34595287436)
-    return("Testing")
+    return("Import finished.")
 
-@app.route('/')
+@app.route('/', methods=['POST', 'GET'])
 def index():
-    print("Rendering index")
-    return render_template("index.html")
+    cookie = request.cookies.get('jam_order_id')
+    if cookie and len(cookie) == 9 and database.verify_attendee_id(cookie):
+        return redirect("workshops")
+    form = forms.get_order_ID_form(request.form)
+    if request.method == 'POST' and form.validate():
+        if database.verify_attendee_id(form.order_id.data):
+            resp = make_response(redirect("workshops"))
+            resp.set_cookie('jam_order_id', str(form.order_id.data), expires=(datetime.datetime.now() + timedelta(hours=6)))
+            resp.set_cookie('jam_id', "34595287436")
+            return resp
+        else:
+            return render_template('index.html', form=form, status="Error, no order with that ID found. Please try again")
+    return render_template('index.html', form=form)
 
-@app.route("/eventbrite")
-def eventbrite_check():
-    print(request.logged_in_user.password_hash)
-    eventbrite.eventbrite_test()
-    return("Hello")
+
 
 @app.route("/admin/add_jam")
 def add_jam():
@@ -75,9 +87,34 @@ def add_workshop_to_jam():
     if request.method == 'POST' and form.validate():
 
         print("Thanks for adding")
-    return render_template('admin/add_workshop_to_jam_form.html', form=form, workshop_slots=database.get_time_slots_to_select(34595287436))
+    return render_template('admin/add_workshop_to_jam_form.html', form=form, workshop_slots=database.get_time_slots_to_select(34595287436, 0))
+
 
 @app.route("/workshops")
 def display_workshops():
-    return render_template("workshops.html", workshop_slots=database.get_time_slots_to_select(34595287436))
+    if database.verify_attendee_id(request.cookies.get('jam_order_id')):
+        workshop_attendees = get_attendees_in_order(request.cookies.get("jam_order_id"))
+        attendees = []
+        if workshop_attendees:
+            for attendee in workshop_attendees:
+                attendees.append({"name":"{} {} - {}".format(attendee.first_name, attendee.surname, attendee.ticket_type), "id":attendee.attendee_id})
+            return render_template("workshops.html", workshop_slots=database.get_time_slots_to_select(34595287436, request.cookies.get('jam_order_id')), jam_attendees=attendees)
+        return render_template("workshops.html", workshop_slots=database.get_time_slots_to_select(34595287436, request.cookies.get('jam_order_id')))
+    else:
+        return redirect("/")
 
+
+@app.route("/clear_tokens")
+def clear_tokens():
+    resp = make_response(redirect("/"))
+    resp.set_cookie('jam_order_id', "", expires=0)
+    resp.set_cookie('jam_login', "", expires=0)
+    resp.set_cookie('jam_month', "", expires=0)
+    return resp
+
+@app.route("/show_tokens")
+def show_tokens():
+    order_id = request.cookies.get('jam_order_id')
+    jam_login = request.cookies.get('jam_login')
+    return("<p> Order ID - {} </p>"
+           "<p> Jam Login ID - {} </p>".format(order_id, jam_login))

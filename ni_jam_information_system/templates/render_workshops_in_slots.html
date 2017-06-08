@@ -4,15 +4,19 @@
    <h2>{{workshop_slot.title}}</h2>
     <table class="table table-hover">
         <tr>
-            <th>Workshop title</th>
-            <th>Workshop room</th>
-            <th>Workshop description</th>
+            <th width=20%>Workshop title</th>
+            <th width=15%>Workshop room</th>
+            <th width=35%>Workshop description</th>
+            <th width=10%> Workshop capacity</th>
+            <th width=10%> Booked in</th>
         </tr>
         {% for workshop in workshop_slot.workshops %}
         <tr>
             <td>{{workshop.workshop_title}}</td>
             <td>{{workshop.workshop_room}}</td>
             <td>{{workshop.workshop_description}}</td>
+            <td>{{workshop.workshop_limit}}</td>
+            <td>{{workshop.attendee_names}}</td>
         </tr>
         {% endfor %}
     </table>
