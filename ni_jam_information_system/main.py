@@ -1,8 +1,7 @@
 from flask import Flask, render_template, request, make_response, redirect
 
 app = Flask(__name__)
-app.debug = True
-#app.run(host='0.0.0.0')
+#app.run(host='0.0.0.0', port=5000)
 from datetime import datetime, timedelta
 from ni_jam_information_system.logins import *
 import ni_jam_information_system.database as database
@@ -19,7 +18,7 @@ def check_permission():
     permission_granted, user = check_allowed(db_session, request)
     print(request.url_root)
     if not permission_granted:
-        return("Not allowed")
+        return("")
     else:
         request.logged_in_user = user
 
@@ -118,3 +117,10 @@ def show_tokens():
     jam_login = request.cookies.get('jam_login')
     return("<p> Order ID - {} </p>"
            "<p> Jam Login ID - {} </p>".format(order_id, jam_login))
+
+@app.route("/background_process", methods=['GET', 'POST'])
+def background_test():
+    workshop_id = request.form['workshop_id']
+    attendee_id = request.form['attendee_id']
+    if database.add_attendee_to_workshop(34595287436, attendee_id, workshop_id):
+        return("")

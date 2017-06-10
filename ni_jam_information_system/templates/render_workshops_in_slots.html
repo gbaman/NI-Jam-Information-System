@@ -1,14 +1,38 @@
    <div class="workshop_table">
        {% for workshop_slot in workshop_slots %}
 
+<script type=text/javascript>
+function addWorkshopBooking(workshop_id) {
+    $.ajax({
+        type: "POST",
+        url: "/background_process",
+        data: {
+            workshop_id: workshop_id,
+            attendee_id: $(".form-control").val()
+        },
+        success: function (result) {
+            alert('Workshop booked');
+            window.location.reload();
+        },
+        error: function (result) {
+            alert('Error booking workshop. This may be because you are already booked into a workshop for that block, or tried booking a parent/guardian ticket into the workshop.');
+            window.location.reload();
+        }
+    });
+}
+		</script>
+
+
+
    <h2>{{workshop_slot.title}}</h2>
     <table class="table table-hover">
         <tr>
             <th width=20%>Workshop title</th>
             <th width=15%>Workshop room</th>
-            <th width=35%>Workshop description</th>
-            <th width=10%> Workshop capacity</th>
-            <th width=10%> Booked in</th>
+            <th width=30%>Workshop description</th>
+            <th width=10%>Workshop capacity</th>
+            <th width=10%>Booked in</th>
+            <th width=5%></th>
         </tr>
         {% for workshop in workshop_slot.workshops %}
         <tr>
@@ -17,8 +41,12 @@
             <td>{{workshop.workshop_description}}</td>
             <td>{{workshop.workshop_limit}}</td>
             <td>{{workshop.attendee_names}}</td>
+            <td><button id="book_button" data-id="{{workshop.workshop_id}}" onclick = "addWorkshopBooking({{workshop.workshop_id}})" value="val_1" name="but1">Book</button></td>
         </tr>
         {% endfor %}
     </table>
    {% endfor %}
+
+       <form>
+			</form>
    </div>

@@ -142,8 +142,12 @@ def get_time_slots_to_select(jam_id, user_id):
         for name in get_attendees_in_workshop(workshop.RaspberryJamWorkshop.workshop_run_id):
             if str(name.order_id) == user_id:
                 names = "{} {}, ".format(names, name.first_name.capitalize())
-        new_workshop = {"workshop_room":workshop.WorkshopRoom.room_name, "workshop_title":workshop.Workshop.workshop_title, "workshop_description":workshop.Workshop.workshop_description,
-                        "workshop_limit":"{} / {}".format(len(get_attendees_in_workshop(workshop.RaspberryJamWorkshop.workshop_run_id)), max_attendees), "attendee_names":names}
+        new_workshop = {"workshop_room":workshop.WorkshopRoom.room_name,
+                        "workshop_title":workshop.Workshop.workshop_title,
+                        "workshop_description":workshop.Workshop.workshop_description,
+                        "workshop_limit":"{} / {}".format(len(get_attendees_in_workshop(workshop.RaspberryJamWorkshop.workshop_run_id)), max_attendees),
+                        "attendee_names":names,
+                        "workshop_id":workshop.RaspberryJamWorkshop.workshop_run_id}
 
         workshop_slots[workshop.WorkshopSlot.slot_id - 1]["workshops"].append(new_workshop)
 
@@ -167,3 +171,42 @@ def get_attendees_in_workshop(workshop_run_id):
     for a in attendees:
         return_attendees.append(a.Attendee)
     return return_attendees
+
+def get_if_workshop_has_space(jam_id, workshop_run_id):
+    workshop = db_session.query(RaspberryJamWorkshop, RaspberryJam, WorkshopSlot, Workshop, WorkshopRoom).filter(
+        RaspberryJamWorkshop.jam_id == jam_id,
+        RaspberryJamWorkshop.workshop_room_id == WorkshopRoom.room_id,
+        RaspberryJamWorkshop.slot_id == WorkshopSlot.slot_id,
+        RaspberryJamWorkshop.jam_id == RaspberryJam.jam_id,
+        RaspberryJamWorkshop.workshop_id == Workshop.workshop_id,
+        RaspberryJamWorkshop.workshop_run_id == workshop_run_id).first()
+
+    if int(workshop.WorkshopRoom.room_capacity) < int(workshop.Workshop.workshop_limit):
+        max_attendees = workshop.WorkshopRoom.room_capacity
+    else:
+        max_attendees = workshop.Workshop.workshop_limit
+
+    if len(get_attendees_in_workshop(workshop_run_id)) < max_attendees:
+        return True
+    return False
+
+def get_if_attendee_booked_in_slot_for_workshop(attendee_id, workshop_run_id):
+    slot_id = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.workshop_run_id == workshop_run_id).first().slot_id
+
+    workshops_attendee_in_slot = db_session.query(RaspberryJamWorkshop, WorkshopAttendee).filter(RaspberryJamWorkshop.workshop_run_id == WorkshopAttendee.workshop_run_id,
+                                                                    WorkshopAttendee.attendee_id == attendee_id,
+                                                                    RaspberryJamWorkshop.slot_id == slot_id).all()
+    if workshops_attendee_in_slot:
+        return True
+    return False
+
+
+def add_attendee_to_workshop(jam_id, attendee_id, workshop_run_id):
+    attendee = db_session.query(Attendee).filter(Attendee.attendee_id == attendee_id).first()
+    if get_if_workshop_has_space(jam_id, workshop_run_id) and not str(attendee.ticket_type).startswith("Parent") and not get_if_attendee_booked_in_slot_for_workshop(attendee_id, workshop_run_id):
+        workshop_attendee = WorkshopAttendee(attendee_id=attendee_id, workshop_run_id=workshop_run_id)
+        db_session.add(workshop_attendee)
+        db_session.commit()
+        return True
+    else:
+        return False
