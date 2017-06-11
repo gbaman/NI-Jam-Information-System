@@ -1,5 +1,5 @@
-from ni_jam_information_system.models import LoginUser
-from ni_jam_information_system.database import *
+from models import LoginUser
+from database import *
 
 def validate_login(username, password):
     return True

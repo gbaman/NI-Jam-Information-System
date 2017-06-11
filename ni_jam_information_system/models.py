@@ -2,7 +2,7 @@ from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, Big
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
-from ni_jam_information_system.secret.config import db_user, db_pass, db_name
+from secret.config import db_user, db_pass, db_name
 
 
 engine = create_engine('mysql+pymysql://{}:{}@localhost/{}'.format(db_user, db_pass, db_name))

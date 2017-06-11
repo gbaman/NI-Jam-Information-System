@@ -1,5 +1,5 @@
 from wtforms import Form, BooleanField, StringField, PasswordField, IntegerField, TextAreaField, RadioField, SelectField, validators
-from ni_jam_information_system.database import get_volunteers_to_select, get_workshops_to_select
+from database import get_volunteers_to_select, get_workshops_to_select
 
 
 class CreateWorkshopForm(Form):

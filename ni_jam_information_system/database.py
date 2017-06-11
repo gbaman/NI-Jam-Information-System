@@ -1,5 +1,5 @@
-from ni_jam_information_system.models import *
-from ni_jam_information_system.eventbrite_interactions import get_eventbrite_attendees_for_event
+from models import *
+from eventbrite_interactions import get_eventbrite_attendees_for_event
 import datetime
 
 
@@ -7,7 +7,7 @@ def init_db():
     # import all modules here that might define models so that
     # they will be registered properly on the metadata.  Otherwise
     # you will have to import them first before calling init_db()
-    import ni_jam_information_system.models
+    import models
     Base.metadata.create_all(bind=engine)
 
 
@@ -124,7 +124,7 @@ def get_workshops_to_select():
         to_return.append((workshop.workshop_id, workshop.workshop_title))
     return to_return
 
-def get_time_slots_to_select(jam_id, user_id):
+def get_time_slots_to_select(jam_id, user_id, admin_mode = False):
     workshop_slots = []
     for workshop_slot in db_session.query(WorkshopSlot):
         workshop_slots.append({"title":str("{} - {}".format(workshop_slot.slot_time_start, workshop_slot.slot_time_end)), "workshops":[]})
@@ -140,7 +140,7 @@ def get_time_slots_to_select(jam_id, user_id):
             max_attendees = workshop.Workshop.workshop_limit
         names = ""
         for name in get_attendees_in_workshop(workshop.RaspberryJamWorkshop.workshop_run_id):
-            if str(name.order_id) == user_id:
+            if str(name.order_id) == user_id or admin_mode:
                 names = "{} {}, ".format(names, name.first_name.capitalize())
         new_workshop = {"workshop_room":workshop.WorkshopRoom.room_name,
                         "workshop_title":workshop.Workshop.workshop_title,

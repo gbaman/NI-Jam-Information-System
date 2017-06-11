@@ -1,12 +1,12 @@
 from flask import Flask, render_template, request, make_response, redirect
 
 app = Flask(__name__)
-#app.run(host='0.0.0.0', port=5000)
+#app.run(host='0.0.0.0', port=80)
 from datetime import datetime, timedelta
-from ni_jam_information_system.logins import *
-import ni_jam_information_system.database as database
-import ni_jam_information_system.forms as forms
-import ni_jam_information_system.eventbrite_interactions as eventbrite
+from logins import *
+import database as database
+import forms as forms
+import eventbrite_interactions as eventbrite
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
@@ -86,7 +86,7 @@ def add_workshop_to_jam():
     if request.method == 'POST' and form.validate():
 
         print("Thanks for adding")
-    return render_template('admin/add_workshop_to_jam_form.html', form=form, workshop_slots=database.get_time_slots_to_select(34595287436, 0))
+    return render_template('admin/add_workshop_to_jam_form.html', form=form, workshop_slots=database.get_time_slots_to_select(34595287436, 0, True))
 
 
 @app.route("/workshops")
