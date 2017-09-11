@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, make_response, redirect
+from flask_login import login_manager, login_required, login_user, logout_user
 
 app = Flask(__name__)
 #app.run(host='0.0.0.0', port=80)
@@ -7,6 +8,11 @@ from logins import *
 import database as database
 import forms as forms
 import eventbrite_interactions as eventbrite
+
+
+current_jam_id = 34595287436
+
+
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
@@ -18,19 +24,19 @@ def check_permission():
     permission_granted, user = check_allowed(db_session, request)
     print(request.url_root)
     if not permission_granted:
-        return("")
+        return("You don't have permission to access this page.")
     else:
         request.logged_in_user = user
 
 @app.route("/test")
 def test():
-    database.get_attendees_in_workshop(5)
+    create_new_user()
 
 
 @app.route("/admin/import_attendees_from_eventbrite")
 def import_from_eventbrite():
     print("Importing...")
-    update_attendees_from_eventbrite(34595287436)
+    update_attendees_from_eventbrite(current_jam_id)
     return("Import finished.")
 
 @app.route('/', methods=['POST', 'GET'])
@@ -43,12 +49,17 @@ def index():
         if database.verify_attendee_id(form.order_id.data):
             resp = make_response(redirect("workshops"))
             resp.set_cookie('jam_order_id', str(form.order_id.data), expires=(datetime.datetime.now() + timedelta(hours=6)))
-            resp.set_cookie('jam_id', "34595287436")
+            resp.set_cookie('jam_id', str(current_jam_id))
             return resp
         else:
             return render_template('index.html', form=form, status="Error, no order with that ID found. Please try again")
     return render_template('index.html', form=form)
 
+
+@app.route("/admin/admin_home")
+def admin_home():
+    print("Admin home")
+    return render_template("admin/admin_home.html")
 
 
 @app.route("/admin/add_jam")
@@ -61,9 +72,17 @@ def add_jam_id(eventbrite_id):
     database.add_jam(eventbrite_id, eventbrite_jam["name"]["text"], eventbrite_jam["start"]["local"].replace("T", " "))
     return redirect("/admin/add_jam", code=302)
 
-@app.route("/login")
+@app.route("/login", methods=['POST', 'GET'])
 def login():
-    return(render_template("login.html"))
+    form = forms.LoginForm(request.form)
+    if request.method == 'POST' and form.validate():
+        if validate_login(form.username.data, form.password.data):
+            resp = make_response(redirect(('admin/admin_home')))
+            resp.set_cookie("jam_login", "12345")
+            return resp
+        print("Failed to login!")
+    return(render_template("login.html", form=form))
+
 
 @app.route("/check_login", methods=['POST', 'GET'])
 def check_login():
@@ -83,10 +102,23 @@ def add_workshop_to_catalog():
 @app.route('/admin/add_workshop_to_jam', methods=['GET', 'POST'])
 def add_workshop_to_jam():
     form = forms.add_workshop_to_jam(request.form)
-    if request.method == 'POST' and form.validate():
-
+    if request.method == 'POST':# and form.validate():
+        add_workshop_to_jam_from_catalog(current_jam_id, form.workshop.data, form.volunteer.data, form.slot.data, form.room.data)
+        print("{}  {}   {}".format(form.slot.data, form.workshop.data, form.volunteer.data))
         print("Thanks for adding")
-    return render_template('admin/add_workshop_to_jam_form.html', form=form, workshop_slots=database.get_time_slots_to_select(34595287436, 0, True))
+    return render_template('admin/add_workshop_to_jam_form.html', form=form, workshop_slots=database.get_time_slots_to_select(current_jam_id, 0, True))
+
+
+@app.route('/admin/workshops', methods=['GET', 'POST'])
+def admin_workshops():
+    return render_template('admin/admin_workshops.html')
+
+
+@app.route("/admin/modify_users", methods=['GET', 'POST'])
+def modify_users():
+    database.get_users()
+    render_template()
+    # This section is for modifying users, needs wired up with SQL
 
 
 @app.route("/workshops")
@@ -97,8 +129,8 @@ def display_workshops():
         if workshop_attendees:
             for attendee in workshop_attendees:
                 attendees.append({"name":"{} {} - {}".format(attendee.first_name, attendee.surname, attendee.ticket_type), "id":attendee.attendee_id})
-            return render_template("workshops.html", workshop_slots=database.get_time_slots_to_select(34595287436, request.cookies.get('jam_order_id')), jam_attendees=attendees)
-        return render_template("workshops.html", workshop_slots=database.get_time_slots_to_select(34595287436, request.cookies.get('jam_order_id')))
+            return render_template("workshops.html", workshop_slots=database.get_time_slots_to_select(current_jam_id, request.cookies.get('jam_order_id')), jam_attendees=attendees)
+        return render_template("workshops.html", workshop_slots=database.get_time_slots_to_select(current_jam_id, request.cookies.get('jam_order_id')))
     else:
         return redirect("/")
 
@@ -118,9 +150,28 @@ def show_tokens():
     return("<p> Order ID - {} </p>"
            "<p> Jam Login ID - {} </p>".format(order_id, jam_login))
 
-@app.route("/background_process", methods=['GET', 'POST'])
+
+
+
+
+
+
+
+
+
+
+
+@app.route("/add_workshop_bookings_ajax", methods=['GET', 'POST'])
+def add_workshop_bookings_ajax():
+    workshop_id = request.form['workshop_id']
+    attendee_id = request.form['attendee_id']
+    if database.add_attendee_to_workshop(current_jam_id, attendee_id, workshop_id):
+        return("")
+
+
+@app.route("/admin_modify_workshop_ajax", methods=['GET', 'POST'])
 def background_test():
     workshop_id = request.form['workshop_id']
     attendee_id = request.form['attendee_id']
-    if database.add_attendee_to_workshop(34595287436, attendee_id, workshop_id):
-        return("")
+    if database.add_attendee_to_workshop(current_jam_id, attendee_id, workshop_id):
+        return ("")

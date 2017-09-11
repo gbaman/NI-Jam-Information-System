@@ -1,5 +1,5 @@
 from eventbrite import Eventbrite
-from secret.config import eventbrite_key
+from secrets.config import eventbrite_key
 
 eventbrite = Eventbrite(eventbrite_key)
 

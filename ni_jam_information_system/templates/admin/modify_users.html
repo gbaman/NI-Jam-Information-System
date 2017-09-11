@@ -1,0 +1,38 @@
+{%include 'admin/admin_header.html'%}
+
+<h2>Users</h2>
+
+<div class="user_table">
+    <table class="table table-hover">
+        <tr>
+            <th width=20%>Username</th>
+            <th width=15%>Email address</th>
+            <th width=30%>Change password</th>
+            <th width=10%>Remove</th>
+            <th width=5%></th>
+        </tr>
+        {% for user in users %}
+        <tr>
+            <td>{{user.username}}</td>
+            <td>{{user.email}}</td>
+            <td>
+                <button id="change_password_button" data-id="{{user.user_id}}"
+                        onclick="addWorkshopBooking({{user.user_id}})" value="val_1" name="but1">Change password
+                </button></td>
+            <td></td>
+            <td>
+                <button id="remove_user_button" data-id="{{user.user_id}}"
+                        onclick="addWorkshopBooking({{user.user_id}})" value="val_2" name="but2">Remove
+                </button>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endfor %}
+
+    <form>
+    </form>
+</div>
+
+
+{%include 'footer.html'%}

@@ -8,7 +8,7 @@
             <th width=15%>Workshop room</th>
             <th width=30%>Workshop description</th>
             <th width=10%>Workshop capacity</th>
-            <th width=10%>Booked in</th>
+            <th width=10%>Run by</th>
             <th width=5%></th>
         </tr>
         {% for workshop in workshop_slot.workshops %}
@@ -18,11 +18,7 @@
             <td>{{workshop.workshop_description}}</td>
             <td>{{workshop.workshop_limit}}</td>
             <td>{{workshop.attendee_names}}</td>
-            <td>
-                <button id="book_button" data-id="{{workshop.workshop_id}}"
-                        onclick="addWorkshopBooking({{workshop.workshop_id}})" value="val_1" name="but1">Book
-                </button>
-            </td>
+            <td>{{workshop.volunteer}}</td>
         </tr>
         {% endfor %}
     </table>

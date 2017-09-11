@@ -1,5 +1,5 @@
 from wtforms import Form, BooleanField, StringField, PasswordField, IntegerField, TextAreaField, RadioField, SelectField, validators
-from database import get_volunteers_to_select, get_workshops_to_select
+from database import get_volunteers_to_select, get_workshops_to_select, get_individual_time_slots_to_select, get_workshop_rooms
 
 
 class CreateWorkshopForm(Form):
@@ -12,8 +12,16 @@ class CreateWorkshopForm(Form):
 class add_workshop_to_jam(Form):
     workshop = SelectField("Workshop", choices=get_workshops_to_select())
     volunteer = SelectField("Coordinator", choices=get_volunteers_to_select())
-    #slot = SelectField("Time slot", choices=)
+    slot = SelectField("Time slot", choices=get_individual_time_slots_to_select())
+    room = SelectField("Room", choices=get_workshop_rooms())
 
 
 class get_order_ID_form(Form):
     order_id = IntegerField("Order ID", [validators.DataRequired()])
+
+
+class LoginForm(Form):
+    username = StringField("Username", [validators.Email(), validators.DataRequired()])
+    password = PasswordField("Password", [validators.DataRequired()])
+
+    # Added ready to add to Login form itself on page.

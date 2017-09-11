@@ -2,7 +2,7 @@ from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, Big
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
-from secret.config import db_user, db_pass, db_name
+from secrets.config import db_user, db_pass, db_name
 
 
 engine = create_engine('mysql+pymysql://{}:{}@localhost/{}'.format(db_user, db_pass, db_name))
@@ -97,7 +97,7 @@ class RaspberryJam(Base):
 class RaspberryJamWorkshop(Base):
     __tablename__ = 'raspberry_jam_workshop'
 
-    workshop_run_id = Column(Integer, primary_key=True, nullable=False, unique=True)
+    workshop_run_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
     jam_id = Column(ForeignKey('raspberry_jam.jam_id'), primary_key=True, nullable=False, index=True)
     workshop_id = Column(ForeignKey('workshop.workshop_id'), primary_key=True, nullable=False, index=True)
     workshop_room_id = Column(ForeignKey('workshop_room.room_id'), primary_key=True, nullable=False, index=True)
@@ -161,8 +161,20 @@ class WorkshopSlot(Base):
     slot_time_end = Column(Time, nullable=False)
 
 
-t_workshop_volunteers = Table(
-    'workshop_volunteers', metadata,
-    Column('user_id', ForeignKey('login_users.user_id'), primary_key=True, nullable=False, index=True),
-    Column('workshop_run_id', ForeignKey('raspberry_jam_workshop.workshop_run_id'), primary_key=True, nullable=False, index=True)
-)
+class WorkshopVolunteer(Base):
+    __tablename__ = 'workshop_volunteers'
+    user_id = Column(ForeignKey('login_users.user_id'), primary_key=True, nullable=False, index=True)
+    workshop_run_id = Column('workshop_run_id', ForeignKey('raspberry_jam_workshop.workshop_run_id'), primary_key=True, nullable=False, index=True)
+
+    jam_workshop = relationship("RaspberryJamWorkshop")
+    users = relationship("LoginUser")
+
+
+    # TODO : Needs more relationships added, manually added. Plus bit below needs removed.
+
+
+#t_workshop_volunteers = Table(
+#    'workshop_volunteers', metadata,
+#    Column('user_id', ForeignKey('login_users.user_id'), primary_key=True, nullable=False, index=True),
+#    Column('workshop_run_id', ForeignKey('raspberry_jam_workshop.workshop_run_id'), primary_key=True, nullable=False, index=True)
+#)

@@ -5,9 +5,11 @@
   <dl>
     {{ render_field(form.workshop) }}
     {{ render_field(form.volunteer) }}
+    {{ render_field(form.slot) }}
+      {{ render_field(form.room) }}
   </dl>
   <p><input type=submit value="Add workshop to Jam">
 </form>
-{%include 'render_workshops_in_slots.html'%}
+{%include 'admin/admin_render_workshops_in_slots.html'%}
 
 {%include 'footer.html'%}
