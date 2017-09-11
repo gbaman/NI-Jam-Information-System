@@ -34,4 +34,24 @@ function admin_modify_workshop(workshop_id) {
             window.location.reload();
         }
     });
+
+
+}
+
+function deleteJamWorkshop(workshop_id) {
+    $.ajax({
+        type: "POST",
+        url: "/delete_workshop_from_jam_ajax",
+        data: {
+            workshop_id: workshop_id
+        },
+        success: function (result) {
+            alert('Workshop deleted');
+            window.location.reload();
+        },
+        error: function (result) {
+            alert('Error deleting workshop.');
+            window.location.reload();
+        }
+    });
 }

@@ -21,7 +21,7 @@ def shutdown_session(exception=None):
 
 @app.before_request
 def check_permission():
-    permission_granted, user = check_allowed(db_session, request)
+    permission_granted, user = check_allowed(request)
     print(request.url_root)
     if not permission_granted:
         return("You don't have permission to access this page.")
@@ -78,17 +78,17 @@ def login():
     if request.method == 'POST' and form.validate():
         if validate_login(form.username.data, form.password.data):
             resp = make_response(redirect(('admin/admin_home')))
-            resp.set_cookie("jam_login", "12345")
+            resp.set_cookie("jam_login", get_cookie_for_username(form.username.data))
             return resp
         print("Failed to login!")
     return(render_template("login.html", form=form))
 
 
-@app.route("/check_login", methods=['POST', 'GET'])
-def check_login():
-    resp = make_response("Added")
-    resp.set_cookie("jam_login", "12345")
-    return resp
+#@app.route("/check_login", methods=['POST', 'GET'])
+#def check_login():
+#    resp = make_response("Added")
+#    resp.set_cookie("jam_login", "12345")
+#    return resp
 
 @app.route('/admin/add_workshop_to_catalog', methods=['GET', 'POST'])
 def add_workshop_to_catalog():
@@ -106,6 +106,7 @@ def add_workshop_to_jam():
         add_workshop_to_jam_from_catalog(current_jam_id, form.workshop.data, form.volunteer.data, form.slot.data, form.room.data)
         print("{}  {}   {}".format(form.slot.data, form.workshop.data, form.volunteer.data))
         print("Thanks for adding")
+        return redirect("/admin/add_workshop_to_jam", code=302)
     return render_template('admin/add_workshop_to_jam_form.html', form=form, workshop_slots=database.get_time_slots_to_select(current_jam_id, 0, True))
 
 
@@ -151,16 +152,6 @@ def show_tokens():
            "<p> Jam Login ID - {} </p>".format(order_id, jam_login))
 
 
-
-
-
-
-
-
-
-
-
-
 @app.route("/add_workshop_bookings_ajax", methods=['GET', 'POST'])
 def add_workshop_bookings_ajax():
     workshop_id = request.form['workshop_id']
@@ -175,3 +166,9 @@ def background_test():
     attendee_id = request.form['attendee_id']
     if database.add_attendee_to_workshop(current_jam_id, attendee_id, workshop_id):
         return ("")
+
+@app.route("/delete_workshop_from_jam_ajax", methods=['GET', 'POST'])
+def delete_workshop_from_jam_ajax():
+    workshop_id = request.form['workshop_id']
+    database.remove_workshop_from_jam(workshop_id)
+    return redirect("/admin/add_workshop_to_jam", code=302)

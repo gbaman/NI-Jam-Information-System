@@ -1,3 +1,6 @@
+import random
+import string
+
 from models import *
 from eventbrite_interactions import get_eventbrite_attendees_for_event
 import datetime
@@ -21,19 +24,20 @@ def convert_to_python_datetime(datetime_to_convert: str) -> datetime.datetime:
     return datetime.datetime.strptime(datetime_to_convert, f)
 
 
-def get_logged_in_group_from_cookie(db_session, cookie: str) -> LoginUser:
+def get_logged_in_user_object_from_cookie(cookie: str) -> LoginUser:
     found_cookie = db_session.query(LoginCookie).filter(LoginCookie.cookie_value == cookie).first()
     print(found_cookie)
     if found_cookie:
-        print("Cookie correct!")
-        return db_session.query(LoginUser).filter(LoginUser.login_cookie_id == found_cookie.cookie_id).first()
+        cookie = db_session.query(LoginUser).filter(LoginUser.login_cookie_id == found_cookie.cookie_id).first()
+        #print("Cookie correct! - {}".format(cookie.cookie_id) )
+        return cookie
 
 def get_group_id_required_for_page(page_url):
     page = db_session.query(PagePermission).filter(PagePermission.page_name == page_url).first()
     if page:
         return page.group_required
     else:
-        return 0
+        return 1
 
 def add_jam(eventbrite_id, jam_name, date):
     jam = RaspberryJam(jam_id=eventbrite_id, name=jam_name, date=date)
@@ -259,6 +263,7 @@ def create_user(username, password_hash, password_salt, first_name, surname, ):
 
 
 def add_workshop_to_jam_from_catalog(jam_id, workshop_id, volunteer_id, slot_id, room_id):
+    # TODO : Add a whole pile of checks here including if the volunteer is double booked, room is double booked etc.
     workshop = RaspberryJamWorkshop()
     workshop.jam_id = jam_id
     workshop.workshop_id = workshop_id
@@ -276,4 +281,22 @@ def add_workshop_to_jam_from_catalog(jam_id, workshop_id, volunteer_id, slot_id,
     db_session.commit()
 
 
+def remove_workshop_from_jam(workshop_run_id):
+    print("Going to delete {}".format(workshop_run_id))
+    volunteer = db_session.query(WorkshopVolunteer).filter(WorkshopVolunteer.workshop_run_id == workshop_run_id).first()
+    db_session.delete(volunteer)
+    workshop = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.workshop_run_id == workshop_run_id).first()
+    db_session.delete(workshop)
+    db_session.commit()
 
+
+def update_cookie_for_user(user_id):
+    new_cookie = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))
+    current_cookie = db_session.query(LoginUser, LoginCookie).filter(LoginUser.user_id == user_id, LoginUser.login_cookie_id == LoginCookie.cookie_id).one()
+    current_cookie.LoginCookie.cookie_value = new_cookie
+    db_session.commit()
+
+
+def get_cookie_for_username(username):
+    user = db_session.query(LoginUser, LoginCookie).filter(LoginUser.login_cookie_id == LoginCookie.cookie_id, LoginUser.username == username).first()
+    return user.LoginCookie.cookie_value
