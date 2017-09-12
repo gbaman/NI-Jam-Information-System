@@ -10,7 +10,7 @@ import forms as forms
 import eventbrite_interactions as eventbrite
 
 
-current_jam_id = 34595287436
+current_jam_id = 35329063179
 
 
 
@@ -96,7 +96,7 @@ def add_workshop_to_catalog():
     if request.method == 'POST' and form.validate():
         database.add_workshop(form.workshop_title.data, form.workshop_description.data, form.workshop_limit.data, form.workshop_level.data)
         print("Thanks for adding")
-        return redirect(('admin/add_workshop'))
+        return redirect(('admin/add_workshop_to_catalog'))
     return render_template('admin/new_workshop_form.html', form=form)
 
 @app.route('/admin/add_workshop_to_jam', methods=['GET', 'POST'])

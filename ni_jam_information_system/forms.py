@@ -15,13 +15,18 @@ class add_workshop_to_jam(Form):
     slot = SelectField("Time slot", choices=get_individual_time_slots_to_select())
     room = SelectField("Room", choices=get_workshop_rooms())
 
+    def __init__(self, *args, **kwargs):
+        super(add_workshop_to_jam, self).__init__(*args, **kwargs)
+        self.workshop.choices = get_workshops_to_select()
+        self.volunteer.choices = get_volunteers_to_select()
+
 
 class get_order_ID_form(Form):
     order_id = IntegerField("Order ID", [validators.DataRequired()])
 
 
 class LoginForm(Form):
-    username = StringField("Username", [validators.Email(), validators.DataRequired()])
+    username = StringField("Username", [validators.DataRequired()])
     password = PasswordField("Password", [validators.DataRequired()])
 
     # Added ready to add to Login form itself on page.

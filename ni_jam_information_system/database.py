@@ -209,7 +209,7 @@ def get_if_workshop_has_space(jam_id, workshop_run_id):
     else:
         max_attendees = workshop.Workshop.workshop_limit
 
-    if len(get_attendees_in_workshop(workshop_run_id)) < max_attendees:
+    if len(get_attendees_in_workshop(workshop_run_id)) < int(max_attendees):
         return True
     return False
 
