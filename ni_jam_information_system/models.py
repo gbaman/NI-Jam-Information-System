@@ -29,6 +29,7 @@ class Attendee(Base):
     school = Column(String(45))
     order_id = Column(BigInteger)
     ticket_type = Column(String(45))
+    jam_id = Column(BigInteger)
 
 
 class Group(Base):

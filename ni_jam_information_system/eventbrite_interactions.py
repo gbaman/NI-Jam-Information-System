@@ -1,7 +1,46 @@
 from eventbrite import Eventbrite
 from secrets.config import eventbrite_key
 
-eventbrite = Eventbrite(eventbrite_key)
+class MyEventbrite(Eventbrite):
+    # From https://github.com/eventbrite/eventbrite-sdk-python/issues/18
+    # For getting all attendees
+    def get_event_attendees(self, event_id, status=None,
+                            changed_since=None, page=1):
+        """
+        Returns a paginated response with a key of attendees, containing a
+        list of attendee.
+
+        GET /events/:id/attendees/
+        """
+        data = {}
+        if status:  # TODO - check the types of valid status
+            data['status'] = status
+        if changed_since:
+            data['changed_since'] = changed_since
+        data['page'] = page
+        return self.get("/events/{0}/attendees/".format(event_id), data=data)
+
+    def get_all_event_attendees(self, event_id, status=None,
+                                changed_since=None):
+        """
+        Returns a full list of attendees.
+
+        TODO: figure out how to use the 'continuation' field properly
+        """
+        page = 1
+        attendees = []
+        while True:
+            r = self.get_event_attendees(event_id, status,
+                                         changed_since, page=page)
+            attendees.extend(r['attendees'])
+            if r['pagination']['page_count'] <= page:
+                break
+            page += 1
+        return {"attendees": attendees}
+
+
+
+eventbrite = MyEventbrite(eventbrite_key)
 
 
 def eventbrite_test():
@@ -22,6 +61,4 @@ def get_eventbrite_events_name_id():
 
 
 def get_eventbrite_attendees_for_event(event_id):
-    #eventbrite.get_event_attendee(id)
-    a = eventbrite.get_event_attendees(event_id)
-    return eventbrite.get_event_attendees(event_id)
+    return eventbrite.get_all_event_attendees(event_id)

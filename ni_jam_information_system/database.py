@@ -95,10 +95,7 @@ def update_attendees_from_eventbrite(event_id):
         new_attendee.school = school,
         new_attendee.order_id = attendee["order_id"],
         new_attendee.ticket_type = attendee["ticket_class_name"]
-
-        if attendee["order_id"] == 788232605:
-            print()
-
+        new_attendee.jam_id = int(event_id)
 
         if not found_attendee:
             db_session.add(new_attendee)
@@ -184,11 +181,13 @@ def verify_attendee_id(id):
     return False
 
 
-def get_attendees_in_workshop(workshop_run_id):
+def get_attendees_in_workshop(workshop_run_id, raw_result=False):
     attendees = db_session.query(RaspberryJamWorkshop, WorkshopAttendee, Workshop, Attendee).filter(RaspberryJamWorkshop.workshop_id == Workshop.workshop_id,
                                                                                                     RaspberryJamWorkshop.workshop_run_id == WorkshopAttendee.workshop_run_id,
                                                                                                     Attendee.attendee_id == WorkshopAttendee.attendee_id,
                                                                                                     RaspberryJamWorkshop.workshop_run_id == workshop_run_id).all()
+    if raw_result:
+        return attendees
     return_attendees = []
     for a in attendees:
         return_attendees.append(a.Attendee)
@@ -287,6 +286,10 @@ def remove_workshop_from_jam(workshop_run_id):
     db_session.delete(volunteer)
     workshop = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.workshop_run_id == workshop_run_id).first()
     db_session.delete(workshop)
+
+    for attendee in get_attendees_in_workshop(workshop_run_id, raw_result=True):
+        db_session.delete(attendee.WorkshopAttendee)
+
     db_session.commit()
 
 
@@ -300,3 +303,15 @@ def update_cookie_for_user(user_id):
 def get_cookie_for_username(username):
     user = db_session.query(LoginUser, LoginCookie).filter(LoginUser.login_cookie_id == LoginCookie.cookie_id, LoginUser.username == username).first()
     return user.LoginCookie.cookie_value
+
+def get_all_attendees_for_jam(jam_id):
+    attendees = db_session.query(Attendee).filter(Attendee.jam_id == jam_id )
+    return_attendees = []
+    for jam_attendee in attendees:
+        return_attendees.append({
+            "first_name":jam_attendee.first_name,
+            "surname": jam_attendee.surname,
+            "order_id": jam_attendee.order_id
+        })
+    return return_attendees
+# TODO : Investigate why jam_attendance isn't being used currently, as need the jam id from it

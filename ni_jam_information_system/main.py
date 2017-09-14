@@ -107,7 +107,7 @@ def add_workshop_to_jam():
         print("{}  {}   {}".format(form.slot.data, form.workshop.data, form.volunteer.data))
         print("Thanks for adding")
         return redirect("/admin/add_workshop_to_jam", code=302)
-    return render_template('admin/add_workshop_to_jam_form.html', form=form, workshop_slots=database.get_time_slots_to_select(current_jam_id, 0, True))
+    return render_template('admin/add_workshop_to_jam_form.html', form=form, workshop_slots=database.get_time_slots_to_select(current_jam_id, 0, admin_mode=True))
 
 
 @app.route('/admin/workshops', methods=['GET', 'POST'])
@@ -120,6 +120,11 @@ def modify_users():
     database.get_users()
     render_template()
     # This section is for modifying users, needs wired up with SQL
+
+@app.route("/admin/attendee_list")
+def attendee_list():
+    jam_attendees = database.get_all_attendees_for_jam(current_jam_id)
+    return render_template("admin/attendee_list.html", attendees=jam_attendees)
 
 
 @app.route("/workshops")
