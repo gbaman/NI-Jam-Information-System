@@ -75,6 +75,11 @@ def update_attendees_from_eventbrite(event_id):
 
         found_attendee = db_session.query(Attendee).filter(Attendee.attendee_id == attendee["id"]).first()
 
+        if attendee["refunded"] == True:
+            if found_attendee:
+                db_session.delete(found_attendee)
+            continue
+
         try:
             school = attendee["answers"][2]["answer"]
         except KeyError:
@@ -315,3 +320,9 @@ def get_all_attendees_for_jam(jam_id):
         })
     return return_attendees
 # TODO : Investigate why jam_attendance isn't being used currently, as need the jam id from it
+
+
+def database_reset():
+    db_session.query(WorkshopAttendee).delete()
+    db_session.query(Attendee).delete()
+    db_session.commit()

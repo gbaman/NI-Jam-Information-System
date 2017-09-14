@@ -156,6 +156,10 @@ def show_tokens():
     return("<p> Order ID - {} </p>"
            "<p> Jam Login ID - {} </p>".format(order_id, jam_login))
 
+#@app.route("/clear_db")
+#def clear_db():
+#    database_reset()
+#    return("Reset complete")
 
 @app.route("/add_workshop_bookings_ajax", methods=['GET', 'POST'])
 def add_workshop_bookings_ajax():
