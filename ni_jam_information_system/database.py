@@ -239,6 +239,15 @@ def add_attendee_to_workshop(jam_id, attendee_id, workshop_run_id):
         return False
 
 
+def remove_attendee_to_workshop(jam_id, attendee_id, workshop_run_id):
+    booking = db_session.query(WorkshopAttendee).filter(WorkshopAttendee.attendee_id == attendee_id and WorkshopAttendee.workshop_run_id == workshop_run_id).first()
+    if booking:
+        db_session.delete(booking)
+        db_session.commit()
+        return True
+    return False
+
+
 def get_users():
     users = db_session.query(LoginUser).all()
     for user in users:

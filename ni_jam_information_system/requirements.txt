@@ -3,3 +3,4 @@ flask_mysql
 flask_bcrypt
 eventbrite
 SQLAlchemy
+wtforms

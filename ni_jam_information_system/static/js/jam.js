@@ -17,6 +17,27 @@ function addWorkshopBooking(workshop_id) {
     });
 }
 
+
+function removeWorkshopBooking(workshop_id) {
+    $.ajax({
+        type: "POST",
+        url: "/remove_workshop_bookings_ajax",
+        data: {
+            workshop_id: workshop_id,
+            attendee_id: $(".form-control").val()
+        },
+        success: function (result) {
+            alert('Workshop unbooked');
+            window.location.reload();
+        },
+        error: function (result) {
+            alert('Error removing booking from workshop. Are you sure you were booked onto it?');
+            window.location.reload();
+        }
+    });
+}
+
+
 function admin_modify_workshop(workshop_id) {
     $.ajax({
         type: "POST",

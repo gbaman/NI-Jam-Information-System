@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, make_response, redirect
-from flask_login import login_manager, login_required, login_user, logout_user
 
 app = Flask(__name__)
 #app.run(host='0.0.0.0', port=80)
@@ -10,7 +9,7 @@ import forms as forms
 import eventbrite_interactions as eventbrite
 
 
-current_jam_id = 35329063179
+current_jam_id = 38896532576
 
 
 
@@ -169,6 +168,14 @@ def add_workshop_bookings_ajax():
         return("")
 
 
+@app.route("/remove_workshop_bookings_ajax", methods=['GET', 'POST'])
+def remove_workshop_bookings_ajax():
+    workshop_id = request.form['workshop_id']
+    attendee_id = request.form['attendee_id']
+    if database.remove_attendee_to_workshop(current_jam_id, attendee_id, workshop_id):
+        return("")
+
+
 @app.route("/admin_modify_workshop_ajax", methods=['GET', 'POST'])
 def background_test():
     workshop_id = request.form['workshop_id']
@@ -181,3 +188,10 @@ def delete_workshop_from_jam_ajax():
     workshop_id = request.form['workshop_id']
     database.remove_workshop_from_jam(workshop_id)
     return redirect("/admin/add_workshop_to_jam", code=302)
+
+
+
+
+
+if __name__ == '__main__':
+    app.run()

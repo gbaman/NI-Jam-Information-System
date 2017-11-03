@@ -1,7 +1,5 @@
-from models import LoginUser
 from database import *
 import flask_bcrypt
-import secret
 
 def validate_login(username, password):
     print("Attempting to validate login for {}".format(username))
@@ -33,6 +31,6 @@ def create_new_user():
     password = input("Password: ")
     first_name = input("First Name:")
     surname = input("Surname: ")
-    salt = "helloworld"
+    salt = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))
     bcrypt_password = flask_bcrypt.generate_password_hash(password+salt)
     create_user(username, bcrypt_password, salt, first_name, surname)

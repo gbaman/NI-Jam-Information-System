@@ -22,6 +22,9 @@
                 <button id="book_button" data-id="{{workshop.workshop_id}}"
                         onclick="addWorkshopBooking({{workshop.workshop_id}})" value="val_1" name="but1">Book
                 </button>
+                <button id="unbook_button" data-id="{{workshop.workshop_id}}"
+                        onclick="removeWorkshopBooking({{workshop.workshop_id}})" value="val_1" name="but1">Unbook
+                </button>
             </td>
         </tr>
         {% endfor %}

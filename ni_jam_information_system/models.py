@@ -5,7 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from secrets.config import db_user, db_pass, db_name
 
 
-engine = create_engine('mysql+pymysql://{}:{}@localhost/{}'.format(db_user, db_pass, db_name))
+engine = create_engine('mysql+pymysql://{}:{}@localhost/{}?charset=utf8'.format(db_user, db_pass, db_name))
 db_session = scoped_session(sessionmaker(autocommit=False,
                                          autoflush=False,
                                          bind=engine))
