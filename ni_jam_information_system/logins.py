@@ -5,6 +5,7 @@ def validate_login(username, password):
     print("Attempting to validate login for {}".format(username))
     user = get_user_details_from_username(username)
     if user:
+        # TODO : Getting invalid salt errors for Sam account...
         if flask_bcrypt.check_password_hash(user.password_hash, password + user.password_salt):
             update_cookie_for_user(user.user_id)
             return True
@@ -17,6 +18,9 @@ def check_allowed(request):
     login_user = get_logged_in_user_object_from_cookie(request.cookies.get('jam_login'))
     if not login_user:
         selected_user_group_level = 1
+        order_id = request.cookies.get('jam_order_id')
+        if order_id and verify_attendee_id(order_id):
+            selected_user_group_level = 2
     else:
         selected_user_group_level = login_user.group_id
     group_required = get_group_id_required_for_page(request.path)

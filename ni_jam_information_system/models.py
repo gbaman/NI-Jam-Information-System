@@ -2,10 +2,10 @@ from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, Big
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
-from secrets.config import db_user, db_pass, db_name
+from secrets.config import db_user, db_pass, db_name, db_host
 
 
-engine = create_engine('mysql+pymysql://{}:{}@localhost/{}?charset=utf8'.format(db_user, db_pass, db_name))
+engine = create_engine('mysql+pymysql://{}:{}@{}/{}?charset=utf8'.format(db_user, db_pass, db_host, db_name))
 db_session = scoped_session(sessionmaker(autocommit=False,
                                          autoflush=False,
                                          bind=engine))

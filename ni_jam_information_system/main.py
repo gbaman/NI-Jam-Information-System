@@ -10,6 +10,8 @@ import eventbrite_interactions as eventbrite
 
 
 current_jam_id = 38896532576
+day_password = "hello"
+access_code = "secret-code"
 
 
 
@@ -45,13 +47,13 @@ def index():
         return redirect("workshops")
     form = forms.get_order_ID_form(request.form)
     if request.method == 'POST' and form.validate():
-        if database.verify_attendee_id(form.order_id.data):
+        if database.verify_attendee_id(form.order_id.data) and form.day_password.data == day_password:
             resp = make_response(redirect("workshops"))
             resp.set_cookie('jam_order_id', str(form.order_id.data), expires=(datetime.datetime.now() + timedelta(hours=6)))
             resp.set_cookie('jam_id', str(current_jam_id))
             return resp
         else:
-            return render_template('index.html', form=form, status="Error, no order with that ID found. Please try again")
+            return render_template('index.html', form=form, status="Error, no order with that ID found or Jam password is wrong. Please try again")
     return render_template('index.html', form=form)
 
 
@@ -83,6 +85,19 @@ def login():
     return(render_template("login.html", form=form))
 
 
+@app.route("/register", methods=['POST', 'GET'])
+def register():
+    form = forms.RegisterUserForm(request.form)
+    if request.method == 'POST' and form.validate():
+        if form.access_code.data == access_code and not get_user_details_from_username(form.username.data):
+            salt = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))
+            bcrypt_password = flask_bcrypt.generate_password_hash(form.password.data + salt)
+            database.create_user(form.username.data, bcrypt_password, salt, form.first_name.data, form.surname.data)
+            return "New user account created!"
+        return "Error, unable to create user account. User may already exist or access code may be incorrect"
+    return(render_template("register.html", form=form))
+
+
 #@app.route("/check_login", methods=['POST', 'GET'])
 #def check_login():
 #    resp = make_response("Added")
@@ -97,6 +112,7 @@ def add_workshop_to_catalog():
         print("Thanks for adding")
         return redirect(('admin/add_workshop_to_catalog'))
     return render_template('admin/new_workshop_form.html', form=form)
+
 
 @app.route('/admin/add_workshop_to_jam', methods=['GET', 'POST'])
 def add_workshop_to_jam():

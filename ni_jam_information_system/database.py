@@ -33,11 +33,13 @@ def get_logged_in_user_object_from_cookie(cookie: str) -> LoginUser:
         return cookie
 
 def get_group_id_required_for_page(page_url):
+    if page_url.startswith("/static") or page_url.startswith("/template"):
+        return 1
     page = db_session.query(PagePermission).filter(PagePermission.page_name == page_url).first()
     if page:
         return page.group_required
     else:
-        return 1
+        return 4
 
 def add_jam(eventbrite_id, jam_name, date):
     jam = RaspberryJam(jam_id=eventbrite_id, name=jam_name, date=date)
@@ -174,6 +176,10 @@ def get_time_slots_to_select(jam_id, user_id, admin_mode = False):
                         "volunteer": workshop.LoginUser.first_name}
 
         workshop_slots[workshop.WorkshopSlot.slot_id - 1]["workshops"].append(new_workshop)
+
+    for workshop_slot_index, workshop_final_slot in enumerate(workshop_slots):
+        workshop_slots[workshop_slot_index]["workshops"] = sorted(workshop_final_slot["workshops"], key=lambda x: x["workshop_room"], reverse=False)
+
 
     return workshop_slots
 
@@ -319,7 +325,7 @@ def get_cookie_for_username(username):
     return user.LoginCookie.cookie_value
 
 def get_all_attendees_for_jam(jam_id):
-    attendees = db_session.query(Attendee).filter(Attendee.jam_id == jam_id )
+    attendees = db_session.query(Attendee).filter(Attendee.jam_id == jam_id).order_by(Attendee.surname, Attendee.first_name)
     return_attendees = []
     for jam_attendee in attendees:
         return_attendees.append({

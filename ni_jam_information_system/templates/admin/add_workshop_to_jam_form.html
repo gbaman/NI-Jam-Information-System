@@ -1,6 +1,8 @@
 {%include 'admin/admin_header.html'%}
 
 {% from "_formhelpers.html" import render_field %}
+<h2>Workshop scheduling</h2>
+<p>Use the following section to add workshops from the Jam catalog to the upcoming Jam.</p>
 <form method=post>
   <dl>
     {{ render_field(form.workshop) }}
