@@ -9,8 +9,8 @@ import forms as forms
 import eventbrite_interactions as eventbrite
 
 
-current_jam_id = 38896532576
-day_password = "hello"
+current_jam_id = 39796296795
+day_password = "santa"
 access_code = "secret-code"
 
 
@@ -31,7 +31,7 @@ def check_permission():
 
 @app.route("/test")
 def test():
-    create_new_user()
+    pass
 
 
 @app.route("/admin/import_attendees_from_eventbrite")
@@ -205,7 +205,10 @@ def delete_workshop_from_jam_ajax():
     database.remove_workshop_from_jam(workshop_id)
     return redirect("/admin/add_workshop_to_jam", code=302)
 
-
+@app.route("/admin/volunteer")
+def volunteer():
+    time_slots, workshop_rooms_in_use = database.get_volunteer_data(current_jam_id)
+    return render_template("admin/volunteer_signup.html", time_slots = time_slots, workshop_rooms_in_use = workshop_rooms_in_use)
 
 
 

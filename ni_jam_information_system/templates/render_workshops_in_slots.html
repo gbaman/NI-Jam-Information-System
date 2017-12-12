@@ -1,7 +1,12 @@
 <div class="workshop_table">
     {% for workshop_slot in workshop_slots %}
 
-    <h2>{{workshop_slot.title}}</h2>
+    {% if workshop_slot.slot_description %}
+        <h2>{{workshop_slot.slot_description}} - {{workshop_slot.title}}</h2>
+    {% else %}
+        <h2>{{workshop_slot.title}}</h2>
+    {% endif %}
+
     <table class="table table-hover">
         <tr>
             <th width=20%>Workshop title</th>
@@ -13,7 +18,7 @@
         </tr>
         {% for workshop in workshop_slot.workshops %}
         <tr>
-            <td>{{workshop.workshop_title}}</td>
+            <td>{% if workshop.pilot %} <i class="fas fa-flask"></i> {% endif %} {{workshop.workshop_title}} {% if workshop.pilot %} <i class="fas fa-flask"></i> {% endif %} </td>
             <td>{{workshop.workshop_room}}</td>
             <td>{{workshop.workshop_description}}</td>
             <td>{{workshop.workshop_limit}}</td>
@@ -23,7 +28,7 @@
                         onclick="addWorkshopBooking({{workshop.workshop_id}})" value="val_1" name="but1">Book
                 </button>
                 <button id="unbook_button" data-id="{{workshop.workshop_id}}"
-                        onclick="removeWorkshopBooking({{workshop.workshop_id}})" value="val_1" name="but1">Unbook
+                        onclick="removeWorkshopBooking({{workshop.workshop_id}})" value="val_2" name="but2">Unbook
                 </button>
             </td>
         </tr>

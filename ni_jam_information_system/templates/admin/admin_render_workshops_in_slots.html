@@ -14,7 +14,7 @@
         </tr>
         {% for workshop in workshop_slot.workshops %}
         <tr>
-            <td>{{workshop.workshop_title}}</td>
+            <td>{% if workshop.pilot %} <i class="fas fa-flask"></i> {% endif %} {{workshop.workshop_title}} {% if workshop.pilot %} <i class="fas fa-flask"></i> {% endif %} </td>
             <td>{{workshop.workshop_room}}</td>
             <td>{{workshop.workshop_description}}</td>
             <td>{{workshop.workshop_limit}}</td>

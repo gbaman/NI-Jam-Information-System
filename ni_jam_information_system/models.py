@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, BigInteger, Time
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, BigInteger, Time, Boolean
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -104,6 +104,7 @@ class RaspberryJamWorkshop(Base):
     workshop_room_id = Column(ForeignKey('workshop_room.room_id'), primary_key=True, nullable=False, index=True)
     workshop_time_slot = Column(String(45))
     slot_id = Column(ForeignKey('workshop_slots.slot_id'), primary_key=True, nullable=False, index=True)
+    pilot = Column(Boolean)
 
     jam = relationship('RaspberryJam')
     slot = relationship('WorkshopSlot')
@@ -160,6 +161,7 @@ class WorkshopSlot(Base):
     slot_id = Column(Integer, primary_key=True)
     slot_time_start = Column(Time, nullable=False)
     slot_time_end = Column(Time, nullable=False)
+    #slot_description = Column(String(45))
 
 
 class WorkshopVolunteer(Base):
