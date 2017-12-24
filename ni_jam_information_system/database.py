@@ -6,6 +6,13 @@ from eventbrite_interactions import get_eventbrite_attendees_for_event
 import datetime
 from copy import deepcopy
 
+red = "#fc9f9f"
+orange = "#fcbd00"
+yellow = "#fff60a"
+green = "#c4fc9f"
+grey = "#969696"
+blue = "#00bbff"
+
 
 def init_db():
     # import all modules here that might define models so that
@@ -65,7 +72,7 @@ def add_workshop(workshop_title, workshop_description, workshop_limit, workshop_
     db_session.commit()
 
 
-def get_workshops_for_jam(jam_id):
+def get_workshops_for_jam_old(jam_id):
     workshops = []
     for workshop in db_session.query(RaspberryJam, RaspberryJamWorkshop, Workshop).filter(RaspberryJam.jam_id == jam_id, RaspberryJamWorkshop.workshop_id == Workshop.workshop_id):
         workshops.append({"workshop_title":workshop.Workshop.workshop_title, "workshop_description":workshop.Workshop.workshop_description, "workshop_level":workshop.Workshop.workshop_level, "workshop_time":workshop.RaspberryJamWorkshop.workshop_time_slot})
@@ -150,40 +157,38 @@ def get_workshop_rooms():
 
 def get_time_slots_to_select(jam_id, user_id, admin_mode = False):
     workshop_slots = []
-    for workshop_slot in db_session.query(WorkshopSlot):
+    for workshop_slot in db_session.query(WorkshopSlot).filter():
         workshop_slots.append({"title":str("{} - {}".format(workshop_slot.slot_time_start, workshop_slot.slot_time_end)), "workshops":[]})
-    workshops = db_session.query(RaspberryJamWorkshop, RaspberryJam, WorkshopSlot, Workshop, WorkshopRoom, WorkshopVolunteer, LoginUser).filter(RaspberryJamWorkshop.jam_id == jam_id,
-                                                                                                                           RaspberryJamWorkshop.workshop_room_id == WorkshopRoom.room_id,
-                                                                                                                           RaspberryJamWorkshop.slot_id == WorkshopSlot.slot_id,
-                                                                                                                           RaspberryJamWorkshop.jam_id == RaspberryJam.jam_id,
-                                                                                                                           RaspberryJamWorkshop.workshop_id == Workshop.workshop_id,
-                                                                                                                           RaspberryJamWorkshop.workshop_run_id == WorkshopVolunteer.workshop_run_id,
-                                                                                                                           WorkshopVolunteer.user_id == LoginUser.user_id)
+
+    workshops = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.jam_id == jam_id).all()
+
+
     for workshop in workshops:
-        if int(workshop.WorkshopRoom.room_capacity) < int(workshop.Workshop.workshop_limit):
-            max_attendees = workshop.WorkshopRoom.room_capacity
+        if int(workshop.workshop_room.room_capacity) < int(workshop.workshop.workshop_limit):
+            max_attendees = workshop.workshop_room.room_capacity
         else:
-            max_attendees = workshop.Workshop.workshop_limit
+            max_attendees = workshop.workshop.workshop_limit
         names = ""
-        for name in get_attendees_in_workshop(workshop.RaspberryJamWorkshop.workshop_run_id):
+        for name in get_attendees_in_workshop(workshop.workshop_run_id):
             if str(name.order_id) == user_id or admin_mode:
                 names = "{} {}, ".format(names, name.first_name.capitalize())
-        new_workshop = {"workshop_room":workshop.WorkshopRoom.room_name,
-                        "workshop_title":workshop.Workshop.workshop_title,
-                        "workshop_description":workshop.Workshop.workshop_description,
-                        "workshop_limit":"{} / {}".format(len(get_attendees_in_workshop(workshop.RaspberryJamWorkshop.workshop_run_id)), max_attendees),
+        new_workshop = {"workshop_room":workshop.workshop_room.room_name,
+                        "workshop_title":workshop.workshop.workshop_title,
+                        "workshop_description":workshop.workshop.workshop_description,
+                        "workshop_limit":"{} / {}".format(len(get_attendees_in_workshop(workshop.workshop_run_id)), max_attendees),
                         "attendee_names":names,
-                        "workshop_id":workshop.RaspberryJamWorkshop.workshop_run_id,
-                        "volunteer": workshop.LoginUser.first_name,
-                        "pilot": workshop.RaspberryJamWorkshop.pilot}
+                        "workshop_id":workshop.workshop_run_id,
+                        #"volunteer": workshop.LoginUser.first_name,
+                        "pilot": workshop.pilot}
 
 
-        workshop_slots[workshop.WorkshopSlot.slot_id - 1]["workshops"].append(new_workshop)
+        workshop_slots[workshop.slot.slot_id]["workshops"].append(new_workshop)
 
     for workshop_slot_index, workshop_final_slot in enumerate(workshop_slots):
         workshop_slots[workshop_slot_index]["workshops"] = sorted(workshop_final_slot["workshops"], key=lambda x: x["workshop_room"], reverse=False)
 
-
+    if not admin_mode:
+        workshop_slots = workshop_slots[1:]
     return workshop_slots
 
 
@@ -293,22 +298,20 @@ def add_workshop_to_jam_from_catalog(jam_id, workshop_id, volunteer_id, slot_id,
     workshop.workshop_room_id = room_id
     workshop.pilot = False
 
+    if workshop.users:
+        workshop.users.append(db_session.query(LoginUser).filter(LoginUser.user_id == volunteer_id).first())
+    else:
+        workshop.users = [db_session.query(LoginUser).filter(LoginUser.user_id == volunteer_id).first(),]
     db_session.add(workshop)
     db_session.flush()
-
-    workshop_volunteer = WorkshopVolunteer()
-    workshop_volunteer.user_id = volunteer_id
-    workshop_volunteer.workshop_run_id = workshop.workshop_run_id
-
-    db_session.add(workshop_volunteer)
     db_session.commit()
 
 
 def remove_workshop_from_jam(workshop_run_id):
     print("Going to delete {}".format(workshop_run_id))
-    volunteer = db_session.query(WorkshopVolunteer).filter(WorkshopVolunteer.workshop_run_id == workshop_run_id).first()
-    db_session.delete(volunteer)
     workshop = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.workshop_run_id == workshop_run_id).first()
+    workshop.users = []
+    db_session.commit()
     db_session.delete(workshop)
 
     for attendee in get_attendees_in_workshop(workshop_run_id, raw_result=True):
@@ -347,23 +350,26 @@ def database_reset():
     db_session.commit()
 
 
-def get_volunteer_data(jam_id):
-
-    class VolunteerWorkshop:
-        title = ""
-        description = ""
-
-    class VolunteerWorkshopRoom:
-        room_name = ""
-
-
-
+def get_volunteer_data(jam_id, current_user):
     time_slots = db_session.query(WorkshopSlot).all()
 
-    workshop_data = db_session.query(RaspberryJamWorkshop, WorkshopVolunteer).filter(RaspberryJamWorkshop.workshop_run_id == WorkshopVolunteer.workshop_run_id,
-                                                                                     RaspberryJamWorkshop.jam_id == jam_id
-                                                                                     )
-    a = workshop_data.filter(RaspberryJamWorkshop.slot_id == 1).all()
+    #workshop_data = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.workshop_run_id == WorkshopVolunteer.workshop_run_id,
+    #                                                                                 RaspberryJamWorkshop.jam_id == jam_id,
+    #                                                                                 ).all()
+
+    u = db_session.query(LoginUser).all()
+
+    workshop_data = db_session.query(RaspberryJamWorkshop).filter(
+                                                                                     RaspberryJamWorkshop.jam_id == jam_id,
+                                                                                     ).all()
+
+
+    #d = workshop_data = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.workshop_run_id == WorkshopVolunteer.workshop_run_id,
+    #                                                                                 RaspberryJamWorkshop.jam_id == jam_id,
+    #                                                                                 WorkshopVolunteer
+    #                                                                                 ).all()
+
+    #a = workshop_data.filter(RaspberryJamWorkshop.slot_id == 1).all()
 
     workshop_rooms_in_use = db_session.query(WorkshopRoom).filter(RaspberryJamWorkshop.workshop_room_id == WorkshopRoom.room_id,
                                                                                         RaspberryJamWorkshop.jam_id == jam_id
@@ -374,11 +380,28 @@ def get_volunteer_data(jam_id):
         for workshop_room in workshop_rooms_in_use:
             room = deepcopy(workshop_room)
             room.workshop = RaspberryJamWorkshop()
+            room.workshop.dummy = True
             time_slot.rooms.append(room)
         for workshop in workshop_data:
             for room in time_slot.rooms:
-                if room.room_id == workshop.RaspberryJamWorkshop.workshop_room_id and time_slot.slot_id == workshop.RaspberryJamWorkshop.slot_id:
-                    room.workshop = workshop.RaspberryJamWorkshop
+                if room.room_id == workshop.workshop_room_id and time_slot.slot_id == workshop.slot_id:
+                    room.workshop = workshop
+                    if not room.workshop.workshop_room:
+                        room.workshop.bg_colour = grey
+                    elif len(room.workshop.users) >= room.workshop.workshop_room.room_volunteers_needed:
+                        room.workshop.bg_colour = green
+                    elif len(room.workshop.users) >= room.workshop.workshop_room.room_volunteers_needed / 2:
+                        room.workshop.bg_colour = yellow
+                    elif len(room.workshop.users) == 0:
+                        room.workshop.bg_colour = red
+                    else:
+                        room.workshop.bg_colour = orange
+
+                    if room.workshop in current_user.workshop_runs:
+                        room.workshop.signed_up = True
+                        room.workshop.bg_colour = blue
+                    else:
+                        room.workshop.signed_up = False
 
 
     workshops = []
@@ -398,3 +421,15 @@ def get_volunteer_data(jam_id):
 
 
     return time_slots, workshop_rooms_in_use
+
+
+def set_user_workshop_runs_from_ids(user, workshop_run_ids):
+    sessions_block_ids = []
+    workshops = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.workshop_run_id.in_(workshop_run_ids)).all()
+    for workshop in workshops: # Verify that the bookings being made don't collide with other bookings by same user for same slot.
+        if workshop.slot_id in sessions_block_ids:
+            return False
+        sessions_block_ids.append(workshop.slot_id)
+    user.workshop_runs = workshops
+    db_session.commit()
+    return True

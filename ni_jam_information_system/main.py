@@ -207,9 +207,21 @@ def delete_workshop_from_jam_ajax():
 
 @app.route("/admin/volunteer")
 def volunteer():
-    time_slots, workshop_rooms_in_use = database.get_volunteer_data(current_jam_id)
-    return render_template("admin/volunteer_signup.html", time_slots = time_slots, workshop_rooms_in_use = workshop_rooms_in_use)
+    time_slots, workshop_rooms_in_use = database.get_volunteer_data(current_jam_id, request.logged_in_user)
+    return render_template("admin/volunteer_signup.html", time_slots = time_slots, workshop_rooms_in_use = workshop_rooms_in_use, current_selected = ",".join(str(x.workshop_run_id) for x in request.logged_in_user.workshop_runs) +",")
 
+    # TODO : Finish off adding the custom rooms/"workshops" for front desk, parking etc
+
+@app.route("/admin/volunteer_update", methods=['GET', 'POST'])
+def update_volunteer():
+    new_sessions = request.json
+    sessions = []
+    for session in new_sessions:
+        if len(session) > 0:
+            sessions.append(int(session))
+    print(sessions)
+    if database.set_user_workshop_runs_from_ids(request.logged_in_user, sessions):
+        return "True"
 
 
 if __name__ == '__main__':

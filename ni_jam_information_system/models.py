@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, BigInteger, Time, Boolean
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, BigInteger, Time, Boolean, text
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -14,11 +14,10 @@ Base = declarative_base()
 Base.query = db_session.query_property()
 metadata = Base.metadata
 
-
 class Attendee(Base):
     __tablename__ = 'attendees'
 
-    attendee_id = Column(Integer, primary_key=True, unique=True)
+    attendee_id = Column(Integer, primary_key=True, nullable=False, unique=True)
     first_name = Column(String(45), nullable=False)
     surname = Column(String(45), nullable=False)
     age = Column(Integer)
@@ -29,7 +28,9 @@ class Attendee(Base):
     school = Column(String(45))
     order_id = Column(BigInteger)
     ticket_type = Column(String(45))
-    jam_id = Column(BigInteger)
+    jam_id = Column(ForeignKey('raspberry_jam.jam_id'), primary_key=True, nullable=False, index=True)
+
+    jam = relationship('RaspberryJam')
 
 
 class Group(Base):
@@ -42,12 +43,9 @@ class Group(Base):
 class JamAttendance(Base):
     __tablename__ = 'jam_attendance'
 
-    attendee_id = Column(ForeignKey('attendees.attendee_id'), primary_key=True, nullable=False, index=True)
-    jam_id = Column(ForeignKey('raspberry_jam.jam_id'), primary_key=True, nullable=False, index=True)
+    attendee_id = Column(Integer, primary_key=True, nullable=False)
+    jam_id = Column(BigInteger, primary_key=True, nullable=False)
     checked_in = Column(Integer)
-
-    attendee = relationship('Attendee')
-    jam = relationship('RaspberryJam')
 
 
 class LoginCookie(Base):
@@ -63,7 +61,7 @@ class LoginUser(Base):
 
     user_id = Column(Integer, primary_key=True, nullable=False, unique=True)
     username = Column(String(45), nullable=False, unique=True)
-    password_hash = Column(String(45), nullable=False)
+    password_hash = Column(String(100), nullable=False)
     password_salt = Column(String(45), nullable=False)
     first_name = Column(String(45), nullable=False)
     surname = Column(String(45), nullable=False)
@@ -90,7 +88,7 @@ class RaspberryJam(Base):
     __tablename__ = 'raspberry_jam'
 
     jam_id = Column(BigInteger, primary_key=True)
-    name = Column(String(45), nullable=False)
+    name = Column(String(70), nullable=False)
     date = Column(DateTime, nullable=False)
     food_after = Column(Integer)
 
@@ -104,12 +102,13 @@ class RaspberryJamWorkshop(Base):
     workshop_room_id = Column(ForeignKey('workshop_room.room_id'), primary_key=True, nullable=False, index=True)
     workshop_time_slot = Column(String(45))
     slot_id = Column(ForeignKey('workshop_slots.slot_id'), primary_key=True, nullable=False, index=True)
-    pilot = Column(Boolean)
+    pilot = Column(Integer, nullable=False, server_default=text("'0'"))
 
     jam = relationship('RaspberryJam')
     slot = relationship('WorkshopSlot')
     workshop = relationship('Workshop')
     workshop_room = relationship('WorkshopRoom')
+    users = relationship('LoginUser', secondary='workshop_volunteers')
 
 
 class VolunteerAttendance(Base):
@@ -132,8 +131,9 @@ class Workshop(Base):
     workshop_id = Column(Integer, primary_key=True)
     workshop_title = Column(String(45), nullable=False)
     workshop_limit = Column(Integer, nullable=False)
-    workshop_description = Column(String(200))
+    workshop_description = Column(String(500))
     workshop_level = Column(String(45))
+    workshop_hidden = Column(Integer)
 
 
 class WorkshopAttendee(Base):
@@ -153,6 +153,7 @@ class WorkshopRoom(Base):
     room_id = Column(Integer, primary_key=True, unique=True)
     room_name = Column(String(45))
     room_capacity = Column(String(45))
+    room_volunteers_needed = Column(Integer)
 
 
 class WorkshopSlot(Base):
@@ -161,23 +162,10 @@ class WorkshopSlot(Base):
     slot_id = Column(Integer, primary_key=True)
     slot_time_start = Column(Time, nullable=False)
     slot_time_end = Column(Time, nullable=False)
-    #slot_description = Column(String(45))
 
 
-class WorkshopVolunteer(Base):
-    __tablename__ = 'workshop_volunteers'
-    user_id = Column(ForeignKey('login_users.user_id'), primary_key=True, nullable=False, index=True)
-    workshop_run_id = Column('workshop_run_id', ForeignKey('raspberry_jam_workshop.workshop_run_id'), primary_key=True, nullable=False, index=True)
-
-    jam_workshop = relationship("RaspberryJamWorkshop")
-    users = relationship("LoginUser")
-
-
-    # TODO : Needs more relationships added, manually added. Plus bit below needs removed.
-
-
-#t_workshop_volunteers = Table(
-#    'workshop_volunteers', metadata,
-#    Column('user_id', ForeignKey('login_users.user_id'), primary_key=True, nullable=False, index=True),
-#    Column('workshop_run_id', ForeignKey('raspberry_jam_workshop.workshop_run_id'), primary_key=True, nullable=False, index=True)
-#)
+t_workshop_volunteers = Table(
+    'workshop_volunteers', metadata,
+    Column('user_id', ForeignKey('login_users.user_id'), primary_key=True, nullable=False, index=True),
+    Column('workshop_run_id', ForeignKey('raspberry_jam_workshop.workshop_run_id'), primary_key=True, nullable=False, index=True)
+)

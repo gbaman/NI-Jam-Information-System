@@ -1,37 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Mozfest YouthZone Schedule</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="/static/css/mozfest.css">
-    <script src="/static/js/signup.js"></script>
+{%include 'admin/admin_header.html'%}
 
+<script src="/static/js/volunteer.js"></script>
 
-</head>
-<body>
 <h1>Volunteer signup</h1>
 <p>Select sessions you would like to volunteer with by simply clicking on them. Once you have made any changes, make sure to hit the save button!</p>
 
 <button type="button" class="btn btn-primary" id="submit_button" >Save</button>
-<h3> Logged in as {{ name }}.</h3>
+<br>
 
-<table>
+<table class="volunteer_key">
     <tr>
         <th>Key</th>
     </tr>
     <tr>
-        <td bgcolor="#fc9f9f" style="width: 10%;">No volunteers currently signed up.</td>
-        <td bgcolor="#fcbd00">One volunteer, more needed.</td>
-        <td bgcolor="#fff60a">Still 1 spot left</td>
-        <td bgcolor="#c4fc9f">All volunteer spots gone.</td>
+        <td bgcolor="#fc9f9f">No volunteers currently signed up.</td>
+        <td bgcolor="#fcbd00">Under half the volunteer numbers required</td>
+        <td bgcolor="#fff60a">Over half the volunteer numbers required</td>
+        <td bgcolor="#c4fc9f">Required number of volunteers</td>
         <td bgcolor="#00bbff">Your current selected volunteer slots</td>
     </tr>
-    <tr>
-        <td><br><br></td>
-    </tr>
+</table>
+
+<br><br>
+
+<table class="volunteer_table">
     <tr>
         <th></th>
     {% for workshop_room in workshop_rooms_in_use %}
@@ -43,10 +35,10 @@
         <tr>
         <th>{{time_slot.slot_time_start}} - {{time_slot.slot_time_end}}</th>
         {% for room in time_slot.rooms %}
-            {% if room.workshop.room_name %}
-                <td>{{room.workshop.workshop.workshop_title}}</td>
+            {% if room.workshop.dummy %}
+                <td bgcolor="#d3d3d3">None</td>
             {% else %}
-            <td>{{room.workshop.workshop.workshop_title}}</td>
+            <td id="{{ room.workshop.workshop_run_id }}" bgcolor={{room.workshop.bg_colour}} class="clickable">{{room.workshop.workshop.workshop_title}} -  {{room.workshop.users|length}}/{{room.workshop.workshop_room.room_volunteers_needed}}</td>
             {% endif %}
         {% endfor %}
         </tr>
@@ -54,7 +46,6 @@
 
 </table>
 <br>
-<div id="user_id" data-userid="{{ user_id }}"></div>
 <div id="current_selected" data-current-selected="{{ current_selected }}"></div>
-</body>
-</html>
+
+{%include 'footer.html'%}
