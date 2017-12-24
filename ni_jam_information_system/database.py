@@ -176,13 +176,19 @@ def get_time_slots_to_select(jam_id, user_id, admin_mode=False):
         for name in get_attendees_in_workshop(workshop.workshop_run_id):
             if str(name.order_id) == user_id or admin_mode:
                 names = "{} {}, ".format(names, name.first_name.capitalize())
+
+        if workshop.users and len(workshop.users) > 0:
+            volunteer = workshop.users[0].first_name
+        else:
+            volunteer = "None"
+
         new_workshop = {"workshop_room":workshop.workshop_room.room_name,
                         "workshop_title":workshop.workshop.workshop_title,
                         "workshop_description":workshop.workshop.workshop_description,
                         "workshop_limit":"{} / {}".format(len(get_attendees_in_workshop(workshop.workshop_run_id)), max_attendees),
                         "attendee_names":names,
                         "workshop_id":workshop.workshop_run_id,
-                        #"volunteer": workshop.LoginUser.first_name,
+                        "volunteer": volunteer,
                         "pilot": workshop.pilot}
 
 
@@ -301,11 +307,13 @@ def add_workshop_to_jam_from_catalog(jam_id, workshop_id, volunteer_id, slot_id,
     workshop.slot_id = slot_id
     workshop.workshop_room_id = room_id
     workshop.pilot = False
-
-    if workshop.users:
-        workshop.users.append(db_session.query(LoginUser).filter(LoginUser.user_id == volunteer_id).first())
+    if int(volunteer_id) >= 0: # If the None user has been selected, then hit the else
+        if workshop.users:
+            workshop.users.append(db_session.query(LoginUser).filter(LoginUser.user_id == volunteer_id).first())
+        else:
+            workshop.users = [db_session.query(LoginUser).filter(LoginUser.user_id == volunteer_id).first(),]
     else:
-        workshop.users = [db_session.query(LoginUser).filter(LoginUser.user_id == volunteer_id).first(),]
+        workshop.users = []
     db_session.add(workshop)
     db_session.flush()
     db_session.commit()

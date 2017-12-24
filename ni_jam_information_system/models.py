@@ -133,7 +133,7 @@ class Workshop(Base):
     workshop_limit = Column(Integer, nullable=False)
     workshop_description = Column(String(500))
     workshop_level = Column(String(45))
-    workshop_hidden = Column(Integer)
+    workshop_hidden = Column(Integer, nullable=False)
 
 
 class WorkshopAttendee(Base):
@@ -153,7 +153,7 @@ class WorkshopRoom(Base):
     room_id = Column(Integer, primary_key=True, unique=True)
     room_name = Column(String(45))
     room_capacity = Column(String(45))
-    room_volunteers_needed = Column(Integer)
+    room_volunteers_needed = Column(Integer, nullable=False)
 
 
 class WorkshopSlot(Base):

@@ -14,12 +14,12 @@ class add_workshop_to_jam(Form):
     volunteer = SelectField("Coordinator", choices=get_volunteers_to_select())
     slot = SelectField("Time slot", choices=get_individual_time_slots_to_select())
     room = SelectField("Room", choices=get_workshop_rooms())
-    hidden = SelectField("Hidden", choices=[(True, "True"), (False, "False")])
+    #hidden = SelectField("Hidden", choices=[(True, "True"), (False, "False")])
 
     def __init__(self, *args, **kwargs):
         super(add_workshop_to_jam, self).__init__(*args, **kwargs)
         self.workshop.choices = get_workshops_to_select()
-        self.volunteer.choices = get_volunteers_to_select()
+        self.volunteer.choices = [(-1, "None")] + get_volunteers_to_select()
         self.room.choices = get_workshop_rooms()
 
 
