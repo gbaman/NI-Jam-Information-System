@@ -29,3 +29,8 @@ li{
     border: 1px solid black;
     padding: 10px;
 }
+
+#submit_button{
+    font-size: 24px;
+    padding: 10px;
+}

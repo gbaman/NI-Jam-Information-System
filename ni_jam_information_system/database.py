@@ -155,15 +155,19 @@ def get_workshop_rooms():
     return to_return
 
 
-def get_time_slots_to_select(jam_id, user_id, admin_mode = False):
+def get_time_slots_to_select(jam_id, user_id, admin_mode=False):
     workshop_slots = []
     for workshop_slot in db_session.query(WorkshopSlot).filter():
         workshop_slots.append({"title":str("{} - {}".format(workshop_slot.slot_time_start, workshop_slot.slot_time_end)), "workshops":[]})
 
-    workshops = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.jam_id == jam_id).all()
+    workshops = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.jam_id == jam_id)
+    if not admin_mode:
+        workshops = workshops.filter(RaspberryJamWorkshop.workshop_id == Workshop.workshop_id, Workshop.workshop_hidden != 1)
 
+    for workshop in workshops.all():
+        if workshop.workshop.workshop_hidden == 0:
+            pass
 
-    for workshop in workshops:
         if int(workshop.workshop_room.room_capacity) < int(workshop.workshop.workshop_limit):
             max_attendees = workshop.workshop_room.room_capacity
         else:
@@ -373,7 +377,7 @@ def get_volunteer_data(jam_id, current_user):
 
     workshop_rooms_in_use = db_session.query(WorkshopRoom).filter(RaspberryJamWorkshop.workshop_room_id == WorkshopRoom.room_id,
                                                                                         RaspberryJamWorkshop.jam_id == jam_id
-                                                                                        ).all()
+                                                                                        ).order_by(WorkshopRoom.room_name).all()
 
     for time_slot in time_slots:
         time_slot.rooms = []
@@ -420,7 +424,7 @@ def get_volunteer_data(jam_id, current_user):
     #    if workshop in workshops:
 
 
-    return time_slots, workshop_rooms_in_use
+    return time_slots, sorted(workshop_rooms_in_use, key=lambda x: x.room_name, reverse=False)
 
 
 def set_user_workshop_runs_from_ids(user, workshop_run_ids):
