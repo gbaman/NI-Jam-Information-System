@@ -108,7 +108,7 @@ def register():
 def add_workshop_to_catalog():
     form = forms.CreateWorkshopForm(request.form)
     if request.method == 'POST' and form.validate():
-        database.add_workshop(form.workshop_title.data, form.workshop_description.data, form.workshop_limit.data, form.workshop_level.data, form.hidden)
+        database.add_workshop(form.workshop_title.data, form.workshop_description.data, form.workshop_limit.data, form.workshop_level.data, form.hidden.data)
         print("Thanks for adding")
         return redirect(('admin/add_workshop_to_catalog'))
     return render_template('admin/new_workshop_form.html', form=form)
