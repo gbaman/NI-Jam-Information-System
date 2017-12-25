@@ -66,8 +66,13 @@ def get_jams_dict():
     return jams_list
 
 
-def add_workshop(workshop_title, workshop_description, workshop_limit, workshop_level):
-    workshop = Workshop(workshop_title = workshop_title, workshop_description = workshop_description, workshop_limit = workshop_limit, workshop_level = workshop_level)
+def add_workshop(workshop_title, workshop_description, workshop_limit, workshop_level, hidden):
+    if hidden == "True":
+        hidden = 1
+    else:
+        hidden = 0
+
+    workshop = Workshop(workshop_title = workshop_title, workshop_description = workshop_description, workshop_limit = workshop_limit, workshop_level = workshop_level, workshop_hidden = hidden)
     db_session.add(workshop)
     db_session.commit()
 

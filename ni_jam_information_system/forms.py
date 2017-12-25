@@ -7,6 +7,7 @@ class CreateWorkshopForm(Form):
     workshop_description = TextAreaField("Workshop description", [validators.DataRequired()])
     workshop_limit = IntegerField("Workshop max attendees", [validators.DataRequired()])
     workshop_level = RadioField("Workshop level", choices=[("Beginner", "Beginner"), ("Intermediate", "Intermediate"), ("Advanced", "Advanced")])
+    hidden = SelectField("Hidden", choices=[("False", "False"), ("True", "True")])
     #workshop_time = RadioField("Workshop timeslot", choices=[("13:30-14:15", "13:30-14:15"), ("14:30-15:15", "14:30-15:15"), ("16:00-16:45", "16:00-16:45")])
 
 class add_workshop_to_jam(Form):
@@ -14,7 +15,6 @@ class add_workshop_to_jam(Form):
     volunteer = SelectField("Coordinator", choices=get_volunteers_to_select())
     slot = SelectField("Time slot", choices=get_individual_time_slots_to_select())
     room = SelectField("Room", choices=get_workshop_rooms())
-    #hidden = SelectField("Hidden", choices=[(True, "True"), (False, "False")])
 
     def __init__(self, *args, **kwargs):
         super(add_workshop_to_jam, self).__init__(*args, **kwargs)
