@@ -1,3 +1,43 @@
+function selectJam(jam_id) {
+    $.ajax({
+        type: "POST",
+        url: "/admin/select_jam",
+        data: {
+            jam_id: jam_id,
+            attendee_id: $(".form-control").val()
+        },
+        success: function (result) {
+            alert('New Jam selected.');
+            window.location.reload();
+        },
+        error: function (result) {
+            alert('Error selecting Jam.');
+            window.location.reload();
+        }
+    });
+}
+
+
+function deleteJam(jam_id) {
+    $.ajax({
+        type: "POST",
+        url: "/admin/delete_jam",
+        data: {
+            jam_id: jam_id,
+            attendee_id: $(".form-control").val()
+        },
+        success: function (result) {
+            alert('Jam deleted');
+            window.location.reload();
+        },
+        error: function (result) {
+            alert('Error deleting Jam.');
+            window.location.reload();
+        }
+    });
+}
+
+
 function addWorkshopBooking(workshop_id) {
     $.ajax({
         type: "POST",

@@ -50,9 +50,33 @@ def get_group_id_required_for_page(page_url):
         return 4
 
 def add_jam(eventbrite_id, jam_name, date):
+
+
     jam = RaspberryJam(jam_id=eventbrite_id, name=jam_name, date=date)
 
     db_session.add(jam)
+    db_session.commit()
+    car_parking_workshop = db_session.query(Workshop).filter(Workshop.workshop_title == "Car Parking").first()
+    car_parking_room = db_session.query(WorkshopRoom).filter(WorkshopRoom.room_name == "Car Park").first()
+    car_parking = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=car_parking_workshop.workshop_id, workshop_room_id=car_parking_room.room_id, slot_id=0, pilot=0)
+    db_session.add(car_parking)
+
+    front_desk_workshop = db_session.query(Workshop).filter(Workshop.workshop_title == "Front desk").first()
+    front_desk_registration_room = db_session.query(WorkshopRoom).filter(WorkshopRoom.room_name == "Front Desk Registration").first()
+    front_desk_room = db_session.query(WorkshopRoom).filter(WorkshopRoom.room_name == "Front Desk General").first()
+
+    front_desk = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=front_desk_workshop.workshop_id, workshop_room_id=front_desk_registration_room.room_id, slot_id=0, pilot=0)
+    db_session.add(front_desk)
+
+    front_desk = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=front_desk_workshop.workshop_id, workshop_room_id=front_desk_room.room_id, slot_id=1, pilot=0)
+    db_session.add(front_desk)
+    front_desk = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=front_desk_workshop.workshop_id, workshop_room_id=front_desk_room.room_id, slot_id=2, pilot=0)
+    db_session.add(front_desk)
+    front_desk = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=front_desk_workshop.workshop_id, workshop_room_id=front_desk_room.room_id, slot_id=3, pilot=0)
+    db_session.add(front_desk)
+    front_desk = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=front_desk_workshop.workshop_id, workshop_room_id=front_desk_room.room_id, slot_id=4, pilot=0)
+    db_session.add(front_desk)
+
     db_session.commit()
 
 def get_jams_in_db():
@@ -450,3 +474,11 @@ def set_user_workshop_runs_from_ids(user, workshop_run_ids):
     user.workshop_runs = workshops
     db_session.commit()
     return True
+
+
+def remove_jam(jam_id):
+    workshops = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.jam_id == jam_id).delete()
+    #db_session.delete(workshops)
+    jam = db_session.query(RaspberryJam).filter(RaspberryJam.jam_id == jam_id).first()
+    db_session.delete(jam)
+    db_session.commit()

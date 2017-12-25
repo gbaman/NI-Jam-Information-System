@@ -5,10 +5,10 @@
 <p>Use the following section to add workshops from the Jam catalog to the upcoming Jam.</p>
 <form method=post>
   <dl>
-    {{ render_field(form.workshop) }}
-    {{ render_field(form.volunteer) }}
-    {{ render_field(form.slot) }}
-      {{ render_field(form.room) }}
+    {{ render_field(form.workshop, class="selectpicker", **{'data-live-search':'true'}) }}
+    {{ render_field(form.volunteer, class="selectpicker", **{'data-live-search':'true'}) }}
+    {{ render_field(form.slot, class="selectpicker", **{'data-live-search':'true'}) }}
+    {{ render_field(form.room, class="selectpicker", **{'data-live-search':'true'}) }}
   </dl>
   <p><input type=submit value="Add workshop to Jam">
 </form>

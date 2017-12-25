@@ -10,7 +10,7 @@ import eventbrite_interactions as eventbrite
 
 
 current_jam_id = 39796296795
-day_password = "santa"
+day_password = "snow"
 access_code = "secret-code"
 
 
@@ -65,13 +65,31 @@ def admin_home():
 
 @app.route("/admin/add_jam")
 def add_jam():
-    return render_template("admin/add_jam.html", jams=eventbrite.get_eventbrite_events_name_id(), jams_in_db=database.get_jams_dict())
+    return render_template("admin/add_jam.html", jams=eventbrite.get_eventbrite_events_name_id(), jams_in_db=database.get_jams_dict(), current_jam_id = current_jam_id)
 
 @app.route("/admin/add_jam/<eventbrite_id>")
 def add_jam_id(eventbrite_id):
     eventbrite_jam = eventbrite.get_eventbrite_event_by_id(eventbrite_id)
     database.add_jam(eventbrite_id, eventbrite_jam["name"]["text"], eventbrite_jam["start"]["local"].replace("T", " "))
     return redirect("/admin/add_jam", code=302)
+
+
+@app.route("/admin/select_jam", methods=['POST', 'GET'])
+def select_jam():
+    jam_id = request.form["jam_id"]
+    print("Jam being selected {}".format( jam_id))
+    return " "
+
+@app.route("/admin/delete_jam", methods=['POST', 'GET'])
+def delete_jam():
+    jam_id = request.form["jam_id"]
+    if int(jam_id) == current_jam_id:
+        print("Error, unable to remove Jam as is the current selected Jam")
+        return
+    print("Jam being deleted {}.".format(jam_id))
+    database.remove_jam(jam_id)
+    return " "
+
 
 @app.route("/login", methods=['POST', 'GET'])
 def login():
