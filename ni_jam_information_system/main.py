@@ -238,14 +238,13 @@ def update_volunteer():
     for session in new_sessions:
         if len(session) > 0:
             sessions.append(int(session))
-    print(sessions)
     if database.set_user_workshop_runs_from_ids(request.logged_in_user, sessions):
         return "True"
 
 
 @app.route("/admin/volunteer_attendance", methods=['GET', 'POST'])
 def volunteer_attendance():
-    volunteer_attendances, logged_in_user = database.get_attending_volunteers(current_jam_id, request.logged_in_user.user_id)
+    volunteer_attendances = database.get_attending_volunteers(current_jam_id, request.logged_in_user.user_id)
     form = forms.VolunteerAttendance(request.form)
     if request.method == 'POST' and form.validate():
         add_volunteer_attendance(current_jam_id, request.logged_in_user.user_id, int(literal_eval(form.attending_jam.data)), int(literal_eval(form.attending_setup.data)), int(literal_eval(form.attending_packdown.data)), int(literal_eval(form.attending_food.data)))

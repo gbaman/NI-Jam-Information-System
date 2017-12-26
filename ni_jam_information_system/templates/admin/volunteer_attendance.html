@@ -40,7 +40,11 @@
                     {% else %}
                         <td bgcolor="#f08080">No</td>
                     {% endif %}
-                <td>{{volunteer_attendance.attend.notes}}</td>
+                    {% if volunteer_attendance.attend.notes == None %}
+                        <td></td>
+                    {% else %}
+                        <td>{{volunteer_attendance.attend.notes}}</td>
+                    {% endif %}
                 {% else %}
                     <td bgcolor="orange">Not replied</td>
                     <td bgcolor="orange">Not replied</td>

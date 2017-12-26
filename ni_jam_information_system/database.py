@@ -490,9 +490,7 @@ def get_attending_volunteers(jam_id, logged_in_user_id):
         for volunteer in all_volunteers:
             if volunteer.user_id == attend.user.user_id:
                 volunteer.attend = attend
-            if volunteer.user_id == logged_in_user_id:
-                current_user = volunteer
-    return sorted(sorted(all_volunteers, key=lambda x: x.surname, reverse=False), key=lambda x: hasattr(x, "attend"), reverse=True), current_user
+    return sorted(sorted(all_volunteers, key=lambda x: x.surname, reverse=False), key=lambda x: hasattr(x, "attend"), reverse=True)
 
 
 def add_volunteer_attendance(jam_id, user_id, attending_jam, attending_setup, attending_packdown, attending_food):
