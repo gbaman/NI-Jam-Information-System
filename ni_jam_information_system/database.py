@@ -327,14 +327,14 @@ def create_user(username, password_hash, password_salt, first_name, surname, ):
     db_session.commit()
 
 
-def add_workshop_to_jam_from_catalog(jam_id, workshop_id, volunteer_id, slot_id, room_id):
+def add_workshop_to_jam_from_catalog(jam_id, workshop_id, volunteer_id, slot_id, room_id, pilot):
     # TODO : Add a whole pile of checks here including if the volunteer is double booked, room is double booked etc.
     workshop = RaspberryJamWorkshop()
     workshop.jam_id = jam_id
     workshop.workshop_id = workshop_id
     workshop.slot_id = slot_id
     workshop.workshop_room_id = room_id
-    workshop.pilot = False
+    workshop.pilot = pilot
     if int(volunteer_id) >= 0: # If the None user has been selected, then hit the else
         if workshop.users:
             workshop.users.append(db_session.query(LoginUser).filter(LoginUser.user_id == volunteer_id).first())

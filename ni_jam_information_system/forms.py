@@ -10,14 +10,15 @@ class CreateWorkshopForm(Form):
     hidden = SelectField("Hidden", choices=[("False", "False"), ("True", "True")])
     #workshop_time = RadioField("Workshop timeslot", choices=[("13:30-14:15", "13:30-14:15"), ("14:30-15:15", "14:30-15:15"), ("16:00-16:45", "16:00-16:45")])
 
-class add_workshop_to_jam(Form):
+class AddWorkshopToJam(Form):
     workshop = SelectField("Workshop", choices=get_workshops_to_select())
     volunteer = SelectField("Coordinator", choices=get_volunteers_to_select())
     slot = SelectField("Time slot", choices=get_individual_time_slots_to_select())
     room = SelectField("Room", choices=get_workshop_rooms())
+    pilot = SelectField("Pilot", choices=[("False", "False"), ("True", "True")])
 
     def __init__(self, *args, **kwargs):
-        super(add_workshop_to_jam, self).__init__(*args, **kwargs)
+        super(AddWorkshopToJam, self).__init__(*args, **kwargs)
         self.workshop.choices = get_workshops_to_select()
         self.volunteer.choices = [(-1, "None")] + get_volunteers_to_select()
         self.room.choices = get_workshop_rooms()

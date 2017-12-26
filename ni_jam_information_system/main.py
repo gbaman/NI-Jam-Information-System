@@ -134,9 +134,9 @@ def add_workshop_to_catalog():
 
 @app.route('/admin/add_workshop_to_jam', methods=['GET', 'POST'])
 def add_workshop_to_jam():
-    form = forms.add_workshop_to_jam(request.form)
+    form = forms.AddWorkshopToJam(request.form)
     if request.method == 'POST':# and form.validate():
-        add_workshop_to_jam_from_catalog(current_jam_id, form.workshop.data, form.volunteer.data, form.slot.data, form.room.data)
+        add_workshop_to_jam_from_catalog(current_jam_id, form.workshop.data, form.volunteer.data, form.slot.data, form.room.data, int(literal_eval(form.pilot.data)))
         print("{}  {}   {}".format(form.slot.data, form.workshop.data, form.volunteer.data))
         print("Thanks for adding")
         return redirect("/admin/add_workshop_to_jam", code=302)
