@@ -60,8 +60,7 @@ def index():
 
 @app.route("/admin/admin_home")
 def admin_home():
-    print("Admin home")
-    return render_template("admin/admin_home.html")
+    return render_template("admin/admin_home.html", eventbrite_event_name = eventbrite.get_eventbrite_event_by_id(current_jam_id)["name"]["text"])
 
 
 @app.route("/admin/add_jam")
