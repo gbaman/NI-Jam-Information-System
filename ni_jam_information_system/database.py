@@ -447,11 +447,12 @@ def get_volunteer_data(jam_id, current_user):
     return time_slots, sorted(workshop_rooms_in_use, key=lambda x: x.room_name, reverse=False)
 
 
-def set_user_workshop_runs_from_ids(user, workshop_run_ids):
+def set_user_workshop_runs_from_ids(user, jam_id, workshop_run_ids):
     sessions_block_ids = []
-    workshops = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.workshop_run_id.in_(workshop_run_ids)).all()
+    workshops = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.workshop_run_id.in_(workshop_run_ids), RaspberryJamWorkshop.jam_id == jam_id).all()
     for workshop in workshops: # Verify that the bookings being made don't collide with other bookings by same user for same slot.
         if workshop.slot_id in sessions_block_ids:
+            print("Unable to book user in to slot, as they already have a colliding booking for that slot.")
             return False
         sessions_block_ids.append(workshop.slot_id)
     user.workshop_runs = workshops

@@ -237,7 +237,7 @@ def update_volunteer():
     for session in new_sessions:
         if len(session) > 0:
             sessions.append(int(session))
-    if database.set_user_workshop_runs_from_ids(request.logged_in_user, sessions):
+    if database.set_user_workshop_runs_from_ids(request.logged_in_user, current_jam_id, sessions):
         return "True"
 
 

@@ -68,6 +68,7 @@ class LoginUser(Base):
     volunteer = Column(Integer)
     login_cookie_id = Column(ForeignKey('login_cookie.cookie_id'), primary_key=True, nullable=False, index=True)
     group_id = Column(ForeignKey('groups.group_id'), primary_key=True, nullable=False, index=True)
+    email = Column(String(45))
 
     group = relationship('Group')
     login_cookie = relationship('LoginCookie')
