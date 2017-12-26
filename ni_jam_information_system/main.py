@@ -230,7 +230,7 @@ def volunteer():
 
     # TODO : Finish off adding the custom rooms/"workshops" for front desk, parking etc
 
-@app.route("/admin/volunteer_update", methods=['GET', 'POST'])
+@app.route("/admin/volunteer_update_ajax", methods=['GET', 'POST'])
 def update_volunteer():
     new_sessions = request.json
     sessions = []

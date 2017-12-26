@@ -39,7 +39,7 @@
             {% if room.workshop.dummy %}
                 <td bgcolor="#d3d3d3">None</td>
             {% else %}
-            <td id="{{ room.workshop.workshop_run_id }}" bgcolor={{room.workshop.bg_colour}} class="clickable">{{room.workshop.workshop.workshop_title}} -  {{room.workshop.users|length}}/{{room.workshop.workshop_room.room_volunteers_needed}}</td>
+            <td id="{{ room.workshop.workshop_run_id }}" bgcolor={{room.workshop.bg_colour}} class="clickable"><span data-toggle="tooltip" title="{% for user in room.workshop.users %} {{user.first_name}} {{user.surname}}, {% endfor %}">{{room.workshop.workshop.workshop_title}} -  {{room.workshop.users|length}}/{{room.workshop.workshop_room.room_volunteers_needed}}</span></td>
             {% endif %}
         {% endfor %}
         </tr>

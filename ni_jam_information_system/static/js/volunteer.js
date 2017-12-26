@@ -1,7 +1,7 @@
 var list_of_stuff = [];
 
 window.onload = function(){
-
+        $('[data-toggle="tooltip"]').tooltip();
         list_of_stuff = $(document.getElementById('current_selected')).data("current-selected").split(",");
         console.log(list_of_stuff);
         var all = document.getElementsByTagName("td");
@@ -12,7 +12,7 @@ window.onload = function(){
         submit_button.addEventListener('click', function() {
             data = JSON.stringify(list_of_stuff);
             $.ajax({
-                url: '/admin/volunteer_update',
+                url: '/admin/volunteer_update_ajax',
                 type: 'POST',
                 data: data,
                 contentType: 'application/json;charset=UTF-8',
