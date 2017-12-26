@@ -34,7 +34,6 @@ def convert_to_python_datetime(datetime_to_convert: str) -> datetime.datetime:
 
 def get_logged_in_user_object_from_cookie(cookie: str) -> LoginUser:
     found_cookie = db_session.query(LoginCookie).filter(LoginCookie.cookie_value == cookie).first()
-    print(found_cookie)
     if found_cookie:
         cookie = db_session.query(LoginUser).filter(LoginUser.login_cookie_id == found_cookie.cookie_id).first()
         #print("Cookie correct! - {}".format(cookie.cookie_id) )
@@ -484,11 +483,30 @@ def remove_jam(jam_id):
     db_session.commit()
 
 
-def get_attending_volunteers(jam_id):
+def get_attending_volunteers(jam_id, logged_in_user_id):
     all_volunteers = db_session.query(LoginUser).all()
     attending = db_session.query(VolunteerAttendance).filter(VolunteerAttendance.jam_id == jam_id).all()
     for attend in attending:
         for volunteer in all_volunteers:
             if volunteer.user_id == attend.user.user_id:
                 volunteer.attend = attend
-    return sorted(sorted(all_volunteers, key=lambda x: x.surname, reverse=False), key=lambda x: hasattr(x, "attend"), reverse=True)
+            if volunteer.user_id == logged_in_user_id:
+                current_user = volunteer
+    return sorted(sorted(all_volunteers, key=lambda x: x.surname, reverse=False), key=lambda x: hasattr(x, "attend"), reverse=True), current_user
+
+
+def add_volunteer_attendance(jam_id, user_id, attending_jam, attending_setup, attending_packdown, attending_food):
+    attendance = db_session.query(VolunteerAttendance).filter(VolunteerAttendance.jam_id == jam_id, VolunteerAttendance.user_id == user_id).first()
+    new = False
+    if not attendance:
+        attendance = VolunteerAttendance()
+        new = True
+    attendance.user_id = user_id
+    attendance.jam_id = jam_id
+    attendance.volunteer_attending = attending_jam
+    attendance.setup_attending = attending_setup
+    attendance.packdown_attending = attending_packdown
+    attendance.food_attending = attending_food
+    if new:
+        db_session.add(attendance)
+    db_session.commit()

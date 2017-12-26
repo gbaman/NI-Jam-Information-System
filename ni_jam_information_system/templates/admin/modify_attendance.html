@@ -1,0 +1,14 @@
+
+{% from "_formhelpers.html" import render_field %}
+<div style=" width: 300px; padding: 10px">
+<p>Edit your attendance below.</p>
+<form method=post>
+  <dl>
+    {{ render_field(form.attending_jam, class="selectpicker") }}
+    {{ render_field(form.attending_setup, class="selectpicker") }}
+    {{ render_field(form.attending_packdown, class="selectpicker") }}
+    {{ render_field(form.attending_food, class="selectpicker") }}
+  </dl>
+  <p><input type=submit value="Edit attendance">
+</form>
+</div>

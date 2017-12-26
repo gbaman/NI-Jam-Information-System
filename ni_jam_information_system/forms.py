@@ -23,7 +23,7 @@ class add_workshop_to_jam(Form):
         self.room.choices = get_workshop_rooms()
 
 
-class get_order_ID_form(Form):
+class GetOrderIDForm(Form):
     order_id = IntegerField("Order ID", [validators.DataRequired()])
     day_password = StringField("Jam password", [validators.DataRequired()])
 
@@ -41,3 +41,10 @@ class RegisterUserForm(Form):
     access_code = StringField("Access code", [validators.DataRequired()])
 
     # Added ready to add to Login form itself on page.
+
+
+class VolunteerAttendance(Form):
+    attending_jam = SelectField("Attending Main Jam", choices=[("False", "False"), ("True", "True")])
+    attending_setup = SelectField("Attending Setup", choices=[("False", "False"), ("True", "True")])
+    attending_packdown = SelectField("Attending Packdown", choices=[("False", "False"), ("True", "True")])
+    attending_food = SelectField("Attending Food After", choices=[("False", "False"), ("True", "True")])

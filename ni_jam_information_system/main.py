@@ -7,6 +7,7 @@ from logins import *
 import database as database
 import forms as forms
 import eventbrite_interactions as eventbrite
+from ast import literal_eval
 
 
 current_jam_id = 39796296795
@@ -45,7 +46,7 @@ def index():
     cookie = request.cookies.get('jam_order_id')
     if cookie and len(cookie) == 9 and database.verify_attendee_id(cookie):
         return redirect("workshops")
-    form = forms.get_order_ID_form(request.form)
+    form = forms.GetOrderIDForm(request.form)
     if request.method == 'POST' and form.validate():
         if database.verify_attendee_id(form.order_id.data) and form.day_password.data == day_password:
             resp = make_response(redirect("workshops"))
@@ -242,10 +243,15 @@ def update_volunteer():
         return "True"
 
 
-@app.route("/admin/volunteer_attendance")
+@app.route("/admin/volunteer_attendance", methods=['GET', 'POST'])
 def volunteer_attendance():
-    volunteer_attendances = database.get_attending_volunteers(current_jam_id)
-    return render_template("admin/volunteer_attendance.html", volunteer_attendances = volunteer_attendances)
+    volunteer_attendances, logged_in_user = database.get_attending_volunteers(current_jam_id, request.logged_in_user.user_id)
+    form = forms.VolunteerAttendance(request.form)
+    if request.method == 'POST' and form.validate():
+        add_volunteer_attendance(current_jam_id, request.logged_in_user.user_id, int(literal_eval(form.attending_jam.data)), int(literal_eval(form.attending_setup.data)), int(literal_eval(form.attending_packdown.data)), int(literal_eval(form.attending_food.data)))
+
+        return redirect(("/admin/volunteer_attendance"), code=302)
+    return render_template("admin/volunteer_attendance.html", form=form, volunteer_attendances=volunteer_attendances, user_id=request.logged_in_user.user_id)
 
 if __name__ == '__main__':
     app.run()

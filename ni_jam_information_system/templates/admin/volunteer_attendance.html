@@ -2,6 +2,8 @@
 
 <h1>Volunteer attendance</h1>
 
+{%include 'admin/modify_attendance.html'%}
+
 <div class="attendees">
     <table class="table table-hover, table-bordered">
         <tr bgcolor="#d3d3d3">
@@ -15,8 +17,8 @@
         </tr>
         {% for volunteer_attendance in volunteer_attendances %}
             <tr>
-                <td>{{volunteer_attendance.first_name|capitalize}}</td>
-                <td>{{volunteer_attendance.surname|capitalize}}</td>
+                <td {% if volunteer_attendance.user_id == user_id %} bgcolor="aqua" {% endif %} >{{volunteer_attendance.first_name|capitalize}}</td>
+                <td {% if volunteer_attendance.user_id == user_id %} bgcolor="aqua" {% endif %} >{{volunteer_attendance.surname|capitalize}}</td>
                 {% if volunteer_attendance.attend %}
                     {% if volunteer_attendance.attend.volunteer_attending %}
                         <td bgcolor="#90ee90">Yes</td>

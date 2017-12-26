@@ -11,4 +11,4 @@ RUN pip3 install -r requirements.txt
 run pip3 install gunicorn
 #ENTRYPOINT ["python3"]
 #CMD ["main.py"]
-CMD ["/usr/local/bin/gunicorn", "-w", "2", "-b", ":8000", "main:app"]
+CMD ["/usr/local/bin/gunicorn", "-w", "2", "-b", ":8000", "--log-file", "/var/nijis_logs/nijis.log", "--capture-output", "main:app"]
