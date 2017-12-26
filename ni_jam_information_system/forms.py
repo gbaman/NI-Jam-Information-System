@@ -49,3 +49,4 @@ class VolunteerAttendance(Form):
     attending_setup = SelectField("Attending Setup", choices=[("False", "False"), ("True", "True")])
     attending_packdown = SelectField("Attending Packdown", choices=[("False", "False"), ("True", "True")])
     attending_food = SelectField("Attending Food After", choices=[("False", "False"), ("True", "True")])
+    notes = TextAreaField("Notes")

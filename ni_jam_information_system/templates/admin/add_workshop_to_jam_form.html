@@ -11,7 +11,7 @@
     {{ render_field(form.room, class="selectpicker", **{'data-live-search':'true'}) }}
     {{ render_field(form.pilot, class="selectpicker") }}
   </dl>
-  <p><input type=submit value="Add workshop to Jam">
+  <p><input class="btn btn-primary" type=submit value="Add workshop to Jam">
 </form>
 {%include 'admin/admin_render_workshops_in_slots.html'%}
 

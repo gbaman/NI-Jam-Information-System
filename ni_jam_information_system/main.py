@@ -246,7 +246,7 @@ def volunteer_attendance():
     volunteer_attendances = database.get_attending_volunteers(current_jam_id, request.logged_in_user.user_id)
     form = forms.VolunteerAttendance(request.form)
     if request.method == 'POST' and form.validate():
-        add_volunteer_attendance(current_jam_id, request.logged_in_user.user_id, int(literal_eval(form.attending_jam.data)), int(literal_eval(form.attending_setup.data)), int(literal_eval(form.attending_packdown.data)), int(literal_eval(form.attending_food.data)))
+        add_volunteer_attendance(current_jam_id, request.logged_in_user.user_id, int(literal_eval(form.attending_jam.data)), int(literal_eval(form.attending_setup.data)), int(literal_eval(form.attending_packdown.data)), int(literal_eval(form.attending_food.data)), form.notes.data)
 
         return redirect(("/admin/volunteer_attendance"), code=302)
     return render_template("admin/volunteer_attendance.html", form=form, volunteer_attendances=volunteer_attendances, user_id=request.logged_in_user.user_id)

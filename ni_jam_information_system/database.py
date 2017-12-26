@@ -476,7 +476,7 @@ def get_attending_volunteers(jam_id, logged_in_user_id):
     return sorted(sorted(all_volunteers, key=lambda x: x.surname, reverse=False), key=lambda x: hasattr(x, "attend"), reverse=True)
 
 
-def add_volunteer_attendance(jam_id, user_id, attending_jam, attending_setup, attending_packdown, attending_food):
+def add_volunteer_attendance(jam_id, user_id, attending_jam, attending_setup, attending_packdown, attending_food, notes):
     attendance = db_session.query(VolunteerAttendance).filter(VolunteerAttendance.jam_id == jam_id, VolunteerAttendance.user_id == user_id).first()
     new = False
     if not attendance:
@@ -488,6 +488,7 @@ def add_volunteer_attendance(jam_id, user_id, attending_jam, attending_setup, at
     attendance.setup_attending = attending_setup
     attendance.packdown_attending = attending_packdown
     attendance.food_attending = attending_food
+    attendance.notes = notes
     if new:
         db_session.add(attendance)
     db_session.commit()
