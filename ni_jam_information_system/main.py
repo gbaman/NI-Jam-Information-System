@@ -242,5 +242,10 @@ def update_volunteer():
         return "True"
 
 
+@app.route("/admin/volunteer_attendance")
+def volunteer_attendance():
+    volunteer_attendances = database.get_attending_volunteers(current_jam_id)
+    return render_template("admin/volunteer_attendance.html", volunteer_attendances = volunteer_attendances)
+
 if __name__ == '__main__':
     app.run()

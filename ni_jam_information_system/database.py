@@ -482,3 +482,13 @@ def remove_jam(jam_id):
     jam = db_session.query(RaspberryJam).filter(RaspberryJam.jam_id == jam_id).first()
     db_session.delete(jam)
     db_session.commit()
+
+
+def get_attending_volunteers(jam_id):
+    all_volunteers = db_session.query(LoginUser).all()
+    attending = db_session.query(VolunteerAttendance).filter(VolunteerAttendance.jam_id == jam_id).all()
+    for attend in attending:
+        for volunteer in all_volunteers:
+            if volunteer.user_id == attend.user.user_id:
+                volunteer.attend = attend
+    return sorted(sorted(all_volunteers, key=lambda x: x.surname, reverse=False), key=lambda x: hasattr(x, "attend"), reverse=True)

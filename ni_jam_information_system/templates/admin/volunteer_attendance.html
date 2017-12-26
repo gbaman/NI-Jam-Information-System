@@ -1,0 +1,54 @@
+{%include 'admin/admin_header.html'%}
+
+<h1>Volunteer attendance</h1>
+
+<div class="attendees">
+    <table class="table table-hover, table-bordered">
+        <tr bgcolor="#d3d3d3">
+            <th>First name</th>
+            <th>Surname</th>
+            <th>Attending Main Jam</th>
+            <th>Attending Setup</th>
+            <th>Attending Packdown</th>
+            <th>Attending Food After</th>
+            <th>Notes</th>
+        </tr>
+        {% for volunteer_attendance in volunteer_attendances %}
+            <tr>
+                <td>{{volunteer_attendance.first_name|capitalize}}</td>
+                <td>{{volunteer_attendance.surname|capitalize}}</td>
+                {% if volunteer_attendance.attend %}
+                    {% if volunteer_attendance.attend.volunteer_attending %}
+                        <td bgcolor="#90ee90">Yes</td>
+                    {% else %}
+                        <td bgcolor="#f08080">No</td>
+                    {% endif %}
+                    {% if volunteer_attendance.attend.setup_attending %}
+                        <td bgcolor="#90ee90">Yes</td>
+                    {% else %}
+                        <td bgcolor="#f08080">No</td>
+                    {% endif %}
+                    {% if volunteer_attendance.attend.packdown_attending %}
+                        <td bgcolor="#90ee90">Yes</td>
+                    {% else %}
+                        <td bgcolor="#f08080">No</td>
+                    {% endif %}
+                    {% if volunteer_attendance.attend.food_attending %}
+                        <td bgcolor="#90ee90">Yes</td>
+                    {% else %}
+                        <td bgcolor="#f08080">No</td>
+                    {% endif %}
+                <td>{{volunteer_attendance.attend.notes}}</td>
+                {% else %}
+                    <td bgcolor="orange">Not replied</td>
+                    <td bgcolor="orange">Not replied</td>
+                    <td bgcolor="orange">Not replied</td>
+                    <td bgcolor="orange">Not replied</td>
+                    <td></td>
+                {% endif %}
+
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+{%include 'footer.html'%}

@@ -120,6 +120,7 @@ class VolunteerAttendance(Base):
     setup_attending = Column(Integer)
     packdown_attending = Column(Integer)
     food_attending = Column(Integer)
+    notes = Column(String(300))
 
     jam = relationship('RaspberryJam')
     user = relationship('LoginUser')
