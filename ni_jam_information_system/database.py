@@ -444,22 +444,6 @@ def get_volunteer_data(jam_id, current_user):
                         room.workshop.signed_up = False
 
 
-    workshops = []
-
-
-    for time_slot in time_slots:
-        print(time_slot.slot_time_start)
-        for room in time_slot.rooms:
-            print("--- " + room.room_name)
-            if room.workshop.workshop_room_id == None:
-                print("None")
-            else:
-                print(room.workshop.workshop.workshop_title)
-
-    #for workshop in workshop_data:
-    #    if workshop in workshops:
-
-
     return time_slots, sorted(workshop_rooms_in_use, key=lambda x: x.room_name, reverse=False)
 
 
@@ -476,8 +460,7 @@ def set_user_workshop_runs_from_ids(user, workshop_run_ids):
 
 
 def remove_jam(jam_id):
-    workshops = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.jam_id == jam_id).delete()
-    #db_session.delete(workshops)
+    db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.jam_id == jam_id).delete()
     jam = db_session.query(RaspberryJam).filter(RaspberryJam.jam_id == jam_id).first()
     db_session.delete(jam)
     db_session.commit()
