@@ -1,3 +1,7 @@
+$(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip();
+});
+
 function selectJam(jam_id) {
     $.ajax({
         type: "POST",

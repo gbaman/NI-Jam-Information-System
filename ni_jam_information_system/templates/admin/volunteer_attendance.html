@@ -14,6 +14,7 @@
             <th>Attending Packdown</th>
             <th>Attending Food After</th>
             <th>Notes</th>
+            <th>Sessions</th>
         </tr>
         {% for volunteer_attendance in volunteer_attendances %}
             <tr>
@@ -52,6 +53,7 @@
                     <td bgcolor="orange">Not replied</td>
                     <td></td>
                 {% endif %}
+                <td data-toggle="tooltip" data-placement="top" data-html="true" title="{% for workshop in volunteer_attendance.current_jam_workshops_involved_in %} {{workshop}},<br> {% endfor %} ">{{volunteer_attendance.current_jam_workshops_involved_in|count}}</td>
 
             </tr>
         {% endfor %}

@@ -468,9 +468,18 @@ def remove_jam(jam_id):
 
 
 def get_attending_volunteers(jam_id, logged_in_user_id):
-    all_volunteers = db_session.query(LoginUser).all()
+    all_volunteers = db_session.query(LoginUser).all() # Get all the volunteers
+    for volunteer in all_volunteers:
+        volunteer.current_jam_workshops_involved_in = []
+        for workshop in volunteer.workshop_runs:
+            if workshop.jam_id == jam_id: # Builds the workshops attached to each user
+                volunteer.current_jam_workshops_involved_in.append("{}. {}".format(workshop.slot_id, workshop.workshop.workshop_title)) # Builds a list of strings to show in the tooltip
+        volunteer.current_jam_workshops_involved_in = sorted(volunteer.current_jam_workshops_involved_in)
+
+    all_volunteers = all_volunteers
+
     attending = db_session.query(VolunteerAttendance).filter(VolunteerAttendance.jam_id == jam_id).all()
-    for attend in attending:
+    for attend in attending: # Matches volunteer attendance to users
         for volunteer in all_volunteers:
             if volunteer.user_id == attend.user.user_id:
                 volunteer.attend = attend
@@ -493,3 +502,7 @@ def add_volunteer_attendance(jam_id, user_id, attending_jam, attending_setup, at
     if new:
         db_session.add(attendance)
     db_session.commit()
+
+
+def get_users_not_responded_to_attendance():
+    pass
