@@ -138,3 +138,22 @@ function getPasswordResetCode(user_id) {
         }
     });
 }
+
+
+function upgradeToVolunteerPermission(user_id) {
+    $.ajax({
+        type: "POST",
+        url: "/admin_upgrade_to_volunteer_permission_ajax",
+        data: {
+            user_id: user_id
+        },
+        success: function (result) {
+            alert("User upgraded to volunteer permission level");
+            window.location.reload();
+        },
+        error: function (result) {
+            alert('Error upgrading permission');
+            window.location.reload();
+        }
+    });
+}

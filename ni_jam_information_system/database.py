@@ -546,3 +546,9 @@ def reset_password(username, reset_code, salt, hash):
         db_session.commit()
         return True
     return False
+
+
+def set_group_for_user(user_id, group_id):
+    user = db_session.query(LoginUser).filter(LoginUser.user_id == user_id).first()
+    user.group_id = group_id
+    db_session.commit()

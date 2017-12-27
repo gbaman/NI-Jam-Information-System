@@ -176,6 +176,12 @@ def get_password_reset_code():
     return "The requested password reset code is - {}".format(reset_code)
 
 
+@app.route("/admin_upgrade_to_volunteer_permission_ajax", methods=['GET', 'POST'])
+def upgrade_user_permission():
+    user_id = request.form['user_id']
+    database.set_group_for_user(user_id, 3)
+    return ""
+
 @app.route("/reset", methods=['GET', 'POST'])
 def reset_password():
     form = forms.ResetPasswordForm(request.form)

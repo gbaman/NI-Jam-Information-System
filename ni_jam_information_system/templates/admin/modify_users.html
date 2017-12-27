@@ -10,7 +10,9 @@
                 <th>Surname</th>
                 <th>Username</th>
                 <th>Email address</th>
+                <th>Permission level</th>
                 <th>Change password</th>
+                <th>Upgrade to volunteer</th>
                 <th>Remove (WIP)</th>
             </tr>
         </thead>
@@ -20,13 +22,19 @@
             <td>{{user.surname}}</td>
             <td>{{user.username}}</td>
             <td>{{user.email}}</td>
+            <td>{{user.group_id}}</td>
             <td>
                 <button id="change_password_button" data-id="{{user.user_id}}" class="btn btn-info"
                         onclick="getPasswordResetCode({{user.user_id}})" value="val_1" name="but1">Get reset code
                 </button></td>
             <td>
+                <button id="upgrade_to_volunteer_button" data-id="{{user.user_id}}" class="btn btn-warning"
+                        onclick="upgradeToVolunteerPermission({{user.user_id}})" value="val_2" name="but2">Upgrade to volunteer
+                </button>
+            </td>
+            <td>
                 <button id="remove_user_button" data-id="{{user.user_id}}" class="btn btn-danger"
-                        onclick="TODO({{user.user_id}})" value="val_2" name="but2">Remove
+                        onclick="TODO({{user.user_id}})" value="val_3" name="but3">Remove
                 </button>
             </td>
         </tr>
