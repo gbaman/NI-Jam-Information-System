@@ -11,8 +11,6 @@ def validate_login(username, password):
             return True
     return False
 
-def check_logged_in(cookie):
-    return True
 
 def check_allowed(request):
     login_user = get_logged_in_user_object_from_cookie(request.cookies.get('jam_login'))
@@ -24,7 +22,7 @@ def check_allowed(request):
     else:
         selected_user_group_level = login_user.group_id
     group_required = get_group_id_required_for_page(request.path)
-    print("Current user group level {} - Trying to access {}".format(selected_user_group_level, group_required))
+    print("Current user group level {} - Trying to access {} - {}".format(selected_user_group_level, group_required, request.path))
     if selected_user_group_level >= group_required:
         return True, login_user
     return False, login_user

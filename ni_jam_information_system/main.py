@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, make_response, redirect, flash
 
 app = Flask(__name__)
-#app.run(host='0.0.0.0', port=80)
 from datetime import datetime, timedelta
 from logins import *
 import database as database
@@ -27,9 +26,13 @@ def check_permission():
     permission_granted, user = check_allowed(request)
     print(request.url_root)
     if not permission_granted:
-        return("You don't have permission to access this page.")
+        return render_template("errors/permission.html")
     else:
         request.logged_in_user = user
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('errors/404.html'), 404
 
 @app.route("/test")
 def test():

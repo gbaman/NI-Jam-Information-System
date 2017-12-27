@@ -43,10 +43,15 @@ def get_group_id_required_for_page(page_url):
     if page_url.startswith("/static") or page_url.startswith("/template") or page_url.startswith("/api"):
         return 1
     page = db_session.query(PagePermission).filter(PagePermission.page_name == page_url).first()
-    if page:
+    if page: # If exact path match
         return page.group_required
     else:
-        return 4
+        multi_paths = db_session.query(PagePermission).filter(PagePermission.page_name.contains("*")).all()
+        for path in multi_paths: # Iterate across paths with a *
+            if page_url.startswith(path.page_name[:-1]):
+                return path.group_required
+        return 4 # No path found
+
 
 def add_jam(eventbrite_id, jam_name, date):
 
@@ -305,9 +310,7 @@ def remove_attendee_to_workshop(jam_id, attendee_id, workshop_run_id):
 
 
 def get_users():
-    users = db_session.query(LoginUser).all()
-    for user in users:
-        print(user)
+    return db_session.query(LoginUser).all()
 
 
 def get_user_details_from_username(username):
