@@ -163,10 +163,10 @@ def admin_workshops():
     return render_template('admin/admin_workshops.html')
 
 
-@app.route("/admin/modify_users", methods=['GET', 'POST'])
-def modify_users():
+@app.route("/admin/manage_users", methods=['GET', 'POST'])
+def manage_users():
     users = database.get_users()
-    return render_template("admin/modify_users.html", users = users)
+    return render_template("admin/manage_users.html", users = users)
 
 
 @app.route("/admin_get_password_reset_code_ajax", methods=['GET', 'POST'])
