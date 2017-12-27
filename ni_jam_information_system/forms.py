@@ -1,5 +1,5 @@
-from wtforms import Form, BooleanField, StringField, PasswordField, IntegerField, TextAreaField, RadioField, SelectField, validators
-from database import get_volunteers_to_select, get_workshops_to_select, get_individual_time_slots_to_select, get_workshop_rooms
+from wtforms import Form, BooleanField, StringField, PasswordField, IntegerField, TextAreaField, RadioField, SelectField, validators, HiddenField
+from database import get_volunteers_to_select, get_workshops_to_select, get_individual_time_slots_to_select, get_workshop_rooms, get_workshop_from_workshop_id
 
 
 class CreateWorkshopForm(Form):
@@ -7,8 +7,8 @@ class CreateWorkshopForm(Form):
     workshop_description = TextAreaField("Workshop description", [validators.DataRequired()])
     workshop_limit = IntegerField("Workshop max attendees", [validators.DataRequired()])
     workshop_level = RadioField("Workshop level", choices=[("Beginner", "Beginner"), ("Intermediate", "Intermediate"), ("Advanced", "Advanced")])
-    hidden = SelectField("Hidden", choices=[("False", "False"), ("True", "True")])
-    #workshop_time = RadioField("Workshop timeslot", choices=[("13:30-14:15", "13:30-14:15"), ("14:30-15:15", "14:30-15:15"), ("16:00-16:45", "16:00-16:45")])
+    workshop_id = HiddenField("Workshop ID", default="")
+
 
 class AddWorkshopToJam(Form):
     workshop = SelectField("Workshop", choices=get_workshops_to_select())
@@ -19,7 +19,7 @@ class AddWorkshopToJam(Form):
 
     def __init__(self, *args, **kwargs):
         super(AddWorkshopToJam, self).__init__(*args, **kwargs)
-        self.workshop.choices = get_workshops_to_select()
+        self.workshop.choices = [(workshop.workshop_id, workshop.workshop_title) for workshop in get_workshops_to_select()]
         self.volunteer.choices = [(-1, "None")] + get_volunteers_to_select()
         self.room.choices = get_workshop_rooms()
 

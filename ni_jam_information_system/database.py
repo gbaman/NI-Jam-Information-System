@@ -89,14 +89,17 @@ def get_jams_dict():
     return jams_list
 
 
-def add_workshop(workshop_title, workshop_description, workshop_limit, workshop_level, hidden):
-    if hidden == "True":
-        hidden = 1
-    else:
-        hidden = 0
+def add_workshop(workshop_id, workshop_title, workshop_description, workshop_limit, workshop_level):
 
-    workshop = Workshop(workshop_title = workshop_title, workshop_description = workshop_description, workshop_limit = workshop_limit, workshop_level = workshop_level, workshop_hidden = hidden)
-    db_session.add(workshop)
+    if workshop_id or workshop_id == 0: # If workshop already exists
+        workshop = db_session.query(Workshop).filter(Workshop.workshop_id == workshop_id).first()
+        workshop.workshop_title = workshop_title
+        workshop.workshop_description = workshop_description
+        workshop.workshop_limit = workshop_limit
+        workshop.workshop_level = workshop_level
+    else: # If new workshop
+        workshop = Workshop(workshop_title = workshop_title, workshop_description = workshop_description, workshop_limit = workshop_limit, workshop_level = workshop_level, workshop_hidden = 0)
+        db_session.add(workshop)
     db_session.commit()
 
 
@@ -163,10 +166,11 @@ def get_volunteers_to_select():
 
 
 def get_workshops_to_select():
-    to_return = []
-    for workshop in db_session.query(Workshop):
-        to_return.append((workshop.workshop_id, workshop.workshop_title))
-    return to_return
+    return db_session.query(Workshop)
+
+
+def get_workshop_from_workshop_id(workshop_id):
+    return db_session.query(Workshop).filter(Workshop.workshop_id == workshop_id).first()
 
 
 def get_individual_time_slots_to_select():
@@ -513,3 +517,9 @@ def get_users_not_responded_to_attendance(jam_id):
     #volunteers_not_responded = all_volunteers - all_volunteers_responded
     volunteers_not_responded = list(set(all_volunteers) - set(all_volunteers_responded))
     return volunteers_not_responded
+
+
+def delete_workshop(workshop_id):
+    workshop = db_session.query(Workshop).filter(Workshop.workshop_id == workshop_id).first()
+    db_session.delete(workshop)
+    db_session.commit()

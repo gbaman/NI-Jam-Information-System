@@ -10,6 +10,7 @@
             <th>Jam Date</th>
             <th>Select (WIP)</th>
             <th>Delete</th>
+            <th>Reimport attendee data</th>
         </tr>
         {% for jam_in_db in jams_in_db %}
         {% if current_jam_id == jam_in_db.jam_id %}
@@ -31,6 +32,7 @@
                         onclick="deleteJam({{jam_in_db.jam_id}})" value="val_1" name="but2">Delete
                 </button>
             </td>
+            <td><a href="/admin/import_attendees_from_eventbrite/{{jam_in_db.jam_id}}" class="btn btn-info" role="button">Reimport</a></td>
         </tr>
         {% endfor %}
     </table>

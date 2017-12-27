@@ -1,0 +1,33 @@
+{%include 'admin/admin_header.html'%}
+
+<h1>Manage workshops</h1>
+
+{%include 'admin/new_workshop_form.html'%}
+
+<h3>Current workshops</h3>
+
+<table class="table table-hover, table-bordered">
+    <tr bgcolor="#d3d3d3">
+        <th>Title</th>
+        <th>Description</th>
+        <th>Max attendees</th>
+        <th>Level</th>
+        <th>Hidden</th>
+        <th>Edit</th>
+        <th>Delete</th>
+    </tr>
+    {% for workshop in workshops %}
+    <tr>
+        <td>{{workshop.workshop_title}}</td>
+        <td>{{workshop.workshop_description}}</td>
+        <td>{{workshop.workshop_limit}}</td>
+        <td>{{workshop.workshop_level}}</td>
+        <td>{% if workshop.workshop_hidden %} True {% else %} False {% endif %} </td>
+        <td><a href="/admin/manage_workshop_catalog/{{workshop.workshop_id}}" class="btn btn-info" role="button">Edit</a></td>
+        <td><a href="/admin/delete_workshop/{{workshop.workshop_id}}" class="btn btn-danger" role="button">Delete</a></td>
+    </tr>
+    {% endfor %}
+</table>
+
+
+{%include 'footer.html'%}

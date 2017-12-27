@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, make_response, redirect
+from flask import Flask, render_template, request, make_response, redirect, flash
 
 app = Flask(__name__)
 #app.run(host='0.0.0.0', port=80)
@@ -36,11 +36,11 @@ def test():
     pass
 
 
-@app.route("/admin/import_attendees_from_eventbrite")
-def import_from_eventbrite():
+@app.route("/admin/import_attendees_from_eventbrite/<jam_id>")
+def import_from_eventbrite(jam_id):
     print("Importing...")
-    update_attendees_from_eventbrite(current_jam_id)
-    return("Import finished.")
+    update_attendees_from_eventbrite(jam_id)
+    return redirect("/admin/add_jam")
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
@@ -123,14 +123,23 @@ def register():
 #    resp.set_cookie("jam_login", "12345")
 #    return resp
 
-@app.route('/admin/add_workshop_to_catalog', methods=['GET', 'POST'])
-def add_workshop_to_catalog():
+@app.route('/admin/manage_workshop_catalog/', methods=['GET', 'POST'])
+@app.route('/admin/manage_workshop_catalog/<workshop_id>', methods=['GET', 'POST'])
+def add_workshop_to_catalog(workshop_id = None):
     form = forms.CreateWorkshopForm(request.form)
+    if workshop_id and request.method == "GET":
+        workshop = database.get_workshop_from_workshop_id(workshop_id)
+        form.workshop_title.default = workshop.workshop_title
+        form.workshop_description.default = workshop.workshop_description
+        form.workshop_limit.default = workshop.workshop_limit
+        form.workshop_level.default = workshop.workshop_level
+        form.workshop_id.default = workshop.workshop_id
+        form.process()
     if request.method == 'POST' and form.validate():
-        database.add_workshop(form.workshop_title.data, form.workshop_description.data, form.workshop_limit.data, form.workshop_level.data, form.hidden.data)
+        database.add_workshop(form.workshop_id.data, form.workshop_title.data, form.workshop_description.data, form.workshop_limit.data, form.workshop_level.data)
         print("Thanks for adding")
-        return redirect(('admin/add_workshop_to_catalog'))
-    return render_template('admin/new_workshop_form.html', form=form)
+        return redirect(('admin/manage_workshop_catalog'))
+    return render_template('admin/manage_workshop_catalog.html', form=form, workshops=database.get_workshops_to_select())
 
 
 @app.route('/admin/add_workshop_to_jam', methods=['GET', 'POST'])
@@ -143,6 +152,11 @@ def add_workshop_to_jam():
         return redirect("/admin/add_workshop_to_jam", code=302)
     return render_template('admin/add_workshop_to_jam_form.html', form=form, workshop_slots=database.get_time_slots_to_select(current_jam_id, 0, admin_mode=True))
 
+
+@app.route('/admin/delete_workshop/<workshop_id>')
+def delete_workshop(workshop_id):
+    database.delete_workshop(workshop_id)
+    return redirect(('admin/manage_workshop_catalog'))
 
 @app.route('/admin/workshops', methods=['GET', 'POST'])
 def admin_workshops():
