@@ -40,7 +40,7 @@ def get_logged_in_user_object_from_cookie(cookie: str) -> LoginUser:
         return cookie
 
 def get_group_id_required_for_page(page_url):
-    if page_url.startswith("/static") or page_url.startswith("/template"):
+    if page_url.startswith("/static") or page_url.startswith("/template") or page_url.startswith("/api"):
         return 1
     page = db_session.query(PagePermission).filter(PagePermission.page_name == page_url).first()
     if page:
@@ -504,5 +504,12 @@ def add_volunteer_attendance(jam_id, user_id, attending_jam, attending_setup, at
     db_session.commit()
 
 
-def get_users_not_responded_to_attendance():
-    pass
+def get_users_not_responded_to_attendance(jam_id):
+    all_volunteers = db_session.query(LoginUser).all()
+    all_volunteers_responded_attendance = db_session.query(VolunteerAttendance).filter(VolunteerAttendance.jam_id == jam_id).all()
+    all_volunteers_responded = []
+    for volunteer in all_volunteers_responded_attendance:
+        all_volunteers_responded.append(volunteer.user)
+    #volunteers_not_responded = all_volunteers - all_volunteers_responded
+    volunteers_not_responded = list(set(all_volunteers) - set(all_volunteers_responded))
+    return volunteers_not_responded

@@ -8,12 +8,13 @@ import database as database
 import forms as forms
 import eventbrite_interactions as eventbrite
 from ast import literal_eval
+import json
+from secrets.config import api_keys
 
 
 current_jam_id = 39796296795
 day_password = "snow"
 access_code = "secret-code"
-
 
 
 @app.teardown_appcontext
@@ -250,6 +251,28 @@ def volunteer_attendance():
 
         return redirect(("/admin/volunteer_attendance"), code=302)
     return render_template("admin/volunteer_attendance.html", form=form, volunteer_attendances=volunteer_attendances, user_id=request.logged_in_user.user_id)
+
+
+@app.route("/api/users_not_responded/<token>")
+def get_users_not_responded_to_attendance(token):
+    if token in api_keys:
+        users_not_responded = database.get_users_not_responded_to_attendance(current_jam_id)
+        email_addresses = []
+        for user in users_not_responded:
+            email_addresses.append(user.email)
+        return json.dumps(email_addresses)
+    else:
+        return "[]"
+
+@app.route("/api/jam_info/<token>")
+def get_jam_info(token):
+    if token in api_keys:
+        jam = eventbrite.get_eventbrite_event_by_id(current_jam_id)
+        to_return = [jam["name"]["text"], (datetime.datetime.now() - database.convert_to_python_datetime(jam["start"]["local"].replace("T", " "))).days]
+        return json.dumps(to_return)
+    else:
+        return "[]"
+
 
 if __name__ == '__main__':
     app.run()
