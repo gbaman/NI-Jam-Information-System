@@ -1,37 +1,37 @@
 {%include 'admin/admin_header.html'%}
 
-<h2>Users</h2>
+<h2>User Management</h2>
 
 <div class="user_table">
-    <table class="table table-hover">
-        <tr>
-            <th width=20%>Username</th>
-            <th width=15%>Email address</th>
-            <th width=30%>Change password</th>
-            <th width=10%>Remove</th>
-            <th width=5%></th>
-        </tr>
+    <table class="table table-hover, table-bordered">
+        <thead>
+            <tr bgcolor="#d3d3d3">
+                <th>First name</th>
+                <th>Surname</th>
+                <th>Username</th>
+                <th>Email address</th>
+                <th>Change password</th>
+                <th>Remove (WIP)</th>
+            </tr>
+        </thead>
         {% for user in users %}
         <tr>
+            <td>{{user.first_name}}</td>
+            <td>{{user.surname}}</td>
             <td>{{user.username}}</td>
             <td>{{user.email}}</td>
             <td>
-                <button id="change_password_button" data-id="{{user.user_id}}"
-                        onclick="addWorkshopBooking({{user.user_id}})" value="val_1" name="but1">Change password
+                <button id="change_password_button" data-id="{{user.user_id}}" class="btn btn-info"
+                        onclick="getPasswordResetCode({{user.user_id}})" value="val_1" name="but1">Get reset code
                 </button></td>
-            <td></td>
             <td>
-                <button id="remove_user_button" data-id="{{user.user_id}}"
-                        onclick="addWorkshopBooking({{user.user_id}})" value="val_2" name="but2">Remove
+                <button id="remove_user_button" data-id="{{user.user_id}}" class="btn btn-danger"
+                        onclick="TODO({{user.user_id}})" value="val_2" name="but2">Remove
                 </button>
             </td>
         </tr>
         {% endfor %}
     </table>
-    {% endfor %}
-
-    <form>
-    </form>
 </div>
 
 

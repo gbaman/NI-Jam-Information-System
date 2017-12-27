@@ -51,3 +51,9 @@ class VolunteerAttendance(Form):
     attending_packdown = SelectField("Attending Packdown", choices=[("False", "False"), ("True", "True")])
     attending_food = SelectField("Attending Food After", choices=[("False", "False"), ("True", "True")])
     notes = TextAreaField("Notes")
+
+
+class ResetPasswordForm(Form):
+    username = StringField("Username", [validators.DataRequired()])
+    reset_code = StringField("Reset Code", [validators.DataRequired()])
+    new_password = PasswordField("New Password", [validators.DataRequired()])

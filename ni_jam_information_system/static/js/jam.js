@@ -120,3 +120,21 @@ function deleteJamWorkshop(workshop_id) {
         }
     });
 }
+
+function getPasswordResetCode(user_id) {
+    $.ajax({
+        type: "POST",
+        url: "/admin_get_password_reset_code_ajax",
+        data: {
+            user_id: user_id
+        },
+        success: function (result) {
+            alert(result);
+            window.location.reload();
+        },
+        error: function (result) {
+            alert('Error getting reset code.');
+            window.location.reload();
+        }
+    });
+}

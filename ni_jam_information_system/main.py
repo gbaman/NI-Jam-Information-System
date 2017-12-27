@@ -1,8 +1,12 @@
+import random
+import string
+
+import flask_bcrypt
 from flask import Flask, render_template, request, make_response, redirect, flash
 
 app = Flask(__name__)
 from datetime import datetime, timedelta
-from logins import *
+import logins
 import database as database
 import forms as forms
 import eventbrite_interactions as eventbrite
@@ -18,12 +22,12 @@ access_code = "secret-code"
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
-    db_session.remove()
+    database.db_session.remove()
 
 
 @app.before_request
 def check_permission():
-    permission_granted, user = check_allowed(request)
+    permission_granted, user = logins.check_allowed(request)
     print(request.url_root)
     if not permission_granted:
         return render_template("errors/permission.html")
@@ -42,7 +46,7 @@ def test():
 @app.route("/admin/import_attendees_from_eventbrite/<jam_id>")
 def import_from_eventbrite(jam_id):
     print("Importing...")
-    update_attendees_from_eventbrite(jam_id)
+    database.update_attendees_from_eventbrite(jam_id)
     return redirect("/admin/add_jam")
 
 @app.route('/', methods=['POST', 'GET'])
@@ -54,7 +58,7 @@ def index():
     if request.method == 'POST' and form.validate():
         if database.verify_attendee_id(form.order_id.data) and form.day_password.data == day_password:
             resp = make_response(redirect("workshops"))
-            resp.set_cookie('jam_order_id', str(form.order_id.data), expires=(datetime.datetime.now() + timedelta(hours=6)))
+            resp.set_cookie('jam_order_id', str(form.order_id.data), expires=(datetime.now() + timedelta(hours=6)))
             resp.set_cookie('jam_id', str(current_jam_id))
             return resp
         else:
@@ -99,9 +103,9 @@ def delete_jam():
 def login():
     form = forms.LoginForm(request.form)
     if request.method == 'POST' and form.validate():
-        if validate_login(form.username.data, form.password.data):
+        if logins.validate_login(form.username.data, form.password.data):
             resp = make_response(redirect(('admin/admin_home')))
-            resp.set_cookie("jam_login", get_cookie_for_username(form.username.data))
+            resp.set_cookie("jam_login", database.get_cookie_for_username(form.username.data))
             return resp
         print("Failed to login!")
     return(render_template("login.html", form=form))
@@ -111,20 +115,13 @@ def login():
 def register():
     form = forms.RegisterUserForm(request.form)
     if request.method == 'POST' and form.validate():
-        if form.access_code.data == access_code and not get_user_details_from_username(form.username.data):
-            salt = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))
-            bcrypt_password = flask_bcrypt.generate_password_hash(form.password.data + salt)
+        if form.access_code.data == access_code and not database.get_user_details_from_username(form.username.data):
+            salt, bcrypt_password = logins.create_password_salt(form.password.data)
             database.create_user(form.username.data, bcrypt_password, salt, form.first_name.data, form.surname.data)
             return "New user account created!"
         return "Error, unable to create user account. User may already exist or access code may be incorrect"
     return(render_template("register.html", form=form))
 
-
-#@app.route("/check_login", methods=['POST', 'GET'])
-#def check_login():
-#    resp = make_response("Added")
-#    resp.set_cookie("jam_login", "12345")
-#    return resp
 
 @app.route('/admin/manage_workshop_catalog/', methods=['GET', 'POST'])
 @app.route('/admin/manage_workshop_catalog/<workshop_id>', methods=['GET', 'POST'])
@@ -149,7 +146,7 @@ def add_workshop_to_catalog(workshop_id = None):
 def add_workshop_to_jam():
     form = forms.AddWorkshopToJam(request.form)
     if request.method == 'POST':# and form.validate():
-        add_workshop_to_jam_from_catalog(current_jam_id, form.workshop.data, form.volunteer.data, form.slot.data, form.room.data, int(literal_eval(form.pilot.data)))
+        database.add_workshop_to_jam_from_catalog(current_jam_id, form.workshop.data, form.volunteer.data, form.slot.data, form.room.data, int(literal_eval(form.pilot.data)))
         print("{}  {}   {}".format(form.slot.data, form.workshop.data, form.volunteer.data))
         print("Thanks for adding")
         return redirect("/admin/add_workshop_to_jam", code=302)
@@ -168,9 +165,27 @@ def admin_workshops():
 
 @app.route("/admin/modify_users", methods=['GET', 'POST'])
 def modify_users():
-    database.get_users()
-    render_template()
-    # This section is for modifying users, needs wired up with SQL
+    users = database.get_users()
+    return render_template("admin/modify_users.html", users = users)
+
+
+@app.route("/admin_get_password_reset_code_ajax", methods=['GET', 'POST'])
+def get_password_reset_code():
+    user_id = request.form['user_id']
+    reset_code = database.get_user_reset_code(user_id)
+    return "The requested password reset code is - {}".format(reset_code)
+
+
+@app.route("/reset", methods=['GET', 'POST'])
+def reset_password():
+    form = forms.ResetPasswordForm(request.form)
+    if request.method == 'POST' and form.validate():
+        salt, hash = logins.create_password_salt(form.new_password.data)
+        if database.reset_password(form.username.data, form.reset_code.data, salt, hash):
+            return redirect("/login")
+        return (render_template("reset_password.html", form=form, error="Reset failed, credentials provided are invalid."))
+    return (render_template("reset_password.html", form=form))
+
 
 @app.route("/admin/attendee_list")
 def attendee_list():
@@ -181,7 +196,7 @@ def attendee_list():
 @app.route("/workshops")
 def display_workshops():
     if database.verify_attendee_id(request.cookies.get('jam_order_id')):
-        workshop_attendees = get_attendees_in_order(request.cookies.get("jam_order_id"))
+        workshop_attendees = database.get_attendees_in_order(request.cookies.get("jam_order_id"))
         attendees = []
         if workshop_attendees:
             for attendee in workshop_attendees:
@@ -264,10 +279,10 @@ def volunteer_attendance():
     volunteer_attendances = database.get_attending_volunteers(current_jam_id, request.logged_in_user.user_id)
     form = forms.VolunteerAttendance(request.form)
     if request.method == 'POST' and form.validate():
-        add_volunteer_attendance(current_jam_id, request.logged_in_user.user_id, int(literal_eval(form.attending_jam.data)), int(literal_eval(form.attending_setup.data)), int(literal_eval(form.attending_packdown.data)), int(literal_eval(form.attending_food.data)), form.notes.data)
+        database.add_volunteer_attendance(current_jam_id, request.logged_in_user.user_id, int(literal_eval(form.attending_jam.data)), int(literal_eval(form.attending_setup.data)), int(literal_eval(form.attending_packdown.data)), int(literal_eval(form.attending_food.data)), form.notes.data)
 
         return redirect(("/admin/volunteer_attendance"), code=302)
-    return render_template("admin/volunteer_attendance.html", form=form, volunteer_attendances=volunteer_attendances, user_id=request.logged_in_user.user_id)
+    return render_template("admin/volunteer_attendance.html", form=form, volunteer_attendances=volunteer_attendances, user_id=request.logged_in_user.user_id, eventbrite_event_name = eventbrite.get_eventbrite_event_by_id(current_jam_id)["name"]["text"])
 
 
 @app.route("/api/users_not_responded/<token>")
@@ -285,7 +300,7 @@ def get_users_not_responded_to_attendance(token):
 def get_jam_info(token):
     if token in api_keys:
         jam = eventbrite.get_eventbrite_event_by_id(current_jam_id)
-        to_return = [jam["name"]["text"], (datetime.datetime.now() - database.convert_to_python_datetime(jam["start"]["local"].replace("T", " "))).days]
+        to_return = [jam["name"]["text"], (datetime.now() - database.convert_to_python_datetime(jam["start"]["local"].replace("T", " "))).days]
         return json.dumps(to_return)
     else:
         return "[]"

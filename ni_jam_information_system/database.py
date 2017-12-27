@@ -1,5 +1,6 @@
 import random
 import string
+import uuid
 
 from models import *
 from eventbrite_interactions import get_eventbrite_attendees_for_event
@@ -526,3 +527,22 @@ def delete_workshop(workshop_id):
     workshop = db_session.query(Workshop).filter(Workshop.workshop_id == workshop_id).first()
     db_session.delete(workshop)
     db_session.commit()
+
+
+def get_user_reset_code(user_id):
+    new_code = str(uuid.uuid4()).replace("-", "")[:10]
+    user = db_session.query(LoginUser).filter(LoginUser.user_id == user_id).first()
+    user.reset_code = new_code
+    db_session.commit()
+    return new_code
+
+
+def reset_password(username, reset_code, salt, hash):
+    user = db_session.query(LoginUser).filter(LoginUser.username == username, LoginUser.reset_code == reset_code).first()
+    if user:
+        user.password_hash = hash
+        user.password_salt = salt
+        user.reset_code = None
+        db_session.commit()
+        return True
+    return False
