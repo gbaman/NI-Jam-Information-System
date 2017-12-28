@@ -307,7 +307,7 @@ def get_users_not_responded_to_attendance(token):
 def get_jam_info(token):
     if token in api_keys:
         jam = eventbrite.get_eventbrite_event_by_id(get_current_jam_id())
-        to_return = [jam["name"]["text"], (datetime.now() - database.convert_to_python_datetime(jam["start"]["local"].replace("T", " "))).days]
+        to_return = [jam["name"]["text"], (database.convert_to_python_datetime(jam["start"]["local"].replace("T", " ")) - datetime.now()).days]
         return json.dumps(to_return)
     else:
         return "[]"
