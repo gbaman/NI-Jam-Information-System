@@ -240,9 +240,9 @@ def get_time_slots_to_select(jam_id, user_id, admin_mode=False):
     return workshop_slots
 
 
-def verify_attendee_id(id):
+def verify_attendee_id(id, jam_id):
     if id:
-        attendees = db_session.query(Attendee).filter(Attendee.order_id == int(id)).all()
+        attendees = db_session.query(Attendee).filter(Attendee.order_id == int(id), Attendee.jam_id == jam_id).all()
         if attendees:
             return attendees
     return False

@@ -22,7 +22,7 @@ def shutdown_session(exception=None):
 
 @app.before_request
 def check_permission():
-    permission_granted, user = logins.check_allowed(request)
+    permission_granted, user = logins.check_allowed(request, current_jam_id)
     print(request.url_root)
     if not permission_granted:
         return render_template("errors/permission.html")
@@ -47,11 +47,11 @@ def import_from_eventbrite(jam_id):
 @app.route('/', methods=['POST', 'GET'])
 def index():
     cookie = request.cookies.get('jam_order_id')
-    if cookie and len(cookie) == 9 and database.verify_attendee_id(cookie):
+    if cookie and len(cookie) == 9 and database.verify_attendee_id(cookie, current_jam_id):
         return redirect("workshops")
     form = forms.GetOrderIDForm(request.form)
     if request.method == 'POST' and form.validate():
-        if database.verify_attendee_id(form.order_id.data) and form.day_password.data == day_password:
+        if database.verify_attendee_id(form.order_id.data, current_jam_id) and form.day_password.data == day_password:
             resp = make_response(redirect("workshops"))
             resp.set_cookie('jam_order_id', str(form.order_id.data), expires=(datetime.now() + timedelta(hours=6)))
             resp.set_cookie('jam_id', str(current_jam_id))
@@ -196,7 +196,7 @@ def attendee_list():
 
 @app.route("/workshops")
 def display_workshops():
-    if database.verify_attendee_id(request.cookies.get('jam_order_id')):
+    if database.verify_attendee_id(request.cookies.get('jam_order_id'), current_jam_id):
         workshop_attendees = database.get_attendees_in_order(request.cookies.get("jam_order_id"))
         attendees = []
         if workshop_attendees:
