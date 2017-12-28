@@ -12,12 +12,7 @@ import forms as forms
 import eventbrite_interactions as eventbrite
 from ast import literal_eval
 import json
-from secrets.config import api_keys
-
-
-current_jam_id = 39796296795
-day_password = "snow"
-access_code = "secret-code"
+from secrets.config import *
 
 
 @app.teardown_appcontext
@@ -107,7 +102,7 @@ def login():
             resp = make_response(redirect(('admin/admin_home')))
             resp.set_cookie("jam_login", database.get_cookie_for_username(form.username.data))
             return resp
-        print("Failed to login!")
+        return render_template("login.html", form=form, error="Unable to login, credentials incorrect")
     return(render_template("login.html", form=form))
 
 
