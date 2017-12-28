@@ -15,7 +15,8 @@ import json
 from secrets.config import *
 
 
-current_jam_id = database.get_current_jam_id()
+def get_current_jam_id():
+    return database.get_current_jam_id()
 
 
 @app.teardown_appcontext
@@ -25,16 +26,19 @@ def shutdown_session(exception=None):
 
 @app.before_request
 def check_permission():
-    permission_granted, user = logins.check_allowed(request, current_jam_id)
+    print("Current Jam is - {}".format(get_current_jam_id()))
+    permission_granted, user = logins.check_allowed(request, get_current_jam_id())
     print(request.url_root)
     if not permission_granted:
         return render_template("errors/permission.html")
     else:
         request.logged_in_user = user
 
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('errors/404.html'), 404
+
 
 @app.route("/test")
 def test():
@@ -50,14 +54,14 @@ def import_from_eventbrite(jam_id):
 @app.route('/', methods=['POST', 'GET'])
 def index():
     cookie = request.cookies.get('jam_order_id')
-    if cookie and len(cookie) == 9 and database.verify_attendee_id(cookie, current_jam_id):
+    if cookie and len(cookie) == 9 and database.verify_attendee_id(cookie, get_current_jam_id()):
         return redirect("workshops")
     form = forms.GetOrderIDForm(request.form)
     if request.method == 'POST' and form.validate():
-        if database.verify_attendee_id(form.order_id.data, current_jam_id) and form.day_password.data == day_password:
+        if database.verify_attendee_id(form.order_id.data, get_current_jam_id()) and form.day_password.data == day_password:
             resp = make_response(redirect("workshops"))
             resp.set_cookie('jam_order_id', str(form.order_id.data), expires=(datetime.now() + timedelta(hours=6)))
-            resp.set_cookie('jam_id', str(current_jam_id))
+            resp.set_cookie('jam_id', str(get_current_jam_id()))
             return resp
         else:
             return render_template('index.html', form=form, status="Error, no order with that ID found or Jam password is wrong. Please try again")
@@ -66,12 +70,12 @@ def index():
 
 @app.route("/admin/admin_home")
 def admin_home():
-    return render_template("admin/admin_home.html", eventbrite_event_name = eventbrite.get_eventbrite_event_by_id(current_jam_id)["name"]["text"])
+    return render_template("admin/admin_home.html", eventbrite_event_name = eventbrite.get_eventbrite_event_by_id(get_current_jam_id())["name"]["text"])
 
 
 @app.route("/admin/add_jam")
 def add_jam():
-    return render_template("admin/add_jam.html", jams=eventbrite.get_eventbrite_events_name_id(), jams_in_db=database.get_jams_dict(), current_jam_id = current_jam_id)
+    return render_template("admin/add_jam.html", jams=eventbrite.get_eventbrite_events_name_id(), jams_in_db=database.get_jams_dict(), current_jam_id=get_current_jam_id())
 
 @app.route("/admin/add_jam/<eventbrite_id>")
 def add_jam_id(eventbrite_id):
@@ -83,8 +87,8 @@ def add_jam_id(eventbrite_id):
 @app.route("/admin/delete_jam", methods=['POST', 'GET'])
 def delete_jam():
     jam_id = request.form["jam_id"]
-    if int(jam_id) == current_jam_id:
-        print("Error, unable to remove Jam as is the current selected Jam")
+    if int(jam_id) == get_current_jam_id():
+        print("Error, unable to remove Jam as is the current selected Jam {}".format(get_current_jam_id()))
         return
     print("Jam being deleted {}.".format(jam_id))
     database.remove_jam(jam_id)
@@ -93,15 +97,12 @@ def delete_jam():
 
 @app.route("/admin/select_jam", methods=['POST', 'GET'])
 def select_jam():
-    global current_jam_id
     jam_id = request.form["jam_id"]
-    if int(jam_id) == current_jam_id:
-        print("Error, unable to select Jam as is the current selected Jam")
+    if int(jam_id) == get_current_jam_id():
+        print("Error, unable to select Jam as is the current selected Jam - {}".format(get_current_jam_id()))
         return
     print("Jam being selected {}.".format(jam_id))
-    database.select_jam(jam_id)
-
-    current_jam_id = database.get_current_jam_id()
+    database.select_jam(int(jam_id))
     return " "
 
 
@@ -152,11 +153,11 @@ def add_workshop_to_catalog(workshop_id = None):
 def add_workshop_to_jam():
     form = forms.AddWorkshopToJam(request.form)
     if request.method == 'POST':# and form.validate():
-        database.add_workshop_to_jam_from_catalog(current_jam_id, form.workshop.data, form.volunteer.data, form.slot.data, form.room.data, int(literal_eval(form.pilot.data)))
+        database.add_workshop_to_jam_from_catalog(get_current_jam_id(), form.workshop.data, form.volunteer.data, form.slot.data, form.room.data, int(literal_eval(form.pilot.data)))
         print("{}  {}   {}".format(form.slot.data, form.workshop.data, form.volunteer.data))
         print("Thanks for adding")
         return redirect("/admin/add_workshop_to_jam", code=302)
-    return render_template('admin/add_workshop_to_jam_form.html', form=form, workshop_slots=database.get_time_slots_to_select(current_jam_id, 0, admin_mode=True))
+    return render_template('admin/add_workshop_to_jam_form.html', form=form, workshop_slots=database.get_time_slots_to_select(get_current_jam_id(), 0, admin_mode=True))
 
 
 @app.route('/admin/delete_workshop/<workshop_id>')
@@ -201,20 +202,20 @@ def reset_password():
 
 @app.route("/admin/attendee_list")
 def attendee_list():
-    jam_attendees = database.get_all_attendees_for_jam(current_jam_id)
+    jam_attendees = database.get_all_attendees_for_jam(get_current_jam_id())
     return render_template("admin/attendee_list.html", attendees=jam_attendees)
 
 
 @app.route("/workshops")
 def display_workshops():
-    if database.verify_attendee_id(request.cookies.get('jam_order_id'), current_jam_id):
+    if database.verify_attendee_id(request.cookies.get('jam_order_id'), get_current_jam_id()):
         workshop_attendees = database.get_attendees_in_order(request.cookies.get("jam_order_id"))
         attendees = []
         if workshop_attendees:
             for attendee in workshop_attendees:
                 attendees.append({"name":"{} {} - {}".format(attendee.first_name, attendee.surname, attendee.ticket_type), "id":attendee.attendee_id})
-            return render_template("workshops.html", workshop_slots=database.get_time_slots_to_select(current_jam_id, request.cookies.get('jam_order_id')), jam_attendees=attendees)
-        return render_template("workshops.html", workshop_slots=database.get_time_slots_to_select(current_jam_id, request.cookies.get('jam_order_id')))
+            return render_template("workshops.html", workshop_slots=database.get_time_slots_to_select(get_current_jam_id(), request.cookies.get('jam_order_id')), jam_attendees=attendees)
+        return render_template("workshops.html", workshop_slots=database.get_time_slots_to_select(get_current_jam_id(), request.cookies.get('jam_order_id')))
     else:
         return redirect("/")
 
@@ -243,7 +244,7 @@ def show_tokens():
 def add_workshop_bookings_ajax():
     workshop_id = request.form['workshop_id']
     attendee_id = request.form['attendee_id']
-    if database.add_attendee_to_workshop(current_jam_id, attendee_id, workshop_id):
+    if database.add_attendee_to_workshop(get_current_jam_id(), attendee_id, workshop_id):
         return("")
 
 
@@ -251,7 +252,7 @@ def add_workshop_bookings_ajax():
 def remove_workshop_bookings_ajax():
     workshop_id = request.form['workshop_id']
     attendee_id = request.form['attendee_id']
-    if database.remove_attendee_to_workshop(current_jam_id, attendee_id, workshop_id):
+    if database.remove_attendee_to_workshop(get_current_jam_id(), attendee_id, workshop_id):
         return("")
 
 
@@ -259,7 +260,7 @@ def remove_workshop_bookings_ajax():
 def background_test():
     workshop_id = request.form['workshop_id']
     attendee_id = request.form['attendee_id']
-    if database.add_attendee_to_workshop(current_jam_id, attendee_id, workshop_id):
+    if database.add_attendee_to_workshop(get_current_jam_id(), attendee_id, workshop_id):
         return ("")
 
 @app.route("/delete_workshop_from_jam_ajax", methods=['GET', 'POST'])
@@ -270,7 +271,7 @@ def delete_workshop_from_jam_ajax():
 
 @app.route("/admin/volunteer")
 def volunteer():
-    time_slots, workshop_rooms_in_use = database.get_volunteer_data(current_jam_id, request.logged_in_user)
+    time_slots, workshop_rooms_in_use = database.get_volunteer_data(get_current_jam_id(), request.logged_in_user)
     return render_template("admin/volunteer_signup.html", time_slots = time_slots, workshop_rooms_in_use = workshop_rooms_in_use, current_selected = ",".join(str(x.workshop_run_id) for x in request.logged_in_user.workshop_runs) +",")
 
     # TODO : Finish off adding the custom rooms/"workshops" for front desk, parking etc
@@ -282,16 +283,16 @@ def update_volunteer():
     for session in new_sessions:
         if len(session) > 0:
             sessions.append(int(session))
-    if database.set_user_workshop_runs_from_ids(request.logged_in_user, current_jam_id, sessions):
+    if database.set_user_workshop_runs_from_ids(request.logged_in_user, get_current_jam_id(), sessions):
         return "True"
 
 
 @app.route("/admin/volunteer_attendance", methods=['GET', 'POST'])
 def volunteer_attendance():
-    volunteer_attendances = database.get_attending_volunteers(current_jam_id, request.logged_in_user.user_id)
+    volunteer_attendances = database.get_attending_volunteers(get_current_jam_id(), request.logged_in_user.user_id)
     form = forms.VolunteerAttendance(request.form)
     if request.method == 'POST' and form.validate():
-        database.add_volunteer_attendance(current_jam_id, request.logged_in_user.user_id, int(literal_eval(form.attending_jam.data)), int(literal_eval(form.attending_setup.data)), int(literal_eval(form.attending_packdown.data)), int(literal_eval(form.attending_food.data)), form.notes.data)
+        database.add_volunteer_attendance(get_current_jam_id(), request.logged_in_user.user_id, int(literal_eval(form.attending_jam.data)), int(literal_eval(form.attending_setup.data)), int(literal_eval(form.attending_packdown.data)), int(literal_eval(form.attending_food.data)), form.notes.data)
 
         return redirect(("/admin/volunteer_attendance"), code=302)
     return render_template("admin/volunteer_attendance.html", form=form, volunteer_attendances=volunteer_attendances, user_id=request.logged_in_user.user_id, eventbrite_event_name = eventbrite.get_eventbrite_event_by_id(current_jam_id)["name"]["text"])
@@ -300,7 +301,7 @@ def volunteer_attendance():
 @app.route("/api/users_not_responded/<token>")
 def get_users_not_responded_to_attendance(token):
     if token in api_keys:
-        users_not_responded = database.get_users_not_responded_to_attendance(current_jam_id)
+        users_not_responded = database.get_users_not_responded_to_attendance(get_current_jam_id())
         email_addresses = []
         for user in users_not_responded:
             email_addresses.append(user.email)
@@ -311,7 +312,7 @@ def get_users_not_responded_to_attendance(token):
 @app.route("/api/jam_info/<token>")
 def get_jam_info(token):
     if token in api_keys:
-        jam = eventbrite.get_eventbrite_event_by_id(current_jam_id)
+        jam = eventbrite.get_eventbrite_event_by_id(get_current_jam_id())
         to_return = [jam["name"]["text"], (datetime.now() - database.convert_to_python_datetime(jam["start"]["local"].replace("T", " "))).days]
         return json.dumps(to_return)
     else:
