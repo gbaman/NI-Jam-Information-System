@@ -2,16 +2,16 @@
 {% from "_formhelpers.html" import render_field %}
 
 <div class="container">
-    <form method=post>
+    <form method=post style="max-width: 220px">
         <dl>
-            {{ render_field(form.username) }}
-            {{ render_field(form.password) }}
-            {{ render_field(form.first_name) }}
-            {{ render_field(form.surname) }}
-            {{ render_field(form.email) }}
-            {{ render_field(form.access_code) }}
+            {{ render_field(form.username, class="form-control") }}
+            {{ render_field(form.password, class="form-control") }}
+            {{ render_field(form.first_name, class="form-control") }}
+            {{ render_field(form.surname, class="form-control") }}
+            {{ render_field(form.email, class="form-control") }}
+            {{ render_field(form.access_code, class="form-control") }}
         </dl>
-    <p><input type=submit value="Register">
+    <p><input class="btn btn-primary" type=submit value="Register">
     </form>
 </div>
 {%include 'footer.html'%}
