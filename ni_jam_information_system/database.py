@@ -54,24 +54,23 @@ def get_group_id_required_for_page(page_url):
         return 4 # No path found
 
 
-def add_jam(eventbrite_id, jam_name, date):
-
-
-    jam = RaspberryJam(jam_id=eventbrite_id, name=jam_name, date=date)
-
+def add_jam(eventbrite_id, jam_name, date): # Add a new Jam, plus a series of placeholder default hidden workshops (parking, front desk and break time)
+    jam = RaspberryJam(jam_id=eventbrite_id, name=jam_name, date=date) # Add the Jam row
     db_session.add(jam)
     db_session.commit()
+
+
     car_parking_workshop = db_session.query(Workshop).filter(Workshop.workshop_title == "Car Parking").first()
     car_parking_room = db_session.query(WorkshopRoom).filter(WorkshopRoom.room_name == "Car Park").first()
     car_parking = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=car_parking_workshop.workshop_id, workshop_room_id=car_parking_room.room_id, slot_id=0, pilot=0)
-    db_session.add(car_parking)
+    db_session.add(car_parking) # Add car parking into slot 0
 
     front_desk_workshop = db_session.query(Workshop).filter(Workshop.workshop_title == "Front desk").first()
     front_desk_registration_room = db_session.query(WorkshopRoom).filter(WorkshopRoom.room_name == "Front Desk Registration").first()
     front_desk_room = db_session.query(WorkshopRoom).filter(WorkshopRoom.room_name == "Front Desk General").first()
-
     front_desk = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=front_desk_workshop.workshop_id, workshop_room_id=front_desk_registration_room.room_id, slot_id=0, pilot=0)
-    db_session.add(front_desk)
+
+    db_session.add(front_desk) # Add front desk registration
 
     front_desk = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=front_desk_workshop.workshop_id, workshop_room_id=front_desk_room.room_id, slot_id=1, pilot=0)
     db_session.add(front_desk)
@@ -80,12 +79,21 @@ def add_jam(eventbrite_id, jam_name, date):
     front_desk = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=front_desk_workshop.workshop_id, workshop_room_id=front_desk_room.room_id, slot_id=3, pilot=0)
     db_session.add(front_desk)
     front_desk = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=front_desk_workshop.workshop_id, workshop_room_id=front_desk_room.room_id, slot_id=4, pilot=0)
-    db_session.add(front_desk)
+    db_session.add(front_desk) # Add 4th normal front desk
+
+
+    break_room = db_session.query(WorkshopRoom).filter(WorkshopRoom.room_name == "Foyer").first()
+    break_workshop = db_session.query(Workshop).filter(Workshop.workshop_title == "Break time").first()
+    break_time = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=break_workshop.workshop_id, workshop_room_id=break_room.room_id, slot_id=3, pilot=0)
+    db_session.add(break_time) # Add break time into break session
+
 
     db_session.commit()
 
+
 def get_jams_in_db():
     return db_session().query(RaspberryJam).all()
+
 
 def get_jams_dict():
     jams = get_jams_in_db()
@@ -470,6 +478,7 @@ def set_user_workshop_runs_from_ids(user, jam_id, workshop_run_ids):
 
 def remove_jam(jam_id):
     db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.jam_id == jam_id).delete()
+    db_session.query(Attendee).filter(Attendee.jam_id == jam_id).delete()
     jam = db_session.query(RaspberryJam).filter(RaspberryJam.jam_id == jam_id).first()
     db_session.delete(jam)
     db_session.commit()
