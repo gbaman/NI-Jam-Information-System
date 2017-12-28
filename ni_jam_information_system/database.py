@@ -484,6 +484,12 @@ def remove_jam(jam_id):
     db_session.commit()
 
 
+def select_jam(jam_id):
+    config_option = db_session.query(Configuration).filter(Configuration.config_name == "jam_id").first()
+    config_option.config_value = str(jam_id)
+    db_session.commit()
+
+
 def get_attending_volunteers(jam_id, logged_in_user_id):
     all_volunteers = db_session.query(LoginUser).all() # Get all the volunteers
     for volunteer in all_volunteers:
@@ -561,3 +567,8 @@ def set_group_for_user(user_id, group_id):
     user = db_session.query(LoginUser).filter(LoginUser.user_id == user_id).first()
     user.group_id = group_id
     db_session.commit()
+
+
+def get_current_jam_id():
+    jam_id = int(db_session.query(Configuration).filter(Configuration.config_name == "jam_id").first().config_value)
+    return jam_id

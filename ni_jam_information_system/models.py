@@ -33,6 +33,14 @@ class Attendee(Base):
     jam = relationship('RaspberryJam')
 
 
+class Configuration(Base):
+    __tablename__ = 'configuration'
+
+    config_id = Column(Integer, primary_key=True, unique=True)
+    config_name = Column(String(45))
+    config_value = Column(String(45))
+
+
 class Group(Base):
     __tablename__ = 'groups'
 

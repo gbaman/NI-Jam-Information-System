@@ -15,6 +15,9 @@ import json
 from secrets.config import *
 
 
+current_jam_id = database.get_current_jam_id()
+
+
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     database.db_session.remove()
@@ -77,12 +80,6 @@ def add_jam_id(eventbrite_id):
     return redirect("/admin/add_jam", code=302)
 
 
-@app.route("/admin/select_jam", methods=['POST', 'GET'])
-def select_jam():
-    jam_id = request.form["jam_id"]
-    print("Jam being selected {}".format( jam_id))
-    return " "
-
 @app.route("/admin/delete_jam", methods=['POST', 'GET'])
 def delete_jam():
     jam_id = request.form["jam_id"]
@@ -91,6 +88,20 @@ def delete_jam():
         return
     print("Jam being deleted {}.".format(jam_id))
     database.remove_jam(jam_id)
+    return " "
+
+
+@app.route("/admin/select_jam", methods=['POST', 'GET'])
+def select_jam():
+    global current_jam_id
+    jam_id = request.form["jam_id"]
+    if int(jam_id) == current_jam_id:
+        print("Error, unable to select Jam as is the current selected Jam")
+        return
+    print("Jam being selected {}.".format(jam_id))
+    database.select_jam(jam_id)
+
+    current_jam_id = database.get_current_jam_id()
     return " "
 
 
