@@ -26,9 +26,7 @@ def shutdown_session(exception=None):
 
 @app.before_request
 def check_permission():
-    print("Current Jam is - {}".format(get_current_jam_id()))
     permission_granted, user = logins.check_allowed(request, get_current_jam_id())
-    print(request.url_root)
     if not permission_granted:
         return render_template("errors/permission.html")
     else:
@@ -47,7 +45,6 @@ def test():
 
 @app.route("/admin/import_attendees_from_eventbrite/<jam_id>")
 def import_from_eventbrite(jam_id):
-    print("Importing...")
     database.update_attendees_from_eventbrite(jam_id)
     return redirect("/admin/add_jam")
 
@@ -144,7 +141,6 @@ def add_workshop_to_catalog(workshop_id = None):
         form.process()
     if request.method == 'POST' and form.validate():
         database.add_workshop(form.workshop_id.data, form.workshop_title.data, form.workshop_description.data, form.workshop_limit.data, form.workshop_level.data)
-        print("Thanks for adding")
         return redirect(('admin/manage_workshop_catalog'))
     return render_template('admin/manage_workshop_catalog.html', form=form, workshops=database.get_workshops_to_select())
 
@@ -154,8 +150,6 @@ def add_workshop_to_jam():
     form = forms.AddWorkshopToJam(request.form)
     if request.method == 'POST':# and form.validate():
         database.add_workshop_to_jam_from_catalog(get_current_jam_id(), form.workshop.data, form.volunteer.data, form.slot.data, form.room.data, int(literal_eval(form.pilot.data)))
-        print("{}  {}   {}".format(form.slot.data, form.workshop.data, form.volunteer.data))
-        print("Thanks for adding")
         return redirect("/admin/add_workshop_to_jam", code=302)
     return render_template('admin/add_workshop_to_jam_form.html', form=form, workshop_slots=database.get_time_slots_to_select(get_current_jam_id(), 0, admin_mode=True))
 

@@ -82,7 +82,7 @@ def add_jam(eventbrite_id, jam_name, date): # Add a new Jam, plus a series of pl
     db_session.add(front_desk) # Add 4th normal front desk
 
 
-    break_room = db_session.query(WorkshopRoom).filter(WorkshopRoom.room_name == "Foyer").first()
+    break_room = db_session.query(WorkshopRoom).filter(WorkshopRoom.room_name == "Foyer (ground floor)").first()
     break_workshop = db_session.query(Workshop).filter(Workshop.workshop_title == "Break time").first()
     break_time = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=break_workshop.workshop_id, workshop_room_id=break_room.room_id, slot_id=3, pilot=0)
     db_session.add(break_time) # Add break time into break session
@@ -477,7 +477,14 @@ def set_user_workshop_runs_from_ids(user, jam_id, workshop_run_ids):
 
 
 def remove_jam(jam_id):
-    db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.jam_id == jam_id).delete()
+    workshops = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.jam_id == jam_id).all()
+    for workshop in workshops:
+        workshop.users = []
+    db_session.commit()
+
+    for workshop in workshops:
+        db_session.delete(workshop)
+
     db_session.query(Attendee).filter(Attendee.jam_id == jam_id).delete()
     jam = db_session.query(RaspberryJam).filter(RaspberryJam.jam_id == jam_id).first()
     db_session.delete(jam)
