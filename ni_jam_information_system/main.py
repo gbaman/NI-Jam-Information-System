@@ -247,7 +247,7 @@ def remove_workshop_bookings_ajax():
 
 
 @app.route("/admin_modify_workshop_ajax", methods=['GET', 'POST'])
-def background_test():
+def modify_workshop_ajax():
     workshop_id = request.form['workshop_id']
     attendee_id = request.form['attendee_id']
     if database.add_attendee_to_workshop(get_current_jam_id(), attendee_id, workshop_id):
@@ -258,6 +258,21 @@ def delete_workshop_from_jam_ajax():
     workshop_id = request.form['workshop_id']
     database.remove_workshop_from_jam(workshop_id)
     return redirect("/admin/add_workshop_to_jam", code=302)
+
+
+@app.route("/admin_check_out_attendee_ajax", methods=['GET', 'POST'])
+def check_out_attendee_ajax():
+    attendee_id = request.form['attendee_id']
+    database.check_out_attendee(attendee_id)
+    return redirect("/admin/manage_attendees", code=302)
+
+
+@app.route("/admin_check_in_attendee_ajax", methods=['GET', 'POST'])
+def check_in_attendee_ajax():
+    attendee_id = request.form['attendee_id']
+    database.check_in_attendee(attendee_id)
+    return " "
+
 
 @app.route("/admin/volunteer")
 def volunteer():
@@ -276,6 +291,13 @@ def update_volunteer():
         return "True"
 
 
+@app.route("/admin_update_attendee_info_ajax", methods=['GET', 'POST'])
+def update_attendee_info():
+    current_jam = database.get_current_jam_id()
+    database.update_attendees_from_eventbrite(current_jam)
+    return " "
+
+
 @app.route("/admin/volunteer_attendance", methods=['GET', 'POST'])
 def volunteer_attendance():
     volunteer_attendances = database.get_attending_volunteers(get_current_jam_id(), request.logged_in_user.user_id)
@@ -291,6 +313,28 @@ def volunteer_attendance():
 def public_schedule():
     time_slots, workshop_rooms_in_use =database.get_workshop_timetable_data(database.get_current_jam_id())
     return render_template("public_schedule.html", time_slots = time_slots, workshop_rooms_in_use = workshop_rooms_in_use, container_name = " ")
+
+
+@app.route("/admin/manage_attendees")
+def manage_attendees():
+    jam_attendees = database.get_all_attendees_for_jam(get_current_jam_id())
+    for attendee in jam_attendees:
+        if attendee.current_location == "Checked in":
+            attendee.bg_colour = database.green
+        elif attendee.current_location == "Checked out":
+            attendee.bg_colour = database.yellow
+        elif attendee.current_location == "Not arrived":
+            attendee.bg_colour = database.light_grey
+
+    #jam_attendees = sorted(jam_attendees, key=lambda x: x.order_id, reverse=False)
+    jam_attendees = sorted(jam_attendees, key=lambda x: x.current_location, reverse=False)
+    return render_template("admin/manage_attendees.html", attendees=jam_attendees)
+
+
+@app.route("/admin/fire_list")
+def fire_list():
+    jam_attendees = database.get_all_attendees_for_jam(get_current_jam_id())
+    return render_template("admin/fire_list.html", attendees=jam_attendees)
 
 
 @app.route("/api/users_not_responded/<token>")

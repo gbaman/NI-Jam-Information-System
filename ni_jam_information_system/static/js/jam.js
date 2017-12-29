@@ -157,3 +157,56 @@ function upgradeToVolunteerPermission(user_id) {
         }
     });
 }
+
+
+function checkOutAttendee(attendee_id) {
+    $.ajax({
+        type: "POST",
+        url: "/admin_check_out_attendee_ajax",
+        data: {
+            attendee_id: attendee_id
+        },
+        success: function (result) {
+            alert("Attendee status updated");
+            window.location.reload();
+        },
+        error: function (result) {
+            alert('Error updating status');
+            window.location.reload();
+        }
+    });
+}
+
+
+function checkInAttendee(attendee_id) {
+    $.ajax({
+        type: "POST",
+        url: "/admin_check_in_attendee_ajax",
+        data: {
+            attendee_id: attendee_id
+        },
+        success: function (result) {
+            alert("Attendee status updated");
+            window.location.reload();
+        },
+        error: function (result) {
+            alert('Error updating status');
+            window.location.reload();
+        }
+    });
+}
+
+function updateAttendeeInfo() {
+    $.ajax({
+        type: "POST",
+        url: "/admin_update_attendee_info_ajax",
+        success: function (result) {
+            alert("Attendee info updated");
+            window.location.reload();
+        },
+        error: function (result) {
+            alert('Error updating attendee info');
+            window.location.reload();
+        }
+    });
+}

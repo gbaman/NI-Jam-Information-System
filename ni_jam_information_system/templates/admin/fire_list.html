@@ -1,0 +1,27 @@
+{%include 'admin/admin_header.html'%}
+<h1>Fire List</h1>
+<p>Below is the list of all attendees current still marked as Checked in. The full list of attendees and their status can be found on the <a href="/admin/manage_attendees">front desk attendee list</a>.</p>
+<br>
+<div class="attendees">
+    <table class="table table-hover, table-bordered">
+        <tr bgcolor="#d3d3d3">
+            <th>First name</th>
+            <th>Surname</th>
+            <th>Age</th>
+            <th>Order ID</th>
+            <th>Current status</th>
+        </tr>
+        {% for attendee in attendees %}
+            {% if attendee.current_location == "Checked in" %}
+            <tr bgcolor="{{ attendee.bg_colour }}">
+                <td>{{attendee.first_name}}</td>
+                <td>{{attendee.surname}}</td>
+                <td>{{attendee.age}}</td>
+                <td>{{attendee.order_id}}</td>
+                <td>{{attendee.current_location}}</td>
+            </tr>
+            {% endif %}
+        {% endfor %}
+    </table>
+</div>
+{%include 'footer.html'%}

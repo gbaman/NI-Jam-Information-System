@@ -1,0 +1,46 @@
+{%include 'admin/admin_header.html'%}
+<h1>Front Desk Attendee Management</h1>
+
+<p>This page is designed for front desk use only. For getting attendee IDs, us  the <a href="/admin/attendee_list">general attendee list</a>.</p>
+<p>The fire list can be found on the <a href="/admin/fire_list">fire list page</a>.</p>
+<p>Use this page to check out attendees as they leave. If more attendees have been checked in via Eventbrite since last imported, make sure to hit the below button to import the attendee information again from Eventbrite.</p>
+<p>Note that the import process can take up to 10 seconds.</p>
+
+<br>
+<button id="submit_button" class="btn btn-info"
+                        onclick="updateAttendeeInfo()" value="val_1" name="but1">Update attendee information from Eventbrite
+                </button>
+<br>
+<div class="attendees">
+    <table class="table table-hover, table-bordered">
+        <tr bgcolor="#d3d3d3">
+            <th>First name</th>
+            <th>Surname</th>
+            <th>Age</th>
+            <th>Order ID</th>
+            <th>Current status</th>
+            <th>Check in again</th>
+            <th>Check out</th>
+        </tr>
+        {% for attendee in attendees %}
+            <tr bgcolor="{{ attendee.bg_colour }}">
+                <td>{{attendee.first_name}}</td>
+                <td>{{attendee.surname}}</td>
+                <td>{{attendee.age}}</td>
+                <td>{{attendee.order_id}}</td>
+                <td>{{attendee.current_location}}</td>
+                <td>
+                <button id="check_in_button" data-id="{{attendee.attendee_id}}" class="btn btn-warning"
+                        onclick="checkInAttendee({{attendee.attendee_id}})" value="val_1" name="but1">Check in
+                </button>
+                </td>
+                <td>
+                <button id="check_out_button" data-id="{{attendee.attendee_id}}" class="btn btn-warning"
+                        onclick="checkOutAttendee({{attendee.attendee_id}})" value="val_2" name="but2">Check out
+                </button>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+{%include 'footer.html'%}

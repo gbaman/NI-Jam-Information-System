@@ -13,6 +13,7 @@ yellow = "#fff60a"
 green = "#c4fc9f"
 grey = "#969696"
 blue = "#00bbff"
+light_grey = "#d1d1d1"
 
 
 def init_db():
@@ -156,6 +157,16 @@ def update_attendees_from_eventbrite(event_id):
         new_attendee.order_id = attendee["order_id"],
         new_attendee.ticket_type = attendee["ticket_class_name"]
         new_attendee.jam_id = int(event_id)
+        new_attendee.checked_in = attendee["checked_in"]
+
+        # 4 available states for current_location, Checked in, Checked out, Not arrived and None.
+        if new_attendee.current_location is None: # If current_location has not been set
+            if attendee["checked_in"]:
+                new_attendee.current_location = "Checked in"
+            else:
+                new_attendee.current_location = "Not arrived"
+        elif new_attendee.current_location == "Not arrived" and attendee["checked_in"]:
+            new_attendee.current_location = "Checked in"
 
         if not found_attendee:
             db_session.add(new_attendee)
@@ -389,15 +400,8 @@ def get_cookie_for_username(username):
     return user.LoginCookie.cookie_value
 
 def get_all_attendees_for_jam(jam_id):
-    attendees = db_session.query(Attendee).filter(Attendee.jam_id == jam_id).order_by(Attendee.surname, Attendee.first_name)
-    return_attendees = []
-    for jam_attendee in attendees:
-        return_attendees.append({
-            "first_name":jam_attendee.first_name,
-            "surname": jam_attendee.surname,
-            "order_id": jam_attendee.order_id
-        })
-    return return_attendees
+    attendees = db_session.query(Attendee).filter(Attendee.jam_id == jam_id).order_by(Attendee.surname, Attendee.first_name).all()
+    return attendees
 # TODO : Investigate why jam_attendance isn't being used currently, as need the jam id from it
 
 
@@ -603,3 +607,15 @@ def set_group_for_user(user_id, group_id):
 def get_current_jam_id():
     jam_id = int(db_session.query(Configuration).filter(Configuration.config_name == "jam_id").first().config_value)
     return jam_id
+
+
+def check_out_attendee(attendee_id):
+    attendee = db_session.query(Attendee).filter(Attendee.attendee_id == attendee_id).first()
+    attendee.current_location = "Checked out"
+    db_session.commit()
+
+
+def check_in_attendee(attendee_id):
+    attendee = db_session.query(Attendee).filter(Attendee.attendee_id == attendee_id).first()
+    attendee.current_location = "Checked in"
+    db_session.commit()

@@ -29,6 +29,8 @@ class Attendee(Base):
     order_id = Column(BigInteger)
     ticket_type = Column(String(45))
     jam_id = Column(ForeignKey('raspberry_jam.jam_id'), primary_key=True, nullable=False, index=True)
+    checked_in = Column(Integer)
+    current_location = Column(String(15))
 
     jam = relationship('RaspberryJam')
 
