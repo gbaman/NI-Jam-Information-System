@@ -121,8 +121,8 @@ def register():
     if request.method == 'POST' and form.validate():
         if form.access_code.data == access_code and not database.get_user_details_from_username(form.username.data):
             salt, bcrypt_password = logins.create_password_salt(form.password.data)
-            database.create_user(form.username.data, bcrypt_password, salt, form.first_name.data, form.surname.data)
-            return "New user account created!"
+            database.create_user(form.username.data, bcrypt_password, salt, form.first_name.data, form.surname.data, form.email.data)
+            return 'New user account created! <meta http-equiv="refresh" content="3;url=/login" />'
         return "Error, unable to create user account. User may already exist or access code may be incorrect"
     return(render_template("register.html", form=form))
 

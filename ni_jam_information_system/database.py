@@ -326,7 +326,7 @@ def get_user_details_from_username(username):
     return db_session.query(LoginUser).filter(LoginUser.username == username).first()
 
 
-def create_user(username, password_hash, password_salt, first_name, surname, ):
+def create_user(username, password_hash, password_salt, first_name, surname, email):
     cookie = LoginCookie()
     db_session.add(cookie)
     db_session.commit()
@@ -338,6 +338,7 @@ def create_user(username, password_hash, password_salt, first_name, surname, ):
     user.surname = surname
     user.login_cookie_id = cookie.cookie_id
     user.group_id = 1
+    user.email = email
 
     db_session.add(user)
     db_session.commit()

@@ -67,7 +67,7 @@ class LoginCookie(Base):
 class LoginUser(Base):
     __tablename__ = 'login_users'
 
-    user_id = Column(Integer, primary_key=True, nullable=False, unique=True)
+    user_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
     username = Column(String(45), nullable=False, unique=True)
     password_hash = Column(String(100), nullable=False)
     password_salt = Column(String(45), nullable=False)
