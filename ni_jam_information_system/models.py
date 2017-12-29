@@ -119,6 +119,7 @@ class RaspberryJamWorkshop(Base):
     workshop = relationship('Workshop')
     workshop_room = relationship('WorkshopRoom')
     users = relationship('LoginUser', secondary='workshop_volunteers')
+    attendees = relationship('Attendee', secondary='workshop_attendee')
 
 
 class VolunteerAttendance(Base):

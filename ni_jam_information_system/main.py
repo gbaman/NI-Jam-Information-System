@@ -229,10 +229,6 @@ def show_tokens():
     return("<p> Order ID - {} </p>"
            "<p> Jam Login ID - {} </p>".format(order_id, jam_login))
 
-#@app.route("/clear_db")
-#def clear_db():
-#    database_reset()
-#    return("Reset complete")
 
 @app.route("/add_workshop_bookings_ajax", methods=['GET', 'POST'])
 def add_workshop_bookings_ajax():
@@ -268,7 +264,6 @@ def volunteer():
     time_slots, workshop_rooms_in_use = database.get_volunteer_data(get_current_jam_id(), request.logged_in_user)
     return render_template("admin/volunteer_signup.html", time_slots = time_slots, workshop_rooms_in_use = workshop_rooms_in_use, current_selected = ",".join(str(x.workshop_run_id) for x in request.logged_in_user.workshop_runs) +",")
 
-    # TODO : Finish off adding the custom rooms/"workshops" for front desk, parking etc
 
 @app.route("/admin/volunteer_update_ajax", methods=['GET', 'POST'])
 def update_volunteer():
@@ -290,6 +285,12 @@ def volunteer_attendance():
 
         return redirect(("/admin/volunteer_attendance"), code=302)
     return render_template("admin/volunteer_attendance.html", form=form, volunteer_attendances=volunteer_attendances, user_id=request.logged_in_user.user_id, eventbrite_event_name = eventbrite.get_eventbrite_event_by_id(current_jam_id)["name"]["text"])
+
+
+@app.route("/public_schedule")
+def public_schedule():
+    time_slots, workshop_rooms_in_use =database.get_workshop_timetable_data(database.get_current_jam_id())
+    return render_template("public_schedule.html", time_slots = time_slots, workshop_rooms_in_use = workshop_rooms_in_use, container_name = " ")
 
 
 @app.route("/api/users_not_responded/<token>")

@@ -410,27 +410,11 @@ def database_reset():
 def get_volunteer_data(jam_id, current_user):
     time_slots = db_session.query(WorkshopSlot).all()
 
-    #workshop_data = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.workshop_run_id == WorkshopVolunteer.workshop_run_id,
-    #                                                                                 RaspberryJamWorkshop.jam_id == jam_id,
-    #                                                                                 ).all()
-
-    u = db_session.query(LoginUser).all()
-
-    workshop_data = db_session.query(RaspberryJamWorkshop).filter(
-                                                                                     RaspberryJamWorkshop.jam_id == jam_id,
-                                                                                     ).all()
-
-
-    #d = workshop_data = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.workshop_run_id == WorkshopVolunteer.workshop_run_id,
-    #                                                                                 RaspberryJamWorkshop.jam_id == jam_id,
-    #                                                                                 WorkshopVolunteer
-    #                                                                                 ).all()
-
-    #a = workshop_data.filter(RaspberryJamWorkshop.slot_id == 1).all()
+    workshop_data = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.jam_id == jam_id).all()
 
     workshop_rooms_in_use = db_session.query(WorkshopRoom).filter(RaspberryJamWorkshop.workshop_room_id == WorkshopRoom.room_id,
-                                                                                        RaspberryJamWorkshop.jam_id == jam_id
-                                                                                        ).order_by(WorkshopRoom.room_name).all()
+                                                                  RaspberryJamWorkshop.jam_id == jam_id
+                                                                  ).order_by(WorkshopRoom.room_name).all()
 
     for time_slot in time_slots:
         time_slot.rooms = []
@@ -460,6 +444,45 @@ def get_volunteer_data(jam_id, current_user):
                     else:
                         room.workshop.signed_up = False
 
+    return time_slots, sorted(workshop_rooms_in_use, key=lambda x: x.room_name, reverse=False)
+
+
+def get_workshop_timetable_data(jam_id): # Similar to get_volunteer_data(), but for the large TV with different colouring.
+    time_slots = db_session.query(WorkshopSlot).all()[1:]
+
+    workshop_data = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.jam_id == jam_id, RaspberryJamWorkshop.workshop_id == Workshop.workshop_id , Workshop.workshop_hidden != 1).all()
+
+    workshop_rooms_in_use = db_session.query(WorkshopRoom).filter(RaspberryJamWorkshop.workshop_room_id == WorkshopRoom.room_id,
+                                                                  RaspberryJamWorkshop.jam_id == jam_id,
+                                                                  RaspberryJamWorkshop.workshop_id == Workshop.workshop_id,
+                                                                  Workshop.workshop_hidden != 1
+                                                                  ).order_by(WorkshopRoom.room_name).all()
+
+    for time_slot in time_slots:
+        time_slot.rooms = []
+        for workshop_room in workshop_rooms_in_use:
+            room = deepcopy(workshop_room)
+            room.workshop = RaspberryJamWorkshop()
+            room.workshop.dummy = True
+            time_slot.rooms.append(room)
+        for workshop in workshop_data:
+            for room in time_slot.rooms:
+                if room.room_id == workshop.workshop_room_id and time_slot.slot_id == workshop.slot_id:
+                    room.workshop = workshop
+                    if int(workshop.workshop_room.room_capacity) < int(workshop.workshop.workshop_limit):
+                        room.workshop.max_attendees = workshop.workshop_room.room_capacity
+                    else:
+                        room.workshop.max_attendees = workshop.workshop.workshop_limit
+
+
+                    if not room.workshop.workshop_room:
+                        room.workshop.bg_colour = grey
+                    elif room.workshop.workshop.workshop_level == "Beginner":
+                        room.workshop.bg_colour = green
+                    elif room.workshop.workshop.workshop_level == "Intermediate":
+                        room.workshop.bg_colour = orange
+                    elif room.workshop.workshop.workshop_level == "Advanced":
+                        room.workshop.bg_colour = red
 
     return time_slots, sorted(workshop_rooms_in_use, key=lambda x: x.room_name, reverse=False)
 
