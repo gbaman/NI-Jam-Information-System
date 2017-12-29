@@ -5,7 +5,7 @@ from database import get_volunteers_to_select, get_workshops_to_select, get_indi
 class CreateWorkshopForm(Form):
     workshop_title = StringField("Workshop title", [validators.DataRequired()])
     workshop_description = TextAreaField("Workshop description", [validators.DataRequired()])
-    workshop_limit = IntegerField("Workshop max attendees", [validators.DataRequired()])
+    workshop_limit = IntegerField("Workshop max attendees", [validators.InputRequired()])
     workshop_level = RadioField("Workshop level", choices=[("Beginner", "Beginner"), ("Intermediate", "Intermediate"), ("Advanced", "Advanced")])
     workshop_id = HiddenField("Workshop ID", default="")
 
