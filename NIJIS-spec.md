@@ -10,10 +10,10 @@ NI Jam Information System Spec
 - [x] Workshop management
   - [x] Display workshop attendees to volunteers
   - [ ] Volunteer workshop assignment
-  - [ ] Attendees able to view limited workshop schedule along with seeing how many spaces left
+  - [x] Attendees able to view limited workshop schedule along with seeing how many spaces left
 - [ ] Log who attendees each Jam
-- [ ] Fire sheet
-  - [ ] Allow it to be easily populated
+- [x] Fire sheet
+  - [x] Allow it to be easily populated
   - [ ] Allow for PDF output of all in the building currently
 - [ ] User information
   - [ ] Collect contact details for if leaving a young person
@@ -24,7 +24,7 @@ NI Jam Information System Spec
 
 # Preferred Features
 - [ ] Workshop management
-  - [ ] Plug into attendees actually being checked in info
+  - [x] Plug into attendees actually being checked in info
   - [x] Attendees can sign themselves up to workshops when they arrive (via phone web browser)
   - [x] Easy to add new workshops
   - [x] Detect if person signed up for multiple workshops at same time
