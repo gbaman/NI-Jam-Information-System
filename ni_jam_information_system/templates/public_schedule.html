@@ -1,0 +1,53 @@
+{%include 'header.html'%}
+
+<script>
+    setInterval(function() {
+                  window.location.reload();
+                }, 180000);
+</script>
+
+<h1>Jam Schedule {{jam_title}}</h1>
+
+<br>
+
+<div style="font-size: large">
+
+    <table class="volunteer_key">
+        <tr>
+            <th>Key</th>
+        </tr>
+        <tr>
+            <td bgcolor="#c4fc9f">Beginner level workshop</td>
+            <td bgcolor="#fcbd00">Intermediate level workshop</td>
+            <td bgcolor="#fc9f9f">Advanced level workshop</td>
+        </tr>
+    </table>
+
+    <br>
+    <p>Note that workshops with <i class="fas fa-flask"></i> around their title are experimental pilot workshops.</p>
+    <table class="volunteer_table">
+        <tr>
+            <th></th>
+        {% for workshop_room in workshop_rooms_in_use %}
+            <th width="18%">{{workshop_room.room_name}}</th>
+        {% endfor %}
+        </tr>
+
+        {% for time_slot in time_slots %}
+            <tr>
+            <th>{{time_slot.slot_time_start}} - {{time_slot.slot_time_end}}</th>
+            {% for room in time_slot.rooms %}
+                {% if room.workshop.dummy %}
+                    <td bgcolor="#d3d3d3">None</td>
+                {% else %}
+                <td id="{{ room.workshop.workshop_run_id }}" bgcolor={{room.workshop.bg_colour}} style="text-align: center"> <p> {% if room.workshop.pilot %} <i class="fas fa-flask"></i> {% endif %} <b>{{room.workshop.workshop.workshop_title}}</b> {% if room.workshop.pilot %} <i class="fas fa-flask"></i> {% endif %} <br>  {{room.workshop.attendees|length}}/{{room.workshop.max_attendees}}
+                    <br><span style="font-size: medium">{{room.workshop.workshop.workshop_description}}</span>
+                </p></td>
+                {% endif %}
+            {% endfor %}
+            </tr>
+        {% endfor %}
+
+    </table>
+</div>
+{%include 'footer.html'%}
