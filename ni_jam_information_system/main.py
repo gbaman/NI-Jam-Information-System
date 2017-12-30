@@ -306,7 +306,7 @@ def volunteer_attendance():
         database.add_volunteer_attendance(get_current_jam_id(), request.logged_in_user.user_id, int(literal_eval(form.attending_jam.data)), int(literal_eval(form.attending_setup.data)), int(literal_eval(form.attending_packdown.data)), int(literal_eval(form.attending_food.data)), form.notes.data)
 
         return redirect(("/admin/volunteer_attendance"), code=302)
-    return render_template("admin/volunteer_attendance.html", form=form, volunteer_attendances=volunteer_attendances, user_id=request.logged_in_user.user_id, eventbrite_event_name = eventbrite.get_eventbrite_event_by_id(current_jam_id)["name"]["text"])
+    return render_template("admin/volunteer_attendance.html", form=form, volunteer_attendances=volunteer_attendances, user_id=request.logged_in_user.user_id, eventbrite_event_name = eventbrite.get_eventbrite_event_by_id(database.get_current_jam_id())["name"]["text"])
 
 
 @app.route("/public_schedule")

@@ -13,7 +13,7 @@ yellow = "#fff60a"
 green = "#c4fc9f"
 grey = "#969696"
 blue = "#00bbff"
-light_grey = "#d1d1d1"
+light_grey = "#ededed"
 
 
 def init_db():
