@@ -30,15 +30,22 @@ def index():
 
 @public_routes.route("/login", methods=['POST', 'GET'])
 def login():
+    cookie_value = request.cookies.get("jam_login")
+    if cookie_value:
+        valid, cookie = logins.validate_cookie(cookie_value)
+        if valid:
+            return redirect('admin/admin_home')
+
     form = forms.LoginForm(request.form)
     if request.method == 'POST' and form.validate():
-        if logins.validate_login(form.username.data, form.password.data):
-            resp = make_response(redirect(('admin/admin_home')))
-            resp.set_cookie("jam_login", database.get_cookie_for_username(form.username.data))
+        login_validated, user = logins.validate_login(form.username.data, form.password.data)
+        if login_validated:
+            resp = make_response(redirect('admin/admin_home'))
+            resp.set_cookie("jam_login", database.new_cookie_for_user(user.user_id))
             return resp
         flash("Unable to login, credentials incorrect.", "danger")
         return render_template("login.html", form=form)
-    return(render_template("login.html", form=form))
+    return render_template("login.html", form=form)
 
 
 @public_routes.route("/register", methods=['POST', 'GET'])
@@ -64,21 +71,16 @@ def reset_password():
     return (render_template("reset_password.html", form=form))
 
 
-@public_routes.route("/clear_tokens")
-def clear_tokens():
+@public_routes.route("/logout")
+def logout():
     resp = make_response(redirect("/"))
+    login_cookie = request.cookies.get("jam_login")
+    if login_cookie:
+        database.remove_cookie(login_cookie)
     resp.set_cookie('jam_order_id', "", expires=0)
     resp.set_cookie('jam_login', "", expires=0)
     resp.set_cookie('jam_month', "", expires=0)
     return resp
-
-
-@public_routes.route("/show_tokens")
-def show_tokens():
-    order_id = request.cookies.get('jam_order_id')
-    jam_login = request.cookies.get('jam_login')
-    return("<p> Order ID - {} </p>"
-           "<p> Jam Login ID - {} </p>".format(order_id, jam_login))
 
 
 @public_routes.route("/public_schedule")

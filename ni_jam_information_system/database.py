@@ -34,12 +34,11 @@ def convert_to_python_datetime(datetime_to_convert: str) -> datetime.datetime:
     return datetime.datetime.strptime(datetime_to_convert, f)
 
 
-def get_logged_in_user_object_from_cookie(cookie: str) -> LoginUser:
-    found_cookie = db_session.query(LoginCookie).filter(LoginCookie.cookie_value == cookie).first()
+def get_logged_in_user_object_from_cookie(cookie_value: str) -> LoginUser:
+    found_cookie = db_session.query(LoginCookie).filter(LoginCookie.cookie_value == cookie_value).first()
     if found_cookie:
-        cookie = db_session.query(LoginUser).filter(LoginUser.login_cookie_id == found_cookie.cookie_id).first()
-        #print("Cookie correct! - {}".format(cookie.cookie_id) )
-        return cookie
+        return found_cookie.user
+    return None
 
 
 def add_jam(eventbrite_id, jam_name, date): # Add a new Jam, plus a series of placeholder default hidden workshops (parking, front desk and break time)
@@ -325,8 +324,6 @@ def get_user_details_from_username(username):
 
 
 def create_user(username, password_hash, password_salt, first_name, surname, email):
-    cookie = LoginCookie()
-    db_session.add(cookie)
     db_session.commit()
     user = LoginUser()
     user.username = username
@@ -334,7 +331,6 @@ def create_user(username, password_hash, password_salt, first_name, surname, ema
     user.password_salt = password_salt
     user.first_name = first_name
     user.surname = surname
-    user.login_cookie_id = cookie.cookie_id
     user.group_id = 1
     user.email = email
 
@@ -375,16 +371,30 @@ def remove_workshop_from_jam(workshop_run_id):
     db_session.commit()
 
 
-def update_cookie_for_user(user_id):
-    new_cookie = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))
-    current_cookie = db_session.query(LoginUser, LoginCookie).filter(LoginUser.user_id == user_id, LoginUser.login_cookie_id == LoginCookie.cookie_id).one()
-    current_cookie.LoginCookie.cookie_value = new_cookie
+def get_cookie(cookie_value):
+    return db_session.query(LoginCookie).filter(LoginCookie.cookie_value == cookie_value).first()
+
+
+def new_cookie_for_user(user_id):
+    new_cookie_value = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))
+    new_cookie_expiry = datetime.datetime.now() + datetime.timedelta(hours=24)
+    new_cookie = LoginCookie(cookie_value=new_cookie_value, user_id=user_id, cookie_expiry=new_cookie_expiry)
+    db_session.add(new_cookie)
+    db_session.commit()
+    return new_cookie_value
+
+
+def remove_cookie(cookie_value):
+    cookie = db_session.query(LoginCookie).filter(LoginCookie.cookie_value == cookie_value).delete()
     db_session.commit()
 
 
-def get_cookie_for_username(username):
-    user = db_session.query(LoginUser, LoginCookie).filter(LoginUser.login_cookie_id == LoginCookie.cookie_id, LoginUser.username == username).first()
-    return user.LoginCookie.cookie_value
+def update_cookie_expiry(cookie_id):
+    cookie = db_session.query(LoginCookie).filter(LoginCookie.cookie_id == cookie_id).first()
+    if cookie and cookie.cookie_expiry > datetime.datetime.now():
+        cookie.cookie_expiry = datetime.datetime.now() + datetime.timedelta(hours=24)
+    db_session.commit()
+
 
 def get_all_attendees_for_jam(jam_id):
     attendees = db_session.query(Attendee).filter(Attendee.jam_id == jam_id).order_by(Attendee.surname, Attendee.first_name).all()

@@ -64,6 +64,9 @@ class LoginCookie(Base):
     cookie_id = Column(Integer, primary_key=True, unique=True)
     cookie_value = Column(String(45))
     cookie_expiry = Column(DateTime)
+    user_id = Column(ForeignKey('login_users.user_id'), primary_key=True, nullable=False, index=True)
+
+    user = relationship("LoginUser")
 
 
 class LoginUser(Base):
@@ -76,7 +79,6 @@ class LoginUser(Base):
     first_name = Column(String(45), nullable=False)
     surname = Column(String(45), nullable=False)
     volunteer = Column(Integer)
-    login_cookie_id = Column(ForeignKey('login_cookie.cookie_id'), primary_key=True, nullable=False, index=True)
     group_id = Column(ForeignKey('groups.group_id'), primary_key=True, nullable=False, index=True)
     email = Column(String(45))
     reset_code = Column(String(10))
