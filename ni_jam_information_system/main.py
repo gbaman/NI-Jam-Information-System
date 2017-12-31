@@ -3,8 +3,10 @@ import string
 
 import flask_bcrypt
 from flask import Flask, render_template, request, make_response, redirect, flash
+import uuid
 
 app = Flask(__name__)
+app.secret_key = str(uuid.uuid4()).replace("-", "")[:10]
 from datetime import datetime, timedelta
 import logins
 import database as database
@@ -13,6 +15,8 @@ import eventbrite_interactions as eventbrite
 from ast import literal_eval
 import json
 from secrets.config import *
+
+from decorators import *
 
 
 def get_current_jam_id():
@@ -24,7 +28,7 @@ def shutdown_session(exception=None):
     database.db_session.remove()
 
 
-@app.before_request
+#@app.before_request
 def check_permission():
     permission_granted, user = logins.check_allowed(request, get_current_jam_id())
     if not permission_granted:
@@ -38,12 +42,19 @@ def page_not_found(e):
     return render_template('errors/404.html'), 404
 
 
+@app.route("/505")
+def permission_denied():
+    return render_template("errors/permission.html"), 505
+
+
 @app.route("/test")
+@super_admin_required
 def test():
-    pass
+    return "Hello world"
 
 
 @app.route("/admin/import_attendees_from_eventbrite/<jam_id>")
+@super_admin_required
 def import_from_eventbrite(jam_id):
     database.update_attendees_from_eventbrite(jam_id)
     return redirect("/admin/add_jam")
@@ -66,15 +77,18 @@ def index():
 
 
 @app.route("/admin/admin_home")
+@volunteer_required
 def admin_home():
     return render_template("admin/admin_home.html", eventbrite_event_name = eventbrite.get_eventbrite_event_by_id(get_current_jam_id())["name"]["text"])
 
 
 @app.route("/admin/add_jam")
+@super_admin_required
 def add_jam():
     return render_template("admin/add_jam.html", jams=eventbrite.get_eventbrite_events_name_id(), jams_in_db=database.get_jams_dict(), current_jam_id=get_current_jam_id())
 
 @app.route("/admin/add_jam/<eventbrite_id>")
+@super_admin_required
 def add_jam_id(eventbrite_id):
     eventbrite_jam = eventbrite.get_eventbrite_event_by_id(eventbrite_id)
     database.add_jam(eventbrite_id, eventbrite_jam["name"]["text"], eventbrite_jam["start"]["local"].replace("T", " "))
@@ -82,6 +96,7 @@ def add_jam_id(eventbrite_id):
 
 
 @app.route("/admin/delete_jam", methods=['POST', 'GET'])
+@super_admin_required
 def delete_jam():
     jam_id = request.form["jam_id"]
     if int(jam_id) == get_current_jam_id():
@@ -93,6 +108,7 @@ def delete_jam():
 
 
 @app.route("/admin/select_jam", methods=['POST', 'GET'])
+@super_admin_required
 def select_jam():
     jam_id = request.form["jam_id"]
     if int(jam_id) == get_current_jam_id():
@@ -129,6 +145,7 @@ def register():
 
 @app.route('/admin/manage_workshop_catalog/', methods=['GET', 'POST'])
 @app.route('/admin/manage_workshop_catalog/<workshop_id>', methods=['GET', 'POST'])
+@volunteer_required
 def add_workshop_to_catalog(workshop_id = None):
     form = forms.CreateWorkshopForm(request.form)
     if workshop_id and request.method == "GET":
@@ -146,6 +163,7 @@ def add_workshop_to_catalog(workshop_id = None):
 
 
 @app.route('/admin/add_workshop_to_jam', methods=['GET', 'POST'])
+@volunteer_required
 def add_workshop_to_jam():
     form = forms.AddWorkshopToJam(request.form)
     if request.method == 'POST':# and form.validate():
@@ -155,22 +173,27 @@ def add_workshop_to_jam():
 
 
 @app.route('/admin/delete_workshop/<workshop_id>')
+@volunteer_required
 def delete_workshop(workshop_id):
     database.delete_workshop(workshop_id)
     return redirect(('admin/manage_workshop_catalog'))
 
+
 @app.route('/admin/workshops', methods=['GET', 'POST'])
+@volunteer_required
 def admin_workshops():
     return render_template('admin/admin_workshops.html')
 
 
 @app.route("/admin/manage_users", methods=['GET', 'POST'])
+@super_admin_required
 def manage_users():
     users = database.get_users()
     return render_template("admin/manage_users.html", users = users)
 
 
 @app.route("/admin_get_password_reset_code_ajax", methods=['GET', 'POST'])
+@super_admin_required
 def get_password_reset_code():
     user_id = request.form['user_id']
     reset_code = database.get_user_reset_code(user_id)
@@ -178,6 +201,7 @@ def get_password_reset_code():
 
 
 @app.route("/admin_upgrade_to_volunteer_permission_ajax", methods=['GET', 'POST'])
+@super_admin_required
 def upgrade_user_permission():
     user_id = request.form['user_id']
     database.set_group_for_user(user_id, 3)
@@ -195,12 +219,14 @@ def reset_password():
 
 
 @app.route("/admin/attendee_list")
+@volunteer_required
 def attendee_list():
     jam_attendees = database.get_all_attendees_for_jam(get_current_jam_id())
     return render_template("admin/attendee_list.html", attendees=jam_attendees)
 
 
 @app.route("/workshops")
+@attendee_required
 def display_workshops():
     if database.verify_attendee_id(request.cookies.get('jam_order_id'), get_current_jam_id()):
         workshop_attendees = database.get_attendees_in_order(request.cookies.get("jam_order_id"))
@@ -231,6 +257,7 @@ def show_tokens():
 
 
 @app.route("/add_workshop_bookings_ajax", methods=['GET', 'POST'])
+@attendee_required
 def add_workshop_bookings_ajax():
     workshop_id = request.form['workshop_id']
     attendee_id = request.form['attendee_id']
@@ -239,6 +266,7 @@ def add_workshop_bookings_ajax():
 
 
 @app.route("/remove_workshop_bookings_ajax", methods=['GET', 'POST'])
+@attendee_required
 def remove_workshop_bookings_ajax():
     workshop_id = request.form['workshop_id']
     attendee_id = request.form['attendee_id']
@@ -247,6 +275,7 @@ def remove_workshop_bookings_ajax():
 
 
 @app.route("/admin_modify_workshop_ajax", methods=['GET', 'POST'])
+@volunteer_required
 def modify_workshop_ajax():
     workshop_id = request.form['workshop_id']
     attendee_id = request.form['attendee_id']
@@ -254,6 +283,7 @@ def modify_workshop_ajax():
         return ("")
 
 @app.route("/delete_workshop_from_jam_ajax", methods=['GET', 'POST'])
+@volunteer_required
 def delete_workshop_from_jam_ajax():
     workshop_id = request.form['workshop_id']
     database.remove_workshop_from_jam(workshop_id)
@@ -261,6 +291,7 @@ def delete_workshop_from_jam_ajax():
 
 
 @app.route("/admin_check_out_attendee_ajax", methods=['GET', 'POST'])
+@volunteer_required
 def check_out_attendee_ajax():
     attendee_id = request.form['attendee_id']
     database.check_out_attendee(attendee_id)
@@ -268,6 +299,7 @@ def check_out_attendee_ajax():
 
 
 @app.route("/admin_check_in_attendee_ajax", methods=['GET', 'POST'])
+@volunteer_required
 def check_in_attendee_ajax():
     attendee_id = request.form['attendee_id']
     database.check_in_attendee(attendee_id)
@@ -275,12 +307,14 @@ def check_in_attendee_ajax():
 
 
 @app.route("/admin/volunteer")
+@volunteer_required
 def volunteer():
     time_slots, workshop_rooms_in_use = database.get_volunteer_data(get_current_jam_id(), request.logged_in_user)
     return render_template("admin/volunteer_signup.html", time_slots = time_slots, workshop_rooms_in_use = workshop_rooms_in_use, current_selected = ",".join(str(x.workshop_run_id) for x in request.logged_in_user.workshop_runs) +",")
 
 
 @app.route("/admin/volunteer_update_ajax", methods=['GET', 'POST'])
+@volunteer_required
 def update_volunteer():
     new_sessions = request.json
     sessions = []
@@ -292,6 +326,7 @@ def update_volunteer():
 
 
 @app.route("/admin_update_attendee_info_ajax", methods=['GET', 'POST'])
+@volunteer_required
 def update_attendee_info():
     current_jam = database.get_current_jam_id()
     database.update_attendees_from_eventbrite(current_jam)
@@ -299,6 +334,7 @@ def update_attendee_info():
 
 
 @app.route("/admin/volunteer_attendance", methods=['GET', 'POST'])
+@volunteer_required
 def volunteer_attendance():
     volunteer_attendances = database.get_attending_volunteers(get_current_jam_id(), request.logged_in_user.user_id)
     form = forms.VolunteerAttendance(request.form)
@@ -316,6 +352,7 @@ def public_schedule():
 
 
 @app.route("/admin/manage_attendees")
+@volunteer_required
 def manage_attendees():
     jam_attendees = database.get_all_attendees_for_jam(get_current_jam_id())
     for attendee in jam_attendees:
@@ -332,6 +369,7 @@ def manage_attendees():
 
 
 @app.route("/admin/fire_list")
+@volunteer_required
 def fire_list():
     jam_attendees = database.get_all_attendees_for_jam(get_current_jam_id())
     return render_template("admin/fire_list.html", attendees=jam_attendees)
