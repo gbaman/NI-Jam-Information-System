@@ -16,7 +16,7 @@ def super_admin_required(f):
             return redirect("505")
 
         flash("You do not currently have permission to access the requested page. Please log in first.", "danger")
-        return redirect(url_for('login', next=request.url)) # If not logged in
+        return redirect(url_for('public_routes.login', next=request.url)) # If not logged in
     return decorated_function
 
 
@@ -30,7 +30,7 @@ def volunteer_required(f):
         if user:
             return redirect("505")
         flash("You do not currently have permission to access the requested page. Please log in first.", "danger")
-        return redirect(url_for('login', next=request.url))
+        return redirect(url_for('public_routes.login', next=request.url))
     return decorated_function
 
 
@@ -44,5 +44,5 @@ def attendee_required(f):
         if user:
             return redirect("505")
         flash("You do not currently have permission to access the requested page. Please log in first.", "danger")
-        return redirect(url_for('login', next=request.url))
+        return redirect(url_for('public_routes.login', next=request.url))
     return decorated_function
