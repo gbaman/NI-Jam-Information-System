@@ -28,15 +28,6 @@ def shutdown_session(exception=None):
     database.db_session.remove()
 
 
-#@app.before_request
-def check_permission():
-    permission_granted, user = logins.check_allowed(request, get_current_jam_id())
-    if not permission_granted:
-        return render_template("errors/permission.html")
-    else:
-        request.logged_in_user = user
-
-
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('errors/404.html'), 404
@@ -127,7 +118,8 @@ def login():
             resp = make_response(redirect(('admin/admin_home')))
             resp.set_cookie("jam_login", database.get_cookie_for_username(form.username.data))
             return resp
-        return render_template("login.html", form=form, error="Unable to login, credentials incorrect")
+        flash("Unable to login, credentials incorrect.", "danger")
+        return render_template("login.html", form=form)
     return(render_template("login.html", form=form))
 
 

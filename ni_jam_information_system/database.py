@@ -41,19 +41,6 @@ def get_logged_in_user_object_from_cookie(cookie: str) -> LoginUser:
         #print("Cookie correct! - {}".format(cookie.cookie_id) )
         return cookie
 
-def get_group_id_required_for_page(page_url):
-    if page_url.startswith("/static") or page_url.startswith("/template") or page_url.startswith("/api"):
-        return 1
-    page = db_session.query(PagePermission).filter(PagePermission.page_name == page_url).first()
-    if page: # If exact path match
-        return page.group_required
-    else:
-        multi_paths = db_session.query(PagePermission).filter(PagePermission.page_name.contains("*")).all()
-        for path in multi_paths: # Iterate across paths with a *
-            if page_url.startswith(path.page_name[:-1]):
-                return path.group_required
-        return 4 # No path found
-
 
 def add_jam(eventbrite_id, jam_name, date): # Add a new Jam, plus a series of placeholder default hidden workshops (parking, front desk and break time)
     jam = RaspberryJam(jam_id=eventbrite_id, name=jam_name, date=date) # Add the Jam row

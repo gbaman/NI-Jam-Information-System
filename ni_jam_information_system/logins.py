@@ -14,23 +14,7 @@ def validate_login(username, password):
     return False
 
 
-def check_allowed(request, jam_id):
-    login_user = database.get_logged_in_user_object_from_cookie(request.cookies.get('jam_login'))
-    if not login_user:
-        selected_user_group_level = 1
-        order_id = request.cookies.get('jam_order_id')
-        if order_id and database.verify_attendee_id(order_id, jam_id):
-            selected_user_group_level = 2
-    else:
-        selected_user_group_level = login_user.group_id
-    group_required = database.get_group_id_required_for_page(request.path)
-    print("Current user group level {} - Trying to access {} - {}".format(selected_user_group_level, group_required, request.path))
-    if selected_user_group_level >= group_required:
-        return True, login_user
-    return False, login_user
-
-
-def check_allowed2(request, group_required):
+def check_allowed(request, group_required):
     login_user = database.get_logged_in_user_object_from_cookie(request.cookies.get('jam_login'))
     if not login_user:
         selected_user_group_level = 1
