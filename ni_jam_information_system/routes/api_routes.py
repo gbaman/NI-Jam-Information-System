@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, abort
 import database
 import json
 import eventbrite_interactions
-import datetime
+from datetime import datetime
 from secrets.config import *
 
 api_routes = Blueprint('api_routes', __name__,
@@ -19,6 +19,7 @@ def get_users_not_responded_to_attendance(token):
         return json.dumps(email_addresses)
     else:
         return "[]"
+
 
 @api_routes.route("/api/jam_info/<token>")
 def get_jam_info(token):

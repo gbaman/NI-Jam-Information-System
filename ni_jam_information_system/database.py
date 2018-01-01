@@ -399,7 +399,6 @@ def update_cookie_expiry(cookie_id):
 def get_all_attendees_for_jam(jam_id):
     attendees = db_session.query(Attendee).filter(Attendee.jam_id == jam_id).order_by(Attendee.surname, Attendee.first_name).all()
     return attendees
-# TODO : Investigate why jam_attendance isn't being used currently, as need the jam id from it
 
 
 def database_reset():
