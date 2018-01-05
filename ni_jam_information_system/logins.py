@@ -35,7 +35,7 @@ def check_allowed(request, group_required):
 
 def validate_cookie(cookie_id):
     cookie = database.get_cookie(cookie_id)
-    if cookie:
+    if cookie and cookie.cookie_expiry:
         if cookie.cookie_expiry > datetime.datetime.now():
             database.update_cookie_expiry(cookie.cookie_id)
             return True, cookie
