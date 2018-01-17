@@ -102,7 +102,7 @@ class RaspberryJam(Base):
     __tablename__ = 'raspberry_jam'
 
     jam_id = Column(BigInteger, primary_key=True)
-    name = Column(String(70), nullable=False)
+    name = Column(String(150), nullable=False)
     date = Column(DateTime, nullable=False)
     food_after = Column(Integer)
 

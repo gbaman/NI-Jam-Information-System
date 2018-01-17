@@ -14,6 +14,7 @@ green = "#c4fc9f"
 grey = "#969696"
 blue = "#00bbff"
 light_grey = "#ededed"
+light_blue = "#00dbc1"
 
 
 def init_db():
@@ -483,6 +484,8 @@ def get_workshop_timetable_data(jam_id): # Similar to get_volunteer_data(), but 
                         room.workshop.bg_colour = orange
                     elif room.workshop.workshop.workshop_level == "Advanced":
                         room.workshop.bg_colour = red
+                    elif room.workshop.workshop.workshop_level == "Not taught":
+                        room.workshop.bg_colour = light_blue
 
     return time_slots, sorted(workshop_rooms_in_use, key=lambda x: x.room_name, reverse=False)
 
@@ -615,3 +618,7 @@ def check_in_attendee(attendee_id):
     attendee = db_session.query(Attendee).filter(Attendee.attendee_id == attendee_id).first()
     attendee.current_location = "Checked in"
     db_session.commit()
+
+
+def get_jam_details(jam_id):
+    return db_session.query(RaspberryJam).filter(RaspberryJam.jam_id == jam_id).first()
