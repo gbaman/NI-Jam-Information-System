@@ -13,15 +13,14 @@ The system is based off Python 3, along with Flask, a MySQL DB, SQLAlchemy and t
 ## Installation   
 To install, run the following command from inside the `ni_jam_information_system` folder.    
 ```
-python setup.py install
+python3 setup.py install
 ```    
 
 Then setup your MySQL database, using the model found in the database folder. Once setup, rename secrets/config_example.py to secrets/config.py and populate it.   
 
 To start the project 
 ```bash
-export FLASK_APP=main.py
-flask run
+python3 main.py
 ```   
 
 If running a full scale setup, it should be run by Gunicorn with a proxy in front (like Nginx).
