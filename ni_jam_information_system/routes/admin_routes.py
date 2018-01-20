@@ -158,6 +158,13 @@ def fire_list():
     return render_template("admin/fire_list.html", attendees=jam_attendees)
 
 
+
+
+####################################### AJAX Routes #######################################
+
+
+
+
 @admin_routes.route("/admin_get_password_reset_code_ajax", methods=['GET', 'POST'])
 @super_admin_required
 def get_password_reset_code():

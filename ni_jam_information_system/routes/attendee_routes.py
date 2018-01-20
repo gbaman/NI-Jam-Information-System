@@ -1,11 +1,5 @@
-from flask import Blueprint, render_template, request, make_response, redirect, flash
+from flask import Blueprint, render_template
 import database
-import json
-import eventbrite_interactions
-from datetime import datetime, timedelta
-from secrets.config import *
-import forms as forms
-import logins
 
 from decorators import *
 
@@ -26,6 +20,13 @@ def display_workshops():
         return render_template("workshops.html", workshop_slots=database.get_time_slots_to_select(database.get_current_jam_id(), request.cookies.get('jam_order_id')))
     else:
         return redirect("/")
+
+
+
+
+####################################### AJAX Routes #######################################
+
+
 
 @attendee_routes.route("/add_workshop_bookings_ajax", methods=['GET', 'POST'])
 @attendee_required

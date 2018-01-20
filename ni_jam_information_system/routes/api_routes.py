@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, abort
+from flask import Blueprint
 import database
 import json
 import eventbrite_interactions

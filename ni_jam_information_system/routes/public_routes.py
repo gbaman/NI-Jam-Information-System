@@ -1,7 +1,5 @@
 from flask import Blueprint, render_template, request, make_response, redirect, flash
 import database
-import json
-import eventbrite_interactions
 from datetime import datetime, timedelta
 from secrets.config import *
 import forms as forms
@@ -10,6 +8,7 @@ import logins
 
 public_routes = Blueprint('public_routes', __name__,
                         template_folder='templates')
+
 
 @public_routes.route('/', methods=['POST', 'GET'])
 def index():
@@ -25,7 +24,7 @@ def index():
             return resp
         else:
             return render_template('index.html', form=form, status="Error, no order with that ID found or Jam password is wrong. Please try again")
-    return render_template('index.html', form=form)\
+    return render_template('index.html', form=form)
 
 
 @public_routes.route("/login", methods=['POST', 'GET'])
@@ -67,8 +66,8 @@ def reset_password():
         salt, hash = logins.create_password_salt(form.new_password.data)
         if database.reset_password(form.username.data, form.reset_code.data, salt, hash):
             return redirect("/login")
-        return (render_template("reset_password.html", form=form, error="Reset failed, credentials provided are invalid."))
-    return (render_template("reset_password.html", form=form))
+        return render_template("reset_password.html", form=form, error="Reset failed, credentials provided are invalid.")
+    return render_template("reset_password.html", form=form)
 
 
 @public_routes.route("/logout")
