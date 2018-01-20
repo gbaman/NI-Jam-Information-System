@@ -156,8 +156,7 @@ fabric.properties
 Custom stuff
 ############
 
-secret/
-database/
+ni_jam_information_system/secrets/config.py
+database/NIJIS_DB_model.mwb.bak
 jam_venv/
 slackbot_venv/
-secrets/config.py
