@@ -1,6 +1,12 @@
 # Northern Ireland Raspberry Jam Information System
-An experimental internal management system for the Northern Ireland Raspberry Jam team to use to handle workshops, course materials and attendee information.   
-[Proposed spec](NIJIS-spec.md)   
+NIJIS is a system built for the Northern Ireland Raspberry Jam to manage a number of aspects of our events. These include
+- Workshop management/booking.
+- Volunteer attendance to each Jam.
+- Volunteer on the day management.
+- Attendee management (for front desk).
+- Fire list (who is in the building).
+
+The current list of features, along with what is still be worked on can be found in the [Proposed spec](NIJIS-spec.md)   .
 
 The system is based off Python 3, along with Flask, a MySQL DB, SQLAlchemy and the Eventbrite API library.    
 
@@ -14,4 +20,6 @@ To start the project
 ```bash
 export FLASK_APP=main.py
 flask run
-```
+```   
+
+If running a full scale setup, it should be run by Gunicorn with a proxy in front (like Nginx).

@@ -160,4 +160,4 @@ secret/
 database/
 jam_venv/
 slackbot_venv/
-secrets/
+secrets/config.py

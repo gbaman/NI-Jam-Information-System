@@ -5,13 +5,12 @@ NI Jam Information System Spec
 - [x] Secure login system for volunteer team
   - [x] Contact info
     - [ ] Mobile number
-    - [ ] Allergies
 - [x] Eventbrite sync of attendees
 - [x] Workshop management
   - [x] Display workshop attendees to volunteers
-  - [ ] Volunteer workshop assignment
+  - [x] Volunteer workshop signup
+  - [ ] Volunteer workshop assignment (by admin)
   - [x] Attendees able to view limited workshop schedule along with seeing how many spaces left
-- [ ] Log who attendees each Jam
 - [x] Fire sheet
   - [x] Allow it to be easily populated
   - [ ] Allow for PDF output of all in the building currently
