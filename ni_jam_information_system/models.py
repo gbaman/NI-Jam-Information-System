@@ -61,7 +61,7 @@ class JamAttendance(Base):
 class LoginCookie(Base):
     __tablename__ = 'login_cookie'
 
-    cookie_id = Column(Integer, primary_key=True, unique=True)
+    cookie_id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
     cookie_value = Column(String(45))
     cookie_expiry = Column(DateTime)
     user_id = Column(ForeignKey('login_users.user_id'), primary_key=True, nullable=False, index=True)

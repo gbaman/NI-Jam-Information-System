@@ -6,7 +6,8 @@
                 }, 180000);
 </script>
 
-<h1 style="text-align: center">Raspberry Jam Schedule {{jam_title}}</h1>
+<h1 style="text-align: center">Raspberry Jam Schedule</h1>
+<h2 style="text-align: center">{{jam_title}}</h2>
 
 <br>
 
@@ -30,7 +31,7 @@
         <tr>
             <th></th>
         {% for workshop_room in workshop_rooms_in_use %}
-            <th width="18%">{{workshop_room.room_name}}</th>
+            <th width="15%">{{workshop_room.room_name}}</th>
         {% endfor %}
         </tr>
 

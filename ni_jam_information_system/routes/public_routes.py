@@ -86,4 +86,4 @@ def logout():
 @public_routes.route("/public_schedule")
 def public_schedule():
     time_slots, workshop_rooms_in_use =database.get_workshop_timetable_data(database.get_current_jam_id())
-    return render_template("public_schedule.html", time_slots = time_slots, workshop_rooms_in_use = workshop_rooms_in_use, container_name = " ")
+    return render_template("public_schedule.html", time_slots = time_slots, workshop_rooms_in_use = workshop_rooms_in_use, container_name = " ", jam_title = database.get_jam_details(database.get_current_jam_id()).name)
