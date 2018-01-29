@@ -20,7 +20,7 @@ def _get_config_file():
     return config
 
 
-def _verify_config_item(section, config_key):
+def verify_config_item(section, config_key):
     config = _get_config_file()
     if section in config:
         if config_key in config[section]:
@@ -30,7 +30,7 @@ def _verify_config_item(section, config_key):
 
 
 def verify_config_item_bool(section, config_key):
-    config_item = _verify_config_item(section, config_key)
+    config_item = verify_config_item(section, config_key)
     if config_item:
         if type(config_item) == str:
             if config_item.lower() == "true":

@@ -33,8 +33,10 @@ def page_not_found(e):
 
 
 @app.context_processor
-def inject_modules():
-    return dict(modules_enabled=configuration.verify_modules_enabled())
+def inject_config_data():
+    return dict(modules_enabled=configuration.verify_modules_enabled(),
+                jam_organisation_name=configuration.verify_config_item("general", "jam_organisation_name"),
+                short_jam_organisation_name=configuration.verify_config_item("general", "short_jam_organisation_name"))
 
 if __name__ == '__main__':
     app.run()

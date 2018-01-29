@@ -35,13 +35,13 @@ Depends on Core being enabled.
  - Workshop scheduling
  
  
-# Volunteer attendance
+## Volunteer attendance
 #### module_volunteer_attendance
 Depends on Core being enabled.
  - Volunteer attendance
 
 
-# Volunteer signup
+## Volunteer signup
 #### module_volunteer_signup
 Depends on Core and Workshops being enabled.
  - Volunteer signup
