@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 from secrets.config import *
 import forms as forms
 import logins
+from decorators import *
+import configuration
 
 
 public_routes = Blueprint('public_routes', __name__,
@@ -12,6 +14,8 @@ public_routes = Blueprint('public_routes', __name__,
 
 @public_routes.route('/', methods=['POST', 'GET'])
 def index():
+    if not configuration.verify_config_item_bool("modules", "module_core"):
+        return "Core module not enabled. Enable it by adding under the [modules] section in {}, module_core = true.".format(configuration.config_file_location)
     cookie = request.cookies.get('jam_order_id')
     if cookie and len(cookie) == 9 and database.verify_attendee_id(cookie, database.get_current_jam_id()):
         return redirect("workshops")
@@ -28,6 +32,7 @@ def index():
 
 
 @public_routes.route("/login", methods=['POST', 'GET'])
+@module_core_required
 def login():
     cookie_value = request.cookies.get("jam_login")
     if cookie_value:
@@ -48,6 +53,7 @@ def login():
 
 
 @public_routes.route("/register", methods=['POST', 'GET'])
+@module_core_required
 def register():
     form = forms.RegisterUserForm(request.form)
     if request.method == 'POST' and form.validate():
@@ -60,6 +66,7 @@ def register():
 
 
 @public_routes.route("/reset", methods=['GET', 'POST'])
+@module_core_required
 def reset_password():
     form = forms.ResetPasswordForm(request.form)
     if request.method == 'POST' and form.validate():
@@ -71,6 +78,7 @@ def reset_password():
 
 
 @public_routes.route("/logout")
+@module_core_required
 def logout():
     resp = make_response(redirect("/"))
     login_cookie = request.cookies.get("jam_login")
@@ -83,6 +91,7 @@ def logout():
 
 
 @public_routes.route("/public_schedule")
+@module_public_schedule_required
 def public_schedule():
     time_slots, workshop_rooms_in_use =database.get_workshop_timetable_data(database.get_current_jam_id())
     return render_template("public_schedule.html", time_slots = time_slots, workshop_rooms_in_use = workshop_rooms_in_use, container_name = " ", jam_title = database.get_jam_details(database.get_current_jam_id()).name)

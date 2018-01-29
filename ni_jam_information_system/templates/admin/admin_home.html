@@ -4,24 +4,42 @@
 <h3>The current selected Jam is - {{ eventbrite_event_name }}</h3>
 <p>You are now logged in. Select an NIJIS admin option below.</p>
 
+{% if modules_enabled.module_workshops %}
 <a href="/admin/manage_workshop_catalog" class="btn btn-primary" role="button">Manage Workshop Catalog</a> <br>
 <br>
+{% endif %}
+{% if modules_enabled.module_workshops %}
 <a href="/admin/add_workshop_to_jam" class="btn btn-primary" role="button">Manage Upcoming Jam Workshop Schedule</a><br>
 <br>
+{% endif %}
+{% if modules_enabled.module_volunteer_signup %}
 <a href="/admin/volunteer" class="btn btn-primary" role="button">Volunteer Signup</a><br>
 <br>
+{% endif %}
+{% if modules_enabled.module_volunteer_attendance %}
 <a href="/admin/volunteer_attendance" class="btn btn-primary" role="button">Volunteer Attendance</a> <br>
 <br>
+{% endif %}
+{% if modules_enabled.module_attendees %}
 <a href="/admin/manage_attendees" class="btn btn-primary" role="button">Attendee Management</a><br>
 <br>
+{% endif %}
+{% if modules_enabled.module_attendees %}
 <a href="/admin/attendee_list" class="btn btn-info" role="button">Attendee List</a><br>
 <br>
+{% endif %}
+{% if modules_enabled.module_attendees %}
 <a href="/admin/fire_list" class="btn btn-info" role="button">Fire List</a><br>
 <br>
+{% endif %}
+{% if modules_enabled.module_core %}
 <br>
 
 <a href="/admin/add_jam" class="btn btn-warning" role="button">Add New Jam</a><br>
 <br>
+{% endif %}
+{% if modules_enabled.module_core %}
 <a href="/admin/manage_users" class="btn btn-warning" role="button">User Management</a><br>
+{% endif %}
 
 {%include 'footer.html'%}

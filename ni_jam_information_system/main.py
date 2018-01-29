@@ -2,6 +2,7 @@ import uuid
 from flask import Flask, render_template
 
 import database as database
+import configuration
 
 from routes.api_routes import api_routes
 from routes.public_routes import public_routes
@@ -18,6 +19,8 @@ app.register_blueprint(attendee_routes)
 app.register_blueprint(admin_routes)
 app.register_blueprint(misc_routes)
 
+configuration.output_modules_enabled()
+
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
@@ -28,6 +31,10 @@ def shutdown_session(exception=None):
 def page_not_found(e):
     return render_template('errors/404.html'), 404
 
+
+@app.context_processor
+def inject_modules():
+    return dict(modules_enabled=configuration.verify_modules_enabled())
 
 if __name__ == '__main__':
     app.run()

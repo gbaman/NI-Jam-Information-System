@@ -85,7 +85,7 @@ function removeWorkshopBooking(workshop_id) {
 function admin_modify_workshop(workshop_id) {
     $.ajax({
         type: "POST",
-        url: "/admin_modify_workshop",
+        url: "/admin/modify_workshop",
         data: {
             workshop_id: workshop_id,
             attendee_id: $(".form-control").val()
@@ -106,7 +106,7 @@ function admin_modify_workshop(workshop_id) {
 function deleteJamWorkshop(workshop_id) {
     $.ajax({
         type: "POST",
-        url: "/delete_workshop_from_jam_ajax",
+        url: "/admin/delete_workshop_from_jam_ajax",
         data: {
             workshop_id: workshop_id
         },
@@ -124,7 +124,7 @@ function deleteJamWorkshop(workshop_id) {
 function getPasswordResetCode(user_id) {
     $.ajax({
         type: "POST",
-        url: "/admin_get_password_reset_code_ajax",
+        url: "/admin/get_password_reset_code_ajax",
         data: {
             user_id: user_id
         },
@@ -143,7 +143,7 @@ function getPasswordResetCode(user_id) {
 function upgradeToVolunteerPermission(user_id) {
     $.ajax({
         type: "POST",
-        url: "/admin_upgrade_to_volunteer_permission_ajax",
+        url: "/admin/upgrade_to_volunteer_permission_ajax",
         data: {
             user_id: user_id
         },
@@ -162,7 +162,7 @@ function upgradeToVolunteerPermission(user_id) {
 function checkOutAttendee(attendee_id) {
     $.ajax({
         type: "POST",
-        url: "/admin_check_out_attendee_ajax",
+        url: "/admin/check_out_attendee_ajax",
         data: {
             attendee_id: attendee_id
         },
@@ -181,7 +181,7 @@ function checkOutAttendee(attendee_id) {
 function checkInAttendee(attendee_id) {
     $.ajax({
         type: "POST",
-        url: "/admin_check_in_attendee_ajax",
+        url: "/admin/check_in_attendee_ajax",
         data: {
             attendee_id: attendee_id
         },
@@ -199,7 +199,7 @@ function checkInAttendee(attendee_id) {
 function updateAttendeeInfo() {
     $.ajax({
         type: "POST",
-        url: "/admin_update_attendee_info_ajax",
+        url: "/admin/update_attendee_info_ajax",
         success: function (result) {
             alert("Attendee info updated");
             window.location.reload();

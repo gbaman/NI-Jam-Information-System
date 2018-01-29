@@ -32,16 +32,36 @@
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">Admin<span class="caret"></span></a>
                     <ul class="dropdown-menu">
+                        {% if modules_enabled.module_core %}
                         <li><a href="/admin/admin_home">Admin Home</a></li>
+                        {% endif %}
+                        {% if modules_enabled.module_workshops %}
                         <li><a href="/admin/manage_workshop_catalog">Manage workshops in catalog</a></li>
+                        {% endif %}
+                        {% if modules_enabled.module_workshops %}
                         <li><a href="/admin/add_workshop_to_jam">Manage workshops in Jam</a></li>
+                        {% endif %}
+                        {% if modules_enabled.module_volunteer_signup %}
                         <li><a href="/admin/volunteer">Volunteer signup</a></li>
+                        {% endif %}
+                        {% if modules_enabled.module_volunteer_attendance %}
                         <li><a href="/admin/volunteer_attendance">Volunteer attendance</a></li>
+                        {% endif %}
+                        {% if modules_enabled.module_attendees %}
                         <li><a href="/admin/manage_attendees">Attendee management</a></li>
+                        {% endif %}
+                        {% if modules_enabled.module_attendees %}
                         <li><a href="/admin/attendee_list">Attendee list</a></li>
+                        {% endif %}
+                        {% if modules_enabled.module_attendees %}
                         <li><a href="/admin/fire_list">Fire list</a></li>
+                        {% endif %}
+                        {% if modules_enabled.module_core %}
                         <li><a href="/admin/add_jam">Add Jam (SA)</a></li>
+                        {% endif %}
+                        {% if modules_enabled.module_core %}
                         <li><a href="/admin/manage_users">User Management (SA)</a></li>
+                        {% endif %}
                     </ul>
                 </li>
             </ul>

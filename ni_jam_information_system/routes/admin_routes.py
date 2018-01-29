@@ -11,6 +11,7 @@ admin_routes = Blueprint('admin_routes', __name__, template_folder='templates')
 
 @admin_routes.route("/admin/import_attendees_from_eventbrite/<jam_id>")
 @super_admin_required
+@module_core_required
 def import_from_eventbrite(jam_id):
     database.update_attendees_from_eventbrite(jam_id)
     return redirect("/admin/add_jam")
@@ -18,18 +19,21 @@ def import_from_eventbrite(jam_id):
 
 @admin_routes.route("/admin/admin_home")
 @volunteer_required
+@module_core_required
 def admin_home():
     return render_template("admin/admin_home.html", eventbrite_event_name = database.get_jam_details(database.get_current_jam_id()).name)
 
 
 @admin_routes.route("/admin/add_jam")
 @super_admin_required
+@module_core_required
 def add_jam():
     return render_template("admin/add_jam.html", jams=eventbrite_interactions.get_eventbrite_events_name_id(), jams_in_db=database.get_jams_dict(), current_jam_id=database.get_current_jam_id())
 
 
 @admin_routes.route("/admin/add_jam/<eventbrite_id>")
 @super_admin_required
+@module_core_required
 def add_jam_id(eventbrite_id):
     eventbrite_jam = eventbrite_interactions.get_eventbrite_event_by_id(eventbrite_id)
     database.add_jam(eventbrite_id, eventbrite_jam["name"]["text"], eventbrite_jam["start"]["local"].replace("T", " "))
@@ -38,6 +42,7 @@ def add_jam_id(eventbrite_id):
 
 @admin_routes.route("/admin/delete_jam", methods=['POST', 'GET'])
 @super_admin_required
+@module_core_required
 def delete_jam():
     jam_id = request.form["jam_id"]
     if int(jam_id) == database.get_current_jam_id():
@@ -50,6 +55,7 @@ def delete_jam():
 
 @admin_routes.route("/admin/select_jam", methods=['POST', 'GET'])
 @super_admin_required
+@module_core_required
 def select_jam():
     jam_id = request.form["jam_id"]
     if int(jam_id) == database.get_current_jam_id():
@@ -63,6 +69,7 @@ def select_jam():
 @admin_routes.route('/admin/manage_workshop_catalog/', methods=['GET', 'POST'])
 @admin_routes.route('/admin/manage_workshop_catalog/<workshop_id>', methods=['GET', 'POST'])
 @volunteer_required
+@module_workshops_required
 def add_workshop_to_catalog(workshop_id = None):
     form = forms.CreateWorkshopForm(request.form)
     if workshop_id and request.method == "GET":
@@ -81,6 +88,7 @@ def add_workshop_to_catalog(workshop_id = None):
 
 @admin_routes.route('/admin/add_workshop_to_jam', methods=['GET', 'POST'])
 @volunteer_required
+@module_workshops_required
 def add_workshop_to_jam():
     form = forms.AddWorkshopToJam(request.form)
     if request.method == 'POST':# and form.validate():
@@ -88,8 +96,10 @@ def add_workshop_to_jam():
         return redirect("/admin/add_workshop_to_jam", code=302)
     return render_template('admin/add_workshop_to_jam_form.html', form=form, workshop_slots=database.get_time_slots_to_select(database.get_current_jam_id(), 0, admin_mode=True))
 
+
 @admin_routes.route('/admin/delete_workshop/<workshop_id>')
 @volunteer_required
+@module_workshops_required
 def delete_workshop(workshop_id):
     database.delete_workshop(workshop_id)
     return redirect(('admin/manage_workshop_catalog'))
@@ -97,12 +107,14 @@ def delete_workshop(workshop_id):
 
 @admin_routes.route('/admin/workshops', methods=['GET', 'POST'])
 @volunteer_required
+@module_workshops_required
 def admin_workshops():
     return render_template('admin/admin_workshops.html')
 
 
 @admin_routes.route("/admin/manage_users", methods=['GET', 'POST'])
 @super_admin_required
+@module_core_required
 def manage_users():
     users = database.get_users()
     return render_template("admin/manage_users.html", users=users)
@@ -110,6 +122,7 @@ def manage_users():
 
 @admin_routes.route("/admin/attendee_list")
 @volunteer_required
+@module_attendees_required
 def attendee_list():
     jam_attendees = database.get_all_attendees_for_jam(database.get_current_jam_id())
     return render_template("admin/attendee_list.html", attendees=jam_attendees)
@@ -117,6 +130,7 @@ def attendee_list():
 
 @admin_routes.route("/admin/volunteer")
 @volunteer_required
+@module_volunteer_signup_required
 def volunteer():
     time_slots, workshop_rooms_in_use = database.get_volunteer_data(database.get_current_jam_id(), request.logged_in_user)
     return render_template("admin/volunteer_signup.html", time_slots = time_slots, workshop_rooms_in_use = workshop_rooms_in_use, current_selected = ",".join(str(x.workshop_run_id) for x in request.logged_in_user.workshop_runs) +",")
@@ -124,6 +138,7 @@ def volunteer():
 
 @admin_routes.route("/admin/volunteer_attendance", methods=['GET', 'POST'])
 @volunteer_required
+@module_volunteer_signup_required
 def volunteer_attendance():
     volunteer_attendances = database.get_attending_volunteers(database.get_current_jam_id(), request.logged_in_user.user_id)
     form = forms.VolunteerAttendance(request.form)
@@ -136,6 +151,7 @@ def volunteer_attendance():
 
 @admin_routes.route("/admin/manage_attendees")
 @volunteer_required
+@module_attendees_required
 def manage_attendees():
     jam_attendees = database.get_all_attendees_for_jam(database.get_current_jam_id())
     for attendee in jam_attendees:
@@ -153,6 +169,7 @@ def manage_attendees():
 
 @admin_routes.route("/admin/fire_list")
 @volunteer_required
+@module_attendees_required
 def fire_list():
     jam_attendees = database.get_all_attendees_for_jam(database.get_current_jam_id())
     return render_template("admin/fire_list.html", attendees=jam_attendees)
@@ -165,24 +182,27 @@ def fire_list():
 
 
 
-@admin_routes.route("/admin_get_password_reset_code_ajax", methods=['GET', 'POST'])
+@admin_routes.route("/admin/get_password_reset_code_ajax", methods=['GET', 'POST'])
 @super_admin_required
+@module_core_required
 def get_password_reset_code():
     user_id = request.form['user_id']
     reset_code = database.get_user_reset_code(user_id)
     return "The requested password reset code is - {}".format(reset_code)
 
 
-@admin_routes.route("/admin_upgrade_to_volunteer_permission_ajax", methods=['GET', 'POST'])
+@admin_routes.route("/admin/upgrade_to_volunteer_permission_ajax", methods=['GET', 'POST'])
 @super_admin_required
+@module_core_required
 def upgrade_user_permission():
     user_id = request.form['user_id']
     database.set_group_for_user(user_id, 3)
     return ""
 
 
-@admin_routes.route("/admin_modify_workshop_ajax", methods=['GET', 'POST'])
+@admin_routes.route("/admin/modify_workshop_ajax", methods=['GET', 'POST'])
 @volunteer_required
+@module_workshops_required
 def modify_workshop_ajax():
     workshop_id = request.form['workshop_id']
     attendee_id = request.form['attendee_id']
@@ -190,24 +210,27 @@ def modify_workshop_ajax():
         return ("")
 
 
-@admin_routes.route("/delete_workshop_from_jam_ajax", methods=['GET', 'POST'])
+@admin_routes.route("/admin/delete_workshop_from_jam_ajax", methods=['GET', 'POST'])
 @volunteer_required
+@module_workshops_required
 def delete_workshop_from_jam_ajax():
     workshop_id = request.form['workshop_id']
     database.remove_workshop_from_jam(workshop_id)
     return redirect("/admin/add_workshop_to_jam", code=302)
 
 
-@admin_routes.route("/admin_check_out_attendee_ajax", methods=['GET', 'POST'])
+@admin_routes.route("/admin/check_out_attendee_ajax", methods=['GET', 'POST'])
 @volunteer_required
+@module_attendees_required
 def check_out_attendee_ajax():
     attendee_id = request.form['attendee_id']
     database.check_out_attendee(attendee_id)
     return redirect("/admin/manage_attendees", code=302)
 
 
-@admin_routes.route("/admin_check_in_attendee_ajax", methods=['GET', 'POST'])
+@admin_routes.route("/admin/check_in_attendee_ajax", methods=['GET', 'POST'])
 @volunteer_required
+@module_attendees_required
 def check_in_attendee_ajax():
     attendee_id = request.form['attendee_id']
     database.check_in_attendee(attendee_id)
@@ -216,6 +239,7 @@ def check_in_attendee_ajax():
 
 @admin_routes.route("/admin/volunteer_update_ajax", methods=['GET', 'POST'])
 @volunteer_required
+@module_volunteer_signup_required
 def update_volunteer():
     new_sessions = request.json
     sessions = []
@@ -226,8 +250,9 @@ def update_volunteer():
         return "True"
 
 
-@admin_routes.route("/admin_update_attendee_info_ajax", methods=['GET', 'POST'])
+@admin_routes.route("/admin/update_attendee_info_ajax", methods=['GET', 'POST'])
 @volunteer_required
+@module_core_required
 def update_attendee_info():
     current_jam = database.get_current_jam_id()
     database.update_attendees_from_eventbrite(current_jam)

@@ -9,6 +9,7 @@ attendee_routes = Blueprint('attendee_routes', __name__,
 
 @attendee_routes.route("/workshops")
 @attendee_required
+@module_booking_required
 def display_workshops():
     if database.verify_attendee_id(request.cookies.get('jam_order_id'), database.get_current_jam_id()):
         workshop_attendees = database.get_attendees_in_order(request.cookies.get("jam_order_id"))
@@ -30,6 +31,7 @@ def display_workshops():
 
 @attendee_routes.route("/add_workshop_bookings_ajax", methods=['GET', 'POST'])
 @attendee_required
+@module_booking_required
 def add_workshop_bookings_ajax():
     workshop_id = request.form['workshop_id']
     attendee_id = request.form['attendee_id']
@@ -39,6 +41,7 @@ def add_workshop_bookings_ajax():
 
 @attendee_routes.route("/remove_workshop_bookings_ajax", methods=['GET', 'POST'])
 @attendee_required
+@module_booking_required
 def remove_workshop_bookings_ajax():
     workshop_id = request.form['workshop_id']
     attendee_id = request.form['attendee_id']
