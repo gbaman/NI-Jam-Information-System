@@ -35,6 +35,7 @@ def index():
 @module_core_required
 def login():
     cookie_value = request.cookies.get("jam_login")
+    next = logins.get_redirect_target()
     if cookie_value:
         valid, cookie = logins.validate_cookie(cookie_value)
         if valid:
@@ -44,12 +45,12 @@ def login():
     if request.method == 'POST' and form.validate():
         login_validated, user = logins.validate_login(form.username.data, form.password.data)
         if login_validated:
-            resp = make_response(redirect('admin/admin_home'))
+            resp = make_response(logins.redirect_back('admin_routes.admin_home'))
             resp.set_cookie("jam_login", database.new_cookie_for_user(user.user_id))
             return resp
         flash("Unable to login, credentials incorrect.", "danger")
         return render_template("login.html", form=form)
-    return render_template("login.html", form=form)
+    return render_template("login.html", next=next, form=form)
 
 
 @public_routes.route("/register", methods=['POST', 'GET'])

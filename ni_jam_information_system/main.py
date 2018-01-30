@@ -38,5 +38,6 @@ def inject_config_data():
                 jam_organisation_name=configuration.verify_config_item("general", "jam_organisation_name"),
                 short_jam_organisation_name=configuration.verify_config_item("general", "short_jam_organisation_name"))
 
+
 if __name__ == '__main__':
     app.run()

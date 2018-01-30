@@ -140,7 +140,7 @@ def volunteer():
 @volunteer_required
 @module_volunteer_signup_required
 def volunteer_attendance():
-    volunteer_attendances = database.get_attending_volunteers(database.get_current_jam_id(), request.logged_in_user.user_id)
+    volunteer_attendances = database.get_attending_volunteers(database.get_current_jam_id())
     form = forms.VolunteerAttendance(request.form)
     if request.method == 'POST' and form.validate():
         database.add_volunteer_attendance(database.get_current_jam_id(), request.logged_in_user.user_id, int(literal_eval(form.attending_jam.data)), int(literal_eval(form.attending_setup.data)), int(literal_eval(form.attending_packdown.data)), int(literal_eval(form.attending_food.data)), form.notes.data)
@@ -153,7 +153,12 @@ def volunteer_attendance():
 @volunteer_required
 @module_attendees_required
 def manage_attendees():
+    # TODO : Needs a merge of volunteers and attendees into one, so both can be checked in/out.
+    # Getting names of users, but not their volunteer attendance that is needed.
     jam_attendees = database.get_all_attendees_for_jam(database.get_current_jam_id())
+    volunteer_attendances = database.get_attending_volunteers(database.get_current_jam_id(), only_attending_volunteers=True)
+    for volunteer_attendee in volunteer_attendance:
+        pass
     for attendee in jam_attendees:
         if attendee.current_location == "Checked in":
             attendee.bg_colour = database.green

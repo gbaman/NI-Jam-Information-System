@@ -523,8 +523,11 @@ def select_jam(jam_id):
     db_session.commit()
 
 
-def get_attending_volunteers(jam_id, logged_in_user_id):
-    all_volunteers = db_session.query(LoginUser).all() # Get all the volunteers
+def get_attending_volunteers(jam_id, only_attending_volunteers=False):
+    all_volunteers = db_session.query(LoginUser) # Get all the volunteers
+    if only_attending_volunteers and False: # Still being worked on
+        all_volunteers.filter(LoginUser.attending.jam_id == jam_id) # TODO : Not correctly working yet :(
+    all_volunteers = all_volunteers.all()
     for volunteer in all_volunteers:
         volunteer.current_jam_workshops_involved_in = []
         for workshop in volunteer.workshop_runs:

@@ -83,6 +83,7 @@ class LoginUser(Base):
     email = Column(String(45))
     reset_code = Column(String(10))
 
+    attending = relationship("VolunteerAttendance")
     group = relationship('Group')
     login_cookie = relationship('LoginCookie')
     workshop_runs = relationship('RaspberryJamWorkshop', secondary='workshop_volunteers')
@@ -136,6 +137,7 @@ class VolunteerAttendance(Base):
     packdown_attending = Column(Integer)
     food_attending = Column(Integer)
     notes = Column(String(300))
+    current_location = Column(String(15))
 
     jam = relationship('RaspberryJam')
     user = relationship('LoginUser')

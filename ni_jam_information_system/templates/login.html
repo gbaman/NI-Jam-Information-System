@@ -10,6 +10,7 @@
                 {{ render_field(form.password, class="form-control") }}
             </dl>
             <p><input class="btn btn-primary" type=submit value="Login"> <a href="/reset" class="btn btn-danger" role="button">Reset password</a></p>
+            <input type=hidden value="{{ next or '' }}" name=next>
         </form>
         {% with messages = get_flashed_messages(with_categories=true) %}
           <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
