@@ -153,8 +153,7 @@ def volunteer_attendance():
 @volunteer_required
 @module_attendees_required
 def manage_attendees():
-    # TODO : Needs a merge of volunteers and attendees into one, so both can be checked in/out.
-    # Getting names of users, but not their volunteer attendance that is needed.
+    # Getting names of users and also volunteers that are down as attending this Jam
     jam_attendees = database.get_all_attendees_for_jam(database.get_current_jam_id())
     volunteer_attendances = database.get_attending_volunteers(database.get_current_jam_id(), only_attending_volunteers=True)
     for volunteer_attendee in volunteer_attendances:

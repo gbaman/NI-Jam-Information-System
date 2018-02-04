@@ -524,7 +524,7 @@ def select_jam(jam_id):
 
 
 def get_attending_volunteers(jam_id, only_attending_volunteers=False): # Get all the volunteers
-    if only_attending_volunteers: # Still being worked on
+    if only_attending_volunteers:
         attending_volunteers = db_session.query(VolunteerAttendance).filter(VolunteerAttendance.jam_id == jam_id,
                                                                             VolunteerAttendance.volunteer_attending)
         all_volunteers = []
