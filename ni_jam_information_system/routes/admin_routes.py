@@ -157,8 +157,16 @@ def manage_attendees():
     # Getting names of users, but not their volunteer attendance that is needed.
     jam_attendees = database.get_all_attendees_for_jam(database.get_current_jam_id())
     volunteer_attendances = database.get_attending_volunteers(database.get_current_jam_id(), only_attending_volunteers=True)
-    for volunteer_attendee in volunteer_attendance:
-        pass
+    for volunteer_attendee in volunteer_attendances:
+
+        for volunteer_attendee_record in volunteer_attendee.attending:
+            if volunteer_attendee_record.jam_id == database.get_current_jam_id():
+                volunteer_attendee.current_jam = volunteer_attendee_record
+                break
+        volunteer_attendee.current_location = volunteer_attendee.current_jam.current_location
+        volunteer_attendee.attendee_id = volunteer_attendee.user_id
+        volunteer_attendee.order_id = "Volunteer"
+        jam_attendees.append(volunteer_attendee)
     for attendee in jam_attendees:
         if attendee.current_location == "Checked in":
             attendee.bg_colour = database.green
@@ -177,6 +185,20 @@ def manage_attendees():
 @module_attendees_required
 def fire_list():
     jam_attendees = database.get_all_attendees_for_jam(database.get_current_jam_id())
+    volunteer_attendances = database.get_attending_volunteers(database.get_current_jam_id(),
+                                                              only_attending_volunteers=True)
+    for volunteer_attendee in volunteer_attendances:
+
+        for volunteer_attendee_record in volunteer_attendee.attending:
+            if volunteer_attendee_record.jam_id == database.get_current_jam_id():
+                volunteer_attendee.current_jam = volunteer_attendee_record
+                break
+        if volunteer_attendee.current_jam.current_location != "Checked in":
+            continue  # If volunteer is not marked as checked in, ignore them
+        volunteer_attendee.current_location = volunteer_attendee.current_jam.current_location
+        volunteer_attendee.attendee_id = volunteer_attendee.user_id
+        volunteer_attendee.order_id = "Volunteer"
+        jam_attendees.append(volunteer_attendee)
     return render_template("admin/fire_list.html", attendees=jam_attendees)
 
 

@@ -523,11 +523,15 @@ def select_jam(jam_id):
     db_session.commit()
 
 
-def get_attending_volunteers(jam_id, only_attending_volunteers=False):
-    all_volunteers = db_session.query(LoginUser) # Get all the volunteers
-    if only_attending_volunteers and False: # Still being worked on
-        all_volunteers.filter(LoginUser.attending.jam_id == jam_id) # TODO : Not correctly working yet :(
-    all_volunteers = all_volunteers.all()
+def get_attending_volunteers(jam_id, only_attending_volunteers=False): # Get all the volunteers
+    if only_attending_volunteers: # Still being worked on
+        attending_volunteers = db_session.query(VolunteerAttendance).filter(VolunteerAttendance.jam_id == jam_id,
+                                                                            VolunteerAttendance.volunteer_attending)
+        all_volunteers = []
+        for user in attending_volunteers:
+            all_volunteers.append(user.user)
+    else:
+        all_volunteers = db_session.query(LoginUser).all()
     for volunteer in all_volunteers:
         volunteer.current_jam_workshops_involved_in = []
         for workshop in volunteer.workshop_runs:
@@ -558,6 +562,7 @@ def add_volunteer_attendance(jam_id, user_id, attending_jam, attending_setup, at
     attendance.packdown_attending = attending_packdown
     attendance.food_attending = attending_food
     attendance.notes = notes
+    attendance.current_location = "Not arrived"
     if new:
         db_session.add(attendance)
     db_session.commit()
@@ -611,14 +616,22 @@ def get_current_jam_id():
 
 
 def check_out_attendee(attendee_id):
-    attendee = db_session.query(Attendee).filter(Attendee.attendee_id == attendee_id).first()
-    attendee.current_location = "Checked out"
+    if len(attendee_id) < 6: # Check if volunteer
+        volunteer_attendance = db_session.query(VolunteerAttendance).join(LoginUser).filter_by(user_id=attendee_id).filter(VolunteerAttendance.jam_id == get_current_jam_id()).first()
+        volunteer_attendance.current_location = "Checked out"
+    else:
+        attendee = db_session.query(Attendee).filter(Attendee.attendee_id == attendee_id).first()
+        attendee.current_location = "Checked out"
     db_session.commit()
 
 
 def check_in_attendee(attendee_id):
-    attendee = db_session.query(Attendee).filter(Attendee.attendee_id == attendee_id).first()
-    attendee.current_location = "Checked in"
+    if len(attendee_id) < 6: # Check if volunteer
+        volunteer_attendance = db_session.query(VolunteerAttendance).join(LoginUser).filter_by(user_id=attendee_id).filter(VolunteerAttendance.jam_id == get_current_jam_id()).first()
+        volunteer_attendance.current_location = "Checked in"
+    else:
+        attendee = db_session.query(Attendee).filter(Attendee.attendee_id == attendee_id).first()
+        attendee.current_location = "Checked in"
     db_session.commit()
 
 
