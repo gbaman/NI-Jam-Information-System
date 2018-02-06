@@ -637,3 +637,15 @@ def check_in_attendee(attendee_id):
 
 def get_jam_details(jam_id):
     return db_session.query(RaspberryJam).filter(RaspberryJam.jam_id == jam_id).first()
+
+
+def remove_workshop_file(file_id):
+    file = db_session.query(WorkshopFile).filter(WorkshopFile.file_id == file_id).first()
+    workshop_id = file.workshop_id
+    db_session.delete(file)
+    db_session.commit()
+
+    # TODO : Actually delete the file on the filesystem.
+
+    return workshop_id
+

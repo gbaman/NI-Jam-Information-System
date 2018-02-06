@@ -152,6 +152,7 @@ class Workshop(Base):
     workshop_description = Column(String(500))
     workshop_level = Column(String(45))
     workshop_hidden = Column(Integer, nullable=False)
+    workshop_files = relationship('WorkshopFile')
 
 
 class WorkshopAttendee(Base):
@@ -180,6 +181,17 @@ class WorkshopSlot(Base):
     slot_id = Column(Integer, primary_key=True)
     slot_time_start = Column(Time, nullable=False)
     slot_time_end = Column(Time, nullable=False)
+
+
+class WorkshopFile(Base):
+    __tablename__ = 'workshop_files'
+
+    file_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
+    file_title = Column(String(90), nullable=False)
+    file_path = Column(String(150), nullable=False)
+    file_permission = Column(String(45), nullable=False)
+    file_edit_date = Column(DateTime, nullable=False)
+    workshop_id = Column(ForeignKey('workshop.workshop_id'), primary_key=True, nullable=False, index=True)
 
 
 t_workshop_volunteers = Table(

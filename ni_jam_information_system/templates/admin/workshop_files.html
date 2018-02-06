@@ -1,0 +1,42 @@
+{%include 'admin/admin_header.html'%}
+
+
+<h1>{{workshop.workshop_title}} files</h1>
+<p></p>
+
+<br>
+
+<table>
+    <tr>
+        <th>File title</th>
+        <th>Upload date</th>
+        <th>Download</th>
+        <th>Delete</th>
+    </tr>
+
+    {% for workshop_file in workshop.workshop_files %}
+        <tr>
+        <td>{{workshop_file.file_title}}</td>
+        <td>{{workshop_file.file_edit_date}}</td>
+        <td></td>
+        <td><a href="/admin/delete_workshop_files/{{workshop_file.file_id}}" class="btn btn-danger" role="button">Delete</a><br></td>
+        </tr>
+    {% endfor %}
+
+</table>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+          <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible" role="alert">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <!-- <strong>Title</strong> --> {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+<br>
+
+{%include 'footer.html'%}

@@ -201,6 +201,22 @@ def fire_list():
     return render_template("admin/fire_list.html", attendees=jam_attendees)
 
 
+@admin_routes.route("/admin/workshop_files/<workshop_id>")
+@volunteer_required
+@module_workshops_required
+def workshop_files(workshop_id):
+    workshop = database.get_workshop_from_workshop_id(workshop_id)
+    return render_template("admin/workshop_files.html", workshop=workshop)
+
+
+@admin_routes.route("/admin/delete_workshop_files/<file_id>")
+@volunteer_required
+@module_workshops_required
+def delete_workshop_file(file_id):
+    workshop_id = database.remove_workshop_file(file_id)
+    flash("File has been removed.", category="success")
+    return redirect("/admin/workshop_files/{}".format(workshop_id), code=302)
+
 
 
 ####################################### AJAX Routes #######################################

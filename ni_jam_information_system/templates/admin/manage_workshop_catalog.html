@@ -13,6 +13,7 @@
         <th>Max attendees</th>
         <th>Level</th>
         <th>Hidden</th>
+        <th>Files</th>
         <th>Edit</th>
         <th>Delete</th>
     </tr>
@@ -23,6 +24,7 @@
         <td>{{workshop.workshop_limit}}</td>
         <td>{{workshop.workshop_level}}</td>
         <td>{% if workshop.workshop_hidden %} True {% else %} False {% endif %} </td>
+        <td><a href="/admin/workshop_files/{{workshop.workshop_id}}" class="btn btn-primary" role="button">Files ({{workshop.workshop_files|length}})</a></td>
         <td><a href="/admin/manage_workshop_catalog/{{workshop.workshop_id}}" class="btn btn-info" role="button">Edit</a></td>
         <td><a href="/admin/delete_workshop/{{workshop.workshop_id}}" class="btn btn-danger" role="button">Delete</a></td>
     </tr>
