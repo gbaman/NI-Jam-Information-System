@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, make_response, redirect, flash
+from flask import Blueprint, render_template, request, make_response, redirect, flash, send_file, abort
 import database
 from datetime import datetime, timedelta
 from secrets.config import *
@@ -96,3 +96,13 @@ def logout():
 def public_schedule():
     time_slots, workshop_rooms_in_use =database.get_workshop_timetable_data(database.get_current_jam_id())
     return render_template("public_schedule.html", time_slots = time_slots, workshop_rooms_in_use = workshop_rooms_in_use, container_name = " ", jam_title = database.get_jam_details(database.get_current_jam_id()).name)
+
+
+@public_routes.route("/static/files/<workshop_id>/<filename>")
+@module_workshops_required
+def files_download(workshop_id, filename):
+    file = database.get_file_for_download(workshop_id, "static/files/{}/{}".format(workshop_id, filename))
+    if file.file_permission == "public":
+        return send_file(file.file_path)
+    else:
+        abort(404)

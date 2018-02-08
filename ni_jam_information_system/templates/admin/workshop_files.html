@@ -1,5 +1,5 @@
 {%include 'admin/admin_header.html'%}
-
+{% from "_formhelpers.html" import render_field %}
 
 <h1>{{workshop.workshop_title}} files</h1>
 <p></p>
@@ -10,6 +10,8 @@
     <tr>
         <th>File title</th>
         <th>Upload date</th>
+        <th>Visibility</th>
+        <th>Path</th>
         <th>Download</th>
         <th>Delete</th>
     </tr>
@@ -18,7 +20,9 @@
         <tr>
         <td>{{workshop_file.file_title}}</td>
         <td>{{workshop_file.file_edit_date}}</td>
-        <td></td>
+        <td>{{workshop_file.permission}}</td>
+        <td>{{workshop_file.file_path}}</td>
+        <td><a href="{{workshop_file.file_path}}" class="btn btn-primary" role="button">Download</a><br></td>
         <td><a href="/admin/delete_workshop_files/{{workshop_file.file_id}}" class="btn btn-danger" role="button">Delete</a><br></td>
         </tr>
     {% endfor %}
@@ -37,6 +41,15 @@
           {% endif %}
         {% endwith %}
 
-<br>
+
+<h2>Upload new files</h2>
+
+<form method="POST" enctype="multipart/form-data" style="max-width: 220px">
+  <dl>
+    {{ render_field(form.file_title, class = "form-control") }}
+    {{ render_field(form.upload) }}
+  </dl>
+  <p><input class="btn btn-primary" type=submit value="Upload file">
+</form>
 
 {%include 'footer.html'%}

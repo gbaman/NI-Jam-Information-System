@@ -2,6 +2,8 @@ import random
 import string
 import uuid
 
+import os
+
 from models import *
 from eventbrite_interactions import get_eventbrite_attendees_for_event
 import datetime
@@ -644,8 +646,16 @@ def remove_workshop_file(file_id):
     workshop_id = file.workshop_id
     db_session.delete(file)
     db_session.commit()
-
-    # TODO : Actually delete the file on the filesystem.
-
+    os.remove(file.file_path)
     return workshop_id
 
+
+def add_workshop_file(file_title, file_path, file_permission, workshop_id):
+    file = WorkshopFile(file_title=file_title, file_path=file_path, file_permission=file_permission, workshop_id=workshop_id, file_edit_date=datetime.datetime.now())
+    db_session.add(file)
+    db_session.commit()
+
+
+def get_file_for_download(workshop_id, file_path):
+    file = db_session.query(WorkshopFile).filter(WorkshopFile.workshop_id == workshop_id, WorkshopFile.file_path == file_path).first()
+    return file

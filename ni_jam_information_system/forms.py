@@ -1,4 +1,9 @@
-from wtforms import Form, BooleanField, StringField, PasswordField, IntegerField, TextAreaField, RadioField, SelectField, validators, HiddenField
+from flask_wtf import FlaskForm
+from flask_wtf.file import FileRequired, FileAllowed
+from wtforms import Form, BooleanField, StringField, PasswordField, IntegerField, TextAreaField, RadioField, \
+    SelectField, validators, HiddenField, FileField
+from flask import g, Flask, current_app
+
 from database import get_volunteers_to_select, get_workshops_to_select, get_individual_time_slots_to_select, get_workshop_rooms, get_workshop_from_workshop_id
 
 
@@ -57,3 +62,11 @@ class ResetPasswordForm(Form):
     username = StringField("Username", [validators.DataRequired()])
     reset_code = StringField("Reset Code", [validators.DataRequired()])
     new_password = PasswordField("New Password", [validators.DataRequired()])
+
+
+class UploadFileForm(FlaskForm):
+        file_title = StringField("File title", [validators.DataRequired()])
+        upload = FileField('File', validators=[
+            FileRequired(),
+            FileAllowed(("pdf", "ppt"), 'Documents only!')
+        ])
