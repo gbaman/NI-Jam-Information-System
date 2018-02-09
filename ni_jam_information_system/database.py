@@ -325,6 +325,13 @@ def get_user_details_from_username(username):
     return db_session.query(LoginUser).filter(LoginUser.username == username).first()
 
 
+def get_user_from_cookie(cookie_value):
+    cookie = db_session.query(LoginCookie).filter(LoginCookie.cookie_value == cookie_value).first()
+    if cookie:
+        return cookie.user
+    return None
+
+
 def create_user(username, password_hash, password_salt, first_name, surname, email):
     db_session.commit()
     user = LoginUser()

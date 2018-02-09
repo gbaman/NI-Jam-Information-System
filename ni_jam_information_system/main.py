@@ -1,5 +1,5 @@
 import uuid
-from flask import Flask, render_template, g
+from flask import Flask, render_template, request
 from flask_uploads import UploadSet, configure_uploads, ALL
 
 import database as database
@@ -51,6 +51,12 @@ def inject_config_data():
     return dict(modules_enabled=configuration.verify_modules_enabled(),
                 jam_organisation_name=configuration.verify_config_item("general", "jam_organisation_name"),
                 short_jam_organisation_name=configuration.verify_config_item("general", "short_jam_organisation_name"))
+
+
+@app.context_processor
+def inject_user_data():
+    return dict(logged_in_user=database.get_user_from_cookie(request.cookies.get('jam_login')))
+
 
 
 if __name__ == '__main__':
