@@ -101,8 +101,10 @@ def public_schedule():
 @public_routes.route("/static/files/<workshop_id>/<filename>")
 @module_workshops_required
 def files_download(workshop_id, filename):
+    print("Hello world")
     file = database.get_file_for_download(workshop_id, "static/files/{}/{}".format(workshop_id, filename))
-    if file.file_permission == "public":
+    login_status, user = logins.check_allowed(request, 3)
+    if file.file_permission == "Public" or (file.file_permission == "Jam team only" and login_status):
         return send_file(file.file_path)
     else:
         abort(404)

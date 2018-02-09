@@ -20,7 +20,7 @@
         <tr>
         <td>{{workshop_file.file_title}}</td>
         <td>{{workshop_file.file_edit_date}}</td>
-        <td>{{workshop_file.permission}}</td>
+        <td>{{workshop_file.file_permission}}</td>
         <td>{{workshop_file.file_path}}</td>
         <td><a href="{{workshop_file.file_path}}" class="btn btn-primary" role="button">Download</a><br></td>
         <td><a href="/admin/delete_workshop_files/{{workshop_file.file_id}}" class="btn btn-danger" role="button">Delete</a><br></td>
@@ -47,6 +47,7 @@
 <form method="POST" enctype="multipart/form-data" style="max-width: 220px">
   <dl>
     {{ render_field(form.file_title, class = "form-control") }}
+    {{ render_field(form.file_permission, class = "form-control") }}
     {{ render_field(form.upload) }}
   </dl>
   <p><input class="btn btn-primary" type=submit value="Upload file">

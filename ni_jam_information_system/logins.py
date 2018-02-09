@@ -4,7 +4,7 @@ import database
 import flask_bcrypt
 import random
 from urllib.parse import urlparse, urljoin
-from flask import request, url_for, redirect
+from flask import request, url_for, redirect, flash
 
 
 def validate_login(username, password):

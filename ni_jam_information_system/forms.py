@@ -66,7 +66,8 @@ class ResetPasswordForm(Form):
 
 class UploadFileForm(FlaskForm):
         file_title = StringField("File title", [validators.DataRequired()])
+        file_permission = SelectField("Visibility level", choices=[("Public", "Public"), ("Jam team only", "Jam team only")])
         upload = FileField('File', validators=[
             FileRequired(),
-            FileAllowed(("pdf", "ppt"), 'Documents only!')
+            FileAllowed(("pdf", "ppt", "py"), 'Should be a PDF for Powerpoint file!')
         ])

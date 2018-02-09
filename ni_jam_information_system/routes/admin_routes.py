@@ -218,8 +218,12 @@ def workshop_files(workshop_id):
         if not os.path.exists(base_dir):
             os.makedirs(base_dir)
         file_path = "{}/{}".format(base_dir, filename)
-        f.save(file_path)
-        database.add_workshop_file(request.form['file_title'], file_path, "public", workshop_id)
+        if not os.path.isfile(file_path):
+            f.save(file_path)
+            database.add_workshop_file(request.form['file_title'], file_path, request.form['file_permission'], workshop_id)
+            flash("File upload successful.", "success")
+        else:
+            flash("Failed to upload - File of same name already exists.", "danger")
         return redirect(url_for('admin_routes.workshop_files', workshop_id=workshop_id))
 
     workshop = database.get_workshop_from_workshop_id(workshop_id)

@@ -651,9 +651,12 @@ def remove_workshop_file(file_id):
 
 
 def add_workshop_file(file_title, file_path, file_permission, workshop_id):
+    if db_session.query(WorkshopFile).filter(WorkshopFile.workshop_id == workshop_id, WorkshopFile.file_path == file_path).first(): # If file of same name already exists
+        return False
     file = WorkshopFile(file_title=file_title, file_path=file_path, file_permission=file_permission, workshop_id=workshop_id, file_edit_date=datetime.datetime.now())
     db_session.add(file)
     db_session.commit()
+    return True
 
 
 def get_file_for_download(workshop_id, file_path):
