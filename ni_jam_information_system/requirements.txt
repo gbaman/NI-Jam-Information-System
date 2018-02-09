@@ -1,5 +1,6 @@
 flask
 flask_mysql
+flask_wtf
 flask_bcrypt
 flask-uploads
 eventbrite
