@@ -15,7 +15,7 @@
       </dl>
       <p><input class="btn btn-primary" type=submit value="Log in">
     </form>
-    <p>{{status}}</p>
+    {%include '_message_flash_helper.html'%}
   {% endif %}
 
 {% endblock %}

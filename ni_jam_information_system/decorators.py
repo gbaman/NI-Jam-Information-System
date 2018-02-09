@@ -46,8 +46,8 @@ def attendee_required(f):
             return f(*args, **kwargs)
         if user:
             return redirect("505")
-        flash("You do not currently have permission to access the requested page. Please log in first.", "danger")
-        return redirect(url_for('public_routes.login', next=request.url))
+        flash("You must log in via your Eventbrite Order ID and the Day Password before you can access that page.", "danger")
+        return redirect(url_for('public_routes.index'))
 
     return decorated_function
 

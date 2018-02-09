@@ -27,7 +27,8 @@ def index():
             resp.set_cookie('jam_id', str(database.get_current_jam_id()))
             return resp
         else:
-            return render_template('index.html', form=form, status="Error, no order with that ID found or Jam password is wrong. Please try again")
+            flash("Error, no order with that ID found or Jam password is wrong. Please try again.", "danger")
+            return render_template('index.html', form=form)
     return render_template('index.html', form=form)
 
 

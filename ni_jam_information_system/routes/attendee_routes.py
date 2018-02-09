@@ -20,6 +20,7 @@ def display_workshops():
             return render_template("workshops.html", workshop_slots=database.get_time_slots_to_select(database.get_current_jam_id(), request.cookies.get('jam_order_id')), jam_attendees=attendees)
         return render_template("workshops.html", workshop_slots=database.get_time_slots_to_select(database.get_current_jam_id(), request.cookies.get('jam_order_id')))
     else:
+        flash("You must enter your Eventbrite Order ID and the day password to access the workshop booking system.", "danger")
         return redirect("/")
 
 
