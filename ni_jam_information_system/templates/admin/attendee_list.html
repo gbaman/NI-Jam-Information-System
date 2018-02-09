@@ -1,4 +1,6 @@
-{%include 'admin/admin_header.html'%}
+{% extends "layout.html" %}
+
+{% block content %}
 <h1>Attendee list for current selected Jam</h1>
 <div class="attendees">
     <table class="table table-hover, table-bordered">
@@ -16,4 +18,4 @@
         {% endfor %}
     </table>
 </div>
-{%include 'footer.html'%}
+{% endblock %}

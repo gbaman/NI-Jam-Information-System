@@ -43,4 +43,13 @@
     </div>
 </nav>
 <div class="jam-main-body">
+    {% from "_formhelpers.html" import render_field %}
     <div class="{{container_name or 'container'}}">
+    {% block content %}
+
+    {% endblock %}
+
+    </div>
+</div>
+</body>
+</html>

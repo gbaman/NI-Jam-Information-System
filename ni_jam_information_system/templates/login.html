@@ -1,27 +1,27 @@
-{%include 'header.html'%}
-{% from "_formhelpers.html" import render_field %}
+{% extends "layout.html" %}
 
-<div class="container">
-        <h2>Login</h2>
-        <p>For Jam volunteers only.</p>
-        <form method=post style="max-width: 220px">
-            <dl>
-                {{ render_field(form.username, class="form-control col-xs-5 col-lg-1") }}
-                {{ render_field(form.password, class="form-control") }}
-            </dl>
-            <p><input class="btn btn-primary" type=submit value="Login"> <a href="/reset" class="btn btn-danger" role="button">Reset password</a></p>
-            <input type=hidden value="{{ next or '' }}" name=next>
-        </form>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-          <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
-          {% if messages %}
-            {% for category, message in messages %}
-              <div class="alert alert-{{ category }} alert-dismissible" role="alert">
-              <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-              <!-- <strong>Title</strong> --> {{ message }}
-              </div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-</div>
-{%include 'footer.html'%}
+{% block content %}
+    <div class="container">
+            <h2>Login</h2>
+            <p>For Jam volunteers only.</p>
+            <form method=post style="max-width: 220px">
+                <dl>
+                    {{ render_field(form.username, class="form-control col-xs-5 col-lg-1") }}
+                    {{ render_field(form.password, class="form-control") }}
+                </dl>
+                <p><input class="btn btn-primary" type=submit value="Login"> <a href="/reset" class="btn btn-danger" role="button">Reset password</a></p>
+                <input type=hidden value="{{ next or '' }}" name=next>
+            </form>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }} alert-dismissible" role="alert">
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <!-- <strong>Title</strong> --> {{ message }}
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+    </div>
+{% endblock %}

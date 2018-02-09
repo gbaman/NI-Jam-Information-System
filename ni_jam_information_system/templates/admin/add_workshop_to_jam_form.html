@@ -1,6 +1,6 @@
-{%include 'admin/admin_header.html'%}
+{% extends "layout.html" %}
 
-{% from "_formhelpers.html" import render_field %}
+{% block content %}
 <h2>Workshop scheduling</h2>
 <p>Use the following section to add workshops from the Jam catalog to the upcoming Jam.</p>
 <form method=post>
@@ -15,4 +15,4 @@
 </form>
 {%include 'admin/admin_render_workshops_in_slots.html'%}
 
-{%include 'footer.html'%}
+{% endblock %}

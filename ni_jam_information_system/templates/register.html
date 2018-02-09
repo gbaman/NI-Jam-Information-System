@@ -1,17 +1,17 @@
-{%include 'header.html'%}
-{% from "_formhelpers.html" import render_field %}
+{% extends "layout.html" %}
 
-<div class="container">
-    <form method=post style="max-width: 220px">
-        <dl>
-            {{ render_field(form.username, class="form-control") }}
-            {{ render_field(form.password, class="form-control") }}
-            {{ render_field(form.first_name, class="form-control") }}
-            {{ render_field(form.surname, class="form-control") }}
-            {{ render_field(form.email, class="form-control") }}
-            {{ render_field(form.access_code, class="form-control") }}
-        </dl>
-    <p><input class="btn btn-primary" type=submit value="Register">
-    </form>
-</div>
-{%include 'footer.html'%}
+{% block content %}
+    <div class="container">
+        <form method=post style="max-width: 220px">
+            <dl>
+                {{ render_field(form.username, class="form-control") }}
+                {{ render_field(form.password, class="form-control") }}
+                {{ render_field(form.first_name, class="form-control") }}
+                {{ render_field(form.surname, class="form-control") }}
+                {{ render_field(form.email, class="form-control") }}
+                {{ render_field(form.access_code, class="form-control") }}
+            </dl>
+        <p><input class="btn btn-primary" type=submit value="Register">
+        </form>
+    </div>
+{% endblock %}

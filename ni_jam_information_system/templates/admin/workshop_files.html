@@ -1,5 +1,6 @@
-{%include 'admin/admin_header.html'%}
-{% from "_formhelpers.html" import render_field %}
+{% extends "layout.html" %}
+
+{% block content %}
 
 <h1>{{workshop.workshop_title}} files</h1>
 <p></p>
@@ -53,4 +54,4 @@
   <p><input class="btn btn-primary" type=submit value="Upload file">
 </form>
 
-{%include 'footer.html'%}
+{% endblock %}

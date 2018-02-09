@@ -1,19 +1,21 @@
-{%include 'header.html'%}
-<h1>{{ jam_organisation_name }}</h1>
-<p>Welcome to the {{ jam_organisation_name }} Information System.</p>
+{% extends "layout.html" %}
 
-{% if modules_enabled.module_booking %}
-  <p>To book workshops, please enter your order ID (found on your ticket) below along with the Jam password provided when you arrive.</p>
+{% block content %}
+  <h1>{{ jam_organisation_name }}</h1>
+  <p>Welcome to the {{ jam_organisation_name }} Information System.</p>
 
-  {% from "_formhelpers.html" import render_field %}
-  <form method=post>
-    <dl>
-      {{ render_field(form.order_id) }}
-      {{ render_field(form.day_password) }}
-    </dl>
-    <p><input class="btn btn-primary" type=submit value="Log in">
-  </form>
-  <p>{{status}}</p>
-{% endif %}
+  {% if modules_enabled.module_booking %}
+    <p>To book workshops, please enter your order ID (found on your ticket) below along with the Jam password provided when you arrive.</p>
 
-{%include 'footer.html'%}
+    {% from "_formhelpers.html" import render_field %}
+    <form method=post>
+      <dl>
+        {{ render_field(form.order_id) }}
+        {{ render_field(form.day_password) }}
+      </dl>
+      <p><input class="btn btn-primary" type=submit value="Log in">
+    </form>
+    <p>{{status}}</p>
+  {% endif %}
+
+{% endblock %}

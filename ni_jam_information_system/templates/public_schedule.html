@@ -1,55 +1,57 @@
-{%include 'header.html'%}
+{% extends "layout.html" %}
 
-<script>
-    setInterval(function() {
-                  window.location.reload();
-                }, 180000);
-</script>
+{% block content %}
 
-<h1 style="text-align: center">Raspberry Jam Schedule</h1>
-<h2 style="text-align: center">{{jam_title}}</h2>
+    <script>
+        setInterval(function() {
+                      window.location.reload();
+                    }, 180000);
+    </script>
 
-<br>
-
-<div style="font-size: large">
-
-    <table class="volunteer_key">
-        <tr>
-            <th>Key</th>
-        </tr>
-        <tr>
-            <td bgcolor="#00dbc1">Not upfront taught workshops</td>
-            <td bgcolor="#c4fc9f">Beginner level workshop</td>
-            <td bgcolor="#fcbd00">Intermediate level workshop</td>
-            <td bgcolor="#fc9f9f">Advanced level workshop</td>
-        </tr>
-    </table>
+    <h1 style="text-align: center">Raspberry Jam Schedule</h1>
+    <h2 style="text-align: center">{{jam_title}}</h2>
 
     <br>
-    <p>Note that workshops with <i class="fas fa-flask"></i> around their title are experimental pilot workshops.</p>
-    <table class="volunteer_table">
-        <tr>
-            <th></th>
-        {% for workshop_room in workshop_rooms_in_use %}
-            <th width="15%">{{workshop_room.room_name}}</th>
-        {% endfor %}
-        </tr>
 
-        {% for time_slot in time_slots %}
+    <div style="font-size: large">
+
+        <table class="volunteer_key">
             <tr>
-            <th>{{time_slot.slot_time_start}} - {{time_slot.slot_time_end}}</th>
-            {% for room in time_slot.rooms %}
-                {% if room.workshop.dummy %}
-                    <td bgcolor="#d3d3d3"></td>
-                {% else %}
-                <td id="{{ room.workshop.workshop_run_id }}" bgcolor={{room.workshop.bg_colour}} style="text-align: center; vertical-align:top"> <p> {% if room.workshop.pilot %} <i class="fas fa-flask"></i> {% endif %} <b>{{room.workshop.workshop.workshop_title}}</b> {% if room.workshop.pilot %} <i class="fas fa-flask"></i> {% endif %} <br>  {{room.workshop.attendees|length}}/{{room.workshop.max_attendees}}
-                    <br><span style="font-size: medium">{{room.workshop.workshop.workshop_description}}</span>
-                </p></td>
-                {% endif %}
+                <th>Key</th>
+            </tr>
+            <tr>
+                <td bgcolor="#00dbc1">Not upfront taught workshops</td>
+                <td bgcolor="#c4fc9f">Beginner level workshop</td>
+                <td bgcolor="#fcbd00">Intermediate level workshop</td>
+                <td bgcolor="#fc9f9f">Advanced level workshop</td>
+            </tr>
+        </table>
+
+        <br>
+        <p>Note that workshops with <i class="fas fa-flask"></i> around their title are experimental pilot workshops.</p>
+        <table class="volunteer_table">
+            <tr>
+                <th></th>
+            {% for workshop_room in workshop_rooms_in_use %}
+                <th width="15%">{{workshop_room.room_name}}</th>
             {% endfor %}
             </tr>
-        {% endfor %}
 
-    </table>
-</div>
-{%include 'footer.html'%}
+            {% for time_slot in time_slots %}
+                <tr>
+                <th>{{time_slot.slot_time_start}} - {{time_slot.slot_time_end}}</th>
+                {% for room in time_slot.rooms %}
+                    {% if room.workshop.dummy %}
+                        <td bgcolor="#d3d3d3"></td>
+                    {% else %}
+                    <td id="{{ room.workshop.workshop_run_id }}" bgcolor={{room.workshop.bg_colour}} style="text-align: center; vertical-align:top"> <p> {% if room.workshop.pilot %} <i class="fas fa-flask"></i> {% endif %} <b>{{room.workshop.workshop.workshop_title}}</b> {% if room.workshop.pilot %} <i class="fas fa-flask"></i> {% endif %} <br>  {{room.workshop.attendees|length}}/{{room.workshop.max_attendees}}
+                        <br><span style="font-size: medium">{{room.workshop.workshop.workshop_description}}</span>
+                    </p></td>
+                    {% endif %}
+                {% endfor %}
+                </tr>
+            {% endfor %}
+
+        </table>
+    </div>
+{% endblock %}

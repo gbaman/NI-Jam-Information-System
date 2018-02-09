@@ -1,4 +1,6 @@
-{%include 'admin/admin_header.html'%}
+{% extends "layout.html" %}
+
+{% block content %}
 
 <h1>Volunteer Attendance</h1>
 
@@ -60,4 +62,4 @@
         {% endfor %}
     </table>
 </div>
-{%include 'footer.html'%}
+{% endblock %}

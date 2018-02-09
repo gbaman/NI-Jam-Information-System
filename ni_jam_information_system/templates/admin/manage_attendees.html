@@ -1,4 +1,6 @@
-{%include 'admin/admin_header.html'%}
+{% extends "layout.html" %}
+
+{% block content %}
 <h1>Front Desk Attendee Management</h1>
 
 <p>This page is designed for front desk use only. For getting attendee IDs, us  the <a href="/admin/attendee_list">general attendee list</a>.</p>
@@ -43,4 +45,4 @@
         {% endfor %}
     </table>
 </div>
-{%include 'footer.html'%}
+{% endblock %}

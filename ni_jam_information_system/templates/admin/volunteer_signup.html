@@ -1,4 +1,6 @@
-{%include 'admin/admin_header.html'%}
+{% extends "layout.html" %}
+
+{% block content %}
 
 <script src="/static/js/volunteer.js"></script>
 
@@ -49,4 +51,4 @@
 <br>
 <div id="current_selected" data-current-selected="{{ current_selected }}"></div>
 
-{%include 'footer.html'%}
+{% endblock %}

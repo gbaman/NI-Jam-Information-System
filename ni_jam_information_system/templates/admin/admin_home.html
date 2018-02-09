@@ -1,4 +1,6 @@
-{%include 'admin/admin_header.html'%}
+{% extends "layout.html" %}
+
+{% block content %}
 
 <h2>Admin Home Page</h2>
 <h3>The current selected Jam is - {{ eventbrite_event_name }}</h3>
@@ -42,4 +44,4 @@
 <a href="/admin/manage_users" class="btn btn-warning" role="button">User Management</a><br>
 {% endif %}
 
-{%include 'footer.html'%}
+{% endblock %}

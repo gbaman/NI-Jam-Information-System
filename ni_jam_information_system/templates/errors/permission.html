@@ -1,5 +1,7 @@
-{%include 'header.html'%}
-<H1>Permission denied</H1>
-<p>You do not have permission to access the following page, or it was not found :( </p>
-<img src="/static/img/404icon.jpg" alt="Sad Sam" align="middle">
-{%include 'footer.html'%}
+{% extends "layout.html" %}
+
+{% block content %}
+    <H1>Permission denied</H1>
+    <p>You do not have permission to access the following page, or it was not found :( </p>
+    <img src="/static/img/404icon.jpg" alt="Sad Sam" align="middle">
+{% endblock %}
