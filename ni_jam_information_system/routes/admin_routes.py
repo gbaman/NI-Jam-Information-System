@@ -82,10 +82,11 @@ def add_workshop_to_catalog(workshop_id = None):
         form.workshop_description.default = workshop.workshop_description
         form.workshop_limit.default = workshop.workshop_limit
         form.workshop_level.default = workshop.workshop_level
+        form.workshop_url.default = workshop.workshop_url
         form.workshop_id.default = workshop.workshop_id
         form.process()
     if request.method == 'POST' and form.validate():
-        database.add_workshop(form.workshop_id.data, form.workshop_title.data, form.workshop_description.data, form.workshop_limit.data, form.workshop_level.data)
+        database.add_workshop(form.workshop_id.data, form.workshop_title.data, form.workshop_description.data, form.workshop_limit.data, form.workshop_level.data, form.workshop_url.data)
         return redirect(('admin/manage_workshop_catalog'))
     return render_template('admin/manage_workshop_catalog.html', form=form, workshops=database.get_workshops_to_select())
 

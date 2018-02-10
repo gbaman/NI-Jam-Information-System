@@ -153,6 +153,7 @@ class Workshop(Base):
     workshop_level = Column(String(45))
     workshop_hidden = Column(Integer, nullable=False)
     workshop_files = relationship('WorkshopFile')
+    workshop_url = Column(String(300))
 
 
 class WorkshopAttendee(Base):
