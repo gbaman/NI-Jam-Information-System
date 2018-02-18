@@ -22,6 +22,7 @@ files = UploadSet("jamDocs", SUPPORTED_FILES)
 
 app.config["UPLOADS_DEFAULT_DEST"] = "static/files"
 app.config["WTF_CSRF_ENABLED"] = False
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 configure_uploads(app, files)
 

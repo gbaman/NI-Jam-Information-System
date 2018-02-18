@@ -1,15 +1,17 @@
 {% from "_formhelpers.html" import render_field %}
 <h3>Add new workshop to catalog</h3>
 <p>Use this page to add a workshop to the Raspberry Jam catalog so it can be scheduled in.</p>
-<p>For the max attendees, this should be the max number of hardware available, room size is handled separately in scheduling section.</p>
+<p>For the max attendees, this should be the max number of hardware available, room size is handled separately in
+    scheduling section.</p>
 <form method=post style="max-width: 220px">
-  <dl>
-    {{ render_field(form.workshop_title, class = "form-control") }}
-    {{ render_field(form.workshop_description, class = "form-control") }}
-    {{ render_field(form.workshop_limit, class = "form-control") }}
-    {{ render_field(form.workshop_url, class = "form-control") }}
-    {{ render_field(form.workshop_level) }}
-    {{ form.workshop_id }}
-  </dl>
-  <p><input class="btn btn-primary" type=submit value="Add workshop">
+    <dl>
+        {{ render_field(form.workshop_title, class = "form-control") }}
+        {{ render_field(form.workshop_description, class = "form-control") }}
+        {{ render_field(form.workshop_limit, class = "form-control") }}
+        {{ render_field(form.workshop_volunteer_requirements, class = "form-control") }}
+        {{ render_field(form.workshop_url, class = "form-control") }}
+        {{ render_field(form.workshop_level) }}
+        {{ form.workshop_id }}
+    </dl>
+    <p><input class="btn btn-primary" type=submit value="Add workshop">
 </form>

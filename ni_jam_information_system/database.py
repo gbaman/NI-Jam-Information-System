@@ -92,7 +92,7 @@ def get_jams_dict():
     return jams_list
 
 
-def add_workshop(workshop_id, workshop_title, workshop_description, workshop_limit, workshop_level, workshop_url):
+def add_workshop(workshop_id, workshop_title, workshop_description, workshop_limit, workshop_level, workshop_url, workshop_volunteer_requirements):
 
     if workshop_id or workshop_id == 0: # If workshop already exists
         workshop = db_session.query(Workshop).filter(Workshop.workshop_id == workshop_id).first()
@@ -101,8 +101,9 @@ def add_workshop(workshop_id, workshop_title, workshop_description, workshop_lim
         workshop.workshop_limit = workshop_limit
         workshop.workshop_level = workshop_level
         workshop.workshop_url = workshop_url
+        workshop.workshop_volunteer_requirements = workshop_volunteer_requirements
     else: # If new workshop
-        workshop = Workshop(workshop_title=workshop_title, workshop_description=workshop_description, workshop_limit=workshop_limit, workshop_level=workshop_level, workshop_hidden=0, workshop_url=workshop_url)
+        workshop = Workshop(workshop_title=workshop_title, workshop_description=workshop_description, workshop_limit=workshop_limit, workshop_level=workshop_level, workshop_hidden=0, workshop_url=workshop_url, workshop_volunteer_requirements=workshop_volunteer_requirements)
         db_session.add(workshop)
     db_session.commit()
 
