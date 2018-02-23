@@ -13,7 +13,7 @@ class CreateWorkshopForm(Form):
     workshop_limit = IntegerField("Workshop max attendees", [validators.InputRequired()])
     workshop_level = RadioField("Workshop level", choices=[("Beginner", "Beginner"), ("Intermediate", "Intermediate"), ("Advanced", "Advanced"), ("Not taught", "Not taught")])
     workshop_url = StringField("Workshop URL (optional)", [validators.Optional(), validators.URL()])
-    workshop_volunteer_requirements = IntegerField("Volunteers needed per 10 attendees", [validators.InputRequired()])
+    workshop_volunteer_requirements = IntegerField("Additional Volunteers needed per 10 attendees (optional)", [validators.InputRequired()])
     workshop_id = HiddenField("Workshop ID", default="")
 
 

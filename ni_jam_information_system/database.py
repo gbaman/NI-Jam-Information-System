@@ -4,6 +4,8 @@ import uuid
 
 import os
 
+import math
+
 from models import *
 from eventbrite_interactions import get_eventbrite_attendees_for_event
 import datetime
@@ -438,16 +440,22 @@ def get_volunteer_data(jam_id, current_user):
             for room in time_slot.rooms:
                 if room.room_id == workshop.workshop_room_id and time_slot.slot_id == workshop.slot_id:
                     room.workshop = workshop
+                    if room.workshop.workshop_room: # Room exists
+                        if not workshop.workshop.workshop_volunteer_requirements:  # and does not have volunteers needed specified
+                            workshop.workshop_needed_volunteers = room.workshop.workshop_room.room_volunteers_needed
+                        elif int(workshop.workshop.workshop_limit) != 0: # and does have volunteers specified while also does have attendees able to attend the workshop
+                            max_attendees = min(int(workshop.workshop_room.room_capacity), int(workshop.workshop.workshop_limit))
+                            volunteers_needed_from_attendees = 1 + (math.ceil(max_attendees / 10) * workshop.workshop.workshop_volunteer_requirements)
+                            workshop.workshop_needed_volunteers = max(workshop.workshop_room.room_volunteers_needed, volunteers_needed_from_attendees) # Set volunteers needed to the calculated figure based on attendees, unless room minimum is greater.
+                        else: # and does not have attendees for the workshop (for example, car parking etc)
+                            workshop.workshop_needed_volunteers = workshop.workshop.workshop_volunteer_requirements
+
                     if not room.workshop.workshop_room:
                         room.workshop.bg_colour = grey
                     elif len(room.workshop.users) >= room.workshop.workshop_room.room_volunteers_needed:
                         room.workshop.bg_colour = green
-                    elif len(room.workshop.users) >= room.workshop.workshop_room.room_volunteers_needed / 2:
-                        room.workshop.bg_colour = yellow
-                    elif len(room.workshop.users) == 0:
-                        room.workshop.bg_colour = red
                     else:
-                        room.workshop.bg_colour = orange
+                        room.workshop.bg_colour = red
 
                     if room.workshop in current_user.workshop_runs:
                         room.workshop.signed_up = True
