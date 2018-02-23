@@ -452,7 +452,7 @@ def get_volunteer_data(jam_id, current_user):
 
                     if not room.workshop.workshop_room:
                         room.workshop.bg_colour = grey
-                    elif len(room.workshop.users) >= room.workshop.workshop_room.room_volunteers_needed:
+                    elif len(room.workshop.users) >= workshop.workshop_needed_volunteers:
                         room.workshop.bg_colour = green
                     else:
                         room.workshop.bg_colour = red
