@@ -152,9 +152,12 @@ class Workshop(Base):
     workshop_description = Column(String(500))
     workshop_level = Column(String(45))
     workshop_hidden = Column(Integer, nullable=False)
-    workshop_files = relationship('WorkshopFile')
     workshop_url = Column(String(300))
     workshop_volunteer_requirements = Column(Integer)
+    workshop_archived = Column(Integer)
+
+    workshop_files = relationship('WorkshopFile')
+    workshop_equipment = relationship("Equipment", secondary="workshop_equipment")
 
 
 class WorkshopAttendee(Base):
@@ -194,6 +197,24 @@ class WorkshopFile(Base):
     file_permission = Column(String(45), nullable=False)
     file_edit_date = Column(DateTime, nullable=False)
     workshop_id = Column(ForeignKey('workshop.workshop_id'), primary_key=True, nullable=False, index=True)
+
+
+class WorkshopEquipment(Base):
+    __tablename__ = 'workshop_equipment'
+
+    equipment_id = Column(ForeignKey('equipment.equipment_id'), primary_key=True, nullable=False, index=True)
+    workshop_id = Column(ForeignKey('workshop.workshop_id'), primary_key=True, nullable=False, index=True)
+    quantity = Column(Integer, nullable=False)
+
+    equipment = relationship("Equipment")
+    workshop = relationship("Workshop")
+
+
+class Equipment(Base):
+    __tablename__ = 'equipment'
+
+    equipment_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
+    equipment_title = Column(String(150), nullable=False)
 
 
 t_workshop_volunteers = Table(
