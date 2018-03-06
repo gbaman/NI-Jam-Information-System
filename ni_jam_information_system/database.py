@@ -182,8 +182,12 @@ def get_volunteers_to_select():
     return to_return
 
 
-def get_workshops_to_select():
-    return db_session.query(Workshop)
+def get_workshops_to_select(show_archived=False):
+    workshops = db_session.query(Workshop)
+    if show_archived:
+        return workshops
+    else:
+        return workshops.filter((Workshop.workshop_archived == 0) | (Workshop.workshop_archived == None))
 
 
 def get_workshop_from_workshop_id(workshop_id):
@@ -601,6 +605,12 @@ def get_users_not_responded_to_attendance(jam_id):
 def delete_workshop(workshop_id):
     workshop = db_session.query(Workshop).filter(Workshop.workshop_id == workshop_id).first()
     db_session.delete(workshop)
+    db_session.commit()
+
+
+def archive_workshop(workshop_id):
+    workshop = db_session.query(Workshop).filter(Workshop.workshop_id == workshop_id).first()
+    workshop.workshop_archived = 1
     db_session.commit()
 
 

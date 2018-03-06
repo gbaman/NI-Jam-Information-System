@@ -111,6 +111,14 @@ def delete_workshop(workshop_id):
     return redirect(('admin/manage_workshop_catalog'))
 
 
+@admin_routes.route('/admin/archive_workshop/<workshop_id>')
+@volunteer_required
+@module_workshops_required
+def archive_workshop(workshop_id):
+    database.archive_workshop(workshop_id)
+    return redirect(('admin/manage_workshop_catalog'))
+
+
 @admin_routes.route('/admin/workshops', methods=['GET', 'POST'])
 @volunteer_required
 @module_workshops_required
