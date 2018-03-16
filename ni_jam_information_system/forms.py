@@ -13,7 +13,7 @@ class CreateWorkshopForm(Form):
     workshop_limit = IntegerField("Workshop max attendees", [validators.InputRequired()])
     workshop_level = RadioField("Workshop level", choices=[("Beginner", "Beginner"), ("Intermediate", "Intermediate"), ("Advanced", "Advanced"), ("Not taught", "Not taught")])
     workshop_url = StringField("Workshop URL (optional)", [validators.Optional(), validators.URL()])
-    workshop_volunteer_requirements = IntegerField("Additional Volunteers needed per 10 attendees (optional)", [validators.InputRequired()])
+    workshop_volunteer_requirements = IntegerField("Additional Volunteers needed per 10 attendees (optional)")
     workshop_id = HiddenField("Workshop ID", default="")
 
 
@@ -67,9 +67,9 @@ class ResetPasswordForm(Form):
 
 
 class UploadFileForm(FlaskForm):
-        file_title = StringField("File title", [validators.DataRequired()])
+        file_title = StringField("File title (optional)",)
         file_permission = SelectField("Visibility level", choices=[("Public", "Public"), ("Jam team only", "Jam team only")])
         upload = FileField('File', validators=[
             FileRequired(),
-            FileAllowed(("pdf", "ppt", "py"), 'Should be a PDF for Powerpoint file!')
+            FileAllowed(("pdf", "ppt", "pptx", "py"), 'Should be a PDF or Powerpoint file!')
         ])

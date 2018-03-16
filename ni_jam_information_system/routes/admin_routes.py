@@ -230,7 +230,11 @@ def workshop_files(workshop_id):
         file_path = "{}/{}".format(base_dir, filename)
         if not os.path.isfile(file_path):
             f.save(file_path)
-            database.add_workshop_file(request.form['file_title'], file_path, request.form['file_permission'], workshop_id)
+            if request.form['file_title']:
+                file_title = request.form['file_title']
+            else:
+                file_title = secure_filename(f.filename)
+            database.add_workshop_file(file_title, file_path, request.form['file_permission'], workshop_id)
             flash("File upload successful.", "success")
         else:
             flash("Failed to upload - File of same name already exists.", "danger")
