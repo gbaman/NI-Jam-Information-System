@@ -211,7 +211,7 @@ def get_workshop_rooms():
 def get_time_slots_to_select(jam_id, user_id, admin_mode=False):
     workshop_slots = []
     for workshop_slot in db_session.query(WorkshopSlot).filter():
-        workshop_slots.append({"title":str("{} - {}".format(workshop_slot.slot_time_start, workshop_slot.slot_time_end)), "workshops":[]})
+        workshop_slots.append({"title":str("{} - {}".format(workshop_slot.slot_time_start, workshop_slot.slot_time_end)), "slot_id":workshop_slot.slot_id, "workshops":[]})
 
     workshops = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.jam_id == jam_id)
     if not admin_mode:
@@ -244,8 +244,8 @@ def get_time_slots_to_select(jam_id, user_id, admin_mode=False):
                         "volunteer": volunteer,
                         "pilot": workshop.pilot}
 
-
-        workshop_slots[workshop.slot.slot_id]["workshops"].append(new_workshop)
+        next((x for x in workshop_slots if x["slot_id"] == workshop.slot.slot_id), None)["workshops"].append(new_workshop)
+        #workshop_slots[workshop.slot.slot_id]["workshops"].append(new_workshop)
 
     for workshop_slot_index, workshop_final_slot in enumerate(workshop_slots):
         workshop_slots[workshop_slot_index]["workshops"] = sorted(workshop_final_slot["workshops"], key=lambda x: x["workshop_room"], reverse=False)
