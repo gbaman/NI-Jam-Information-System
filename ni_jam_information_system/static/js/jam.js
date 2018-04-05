@@ -227,7 +227,15 @@ function bookWorkshop(workshop_id, attendee_id) {
             updateBookedInCount(workshop_id);
         },
         error: function (result) {
-            alert('Workshop failed to update ' + result);
+            swal({
+                  type: 'error',
+                  title: 'Error',
+                  allowOutsideClick: false,
+                  text: 'Workshop failed to update. This is likely due to the workshop already being full, or this attendee is already booked into another workshop in the same session.'
+                }).then((result) => {
+                    window.location.reload();
+                })
+
         }
     });
 }
@@ -248,7 +256,13 @@ function unbookWorkshop(workshop_id, attendee_id) {
             updateBookedInCount(workshop_id);
         },
         error: function (result) {
-            alert('Workshop failed to update ' + result);
+            swal({
+                  type: 'error',
+                  title: 'Error',
+                  text: 'Workshop failed to update.'
+                });
+            alert('Workshop failed to update.');
+            window.location.reload();
         }
     });
 }
