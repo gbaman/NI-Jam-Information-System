@@ -226,9 +226,11 @@ def get_time_slots_to_select(jam_id, user_id, admin_mode=False):
         else:
             max_attendees = workshop.workshop.workshop_limit
         names = ""
+        attendee_ids = []
         for name in get_attendees_in_workshop(workshop.workshop_run_id):
             if str(name.order_id) == user_id or admin_mode:
                 names = "{} {}, ".format(names, name.first_name.capitalize())
+                attendee_ids.append(name.attendee_id)
 
         if workshop.users and len(workshop.users) > 0:
             volunteer = workshop.users[0].first_name
@@ -240,6 +242,7 @@ def get_time_slots_to_select(jam_id, user_id, admin_mode=False):
                         "workshop_description":workshop.workshop.workshop_description,
                         "workshop_limit":"{} / {}".format(len(get_attendees_in_workshop(workshop.workshop_run_id)), max_attendees),
                         "attendee_names":names,
+                        "attendee_ids":attendee_ids,
                         "workshop_id":workshop.workshop_run_id,
                         "volunteer": volunteer,
                         "pilot": workshop.pilot}
@@ -689,3 +692,8 @@ def add_workshop_file(file_title, file_path, file_permission, workshop_id):
 def get_file_for_download(workshop_id, file_path):
     file = db_session.query(WorkshopFile).filter(WorkshopFile.workshop_id == workshop_id, WorkshopFile.file_path == file_path).first()
     return file
+
+
+def get_workshop_run(workshop_run_id):
+    workshop_run = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.workshop_run_id == workshop_run_id).first()
+    return workshop_run

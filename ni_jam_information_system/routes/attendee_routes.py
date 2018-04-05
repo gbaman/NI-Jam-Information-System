@@ -16,7 +16,9 @@ def display_workshops():
         attendees = []
         if workshop_attendees:
             for attendee in workshop_attendees:
-                attendees.append({"name":"{} {} - {}".format(attendee.first_name, attendee.surname, attendee.ticket_type), "id":attendee.attendee_id})
+                if attendee.ticket_type == "General Jam Attendee" or attendee.ticket_type == "First-timer":
+                    #attendees.append({"name":"{} {} - {}".format(attendee.first_name, attendee.surname, attendee.ticket_type), "id":attendee.attendee_id})
+                    attendees.append({"name":"{} {}".format(attendee.first_name, attendee.surname), "id":attendee.attendee_id})
             return render_template("workshops.html", workshop_slots=database.get_time_slots_to_select(database.get_current_jam_id(), request.cookies.get('jam_order_id')), jam_attendees=attendees)
         return render_template("workshops.html", workshop_slots=database.get_time_slots_to_select(database.get_current_jam_id(), request.cookies.get('jam_order_id')))
     else:
@@ -48,3 +50,17 @@ def remove_workshop_bookings_ajax():
     attendee_id = request.form['attendee_id']
     if database.remove_attendee_to_workshop(database.get_current_jam_id(), attendee_id, workshop_id):
         return("")
+
+
+@attendee_routes.route("/update_booked_in_count", methods=['GET', 'POST'])
+@attendee_required
+@module_booking_required
+def update_booked_in_count_ajax():
+    workshop_id = request.form['workshop_id']
+    workshop_run = database.get_workshop_run(workshop_id)
+    if workshop_run:
+        if int(workshop_run.workshop_room.room_capacity) < int(workshop_run.workshop.workshop_limit):
+            max_attendees = workshop_run.workshop_room.room_capacity
+        else:
+            max_attendees = workshop_run.workshop.workshop_limit
+        return "{}/{}".format(len(workshop_run.attendees), max_attendees)

@@ -210,3 +210,62 @@ function updateAttendeeInfo() {
         }
     });
 }
+
+
+function bookWorkshop(workshop_id, attendee_id) {
+    $.ajax({
+        type: "POST",
+        url: "/add_workshop_bookings_ajax",
+        data: {
+            workshop_id: workshop_id,
+            attendee_id: attendee_id
+        },
+        success: function (result) {
+            var button = $("#" + workshop_id + "-" + attendee_id);
+            button.toggleClass('btn-danger btn-success');
+            button.attr("onclick","unbookWorkshop('" + workshop_id + "', '" + attendee_id +" ')");
+            updateBookedInCount(workshop_id);
+        },
+        error: function (result) {
+            alert('Workshop failed to update ' + result);
+        }
+    });
+}
+
+
+function unbookWorkshop(workshop_id, attendee_id) {
+    $.ajax({
+        type: "POST",
+        url: "/remove_workshop_bookings_ajax",
+        data: {
+            workshop_id: workshop_id,
+            attendee_id: attendee_id
+        },
+        success: function (result) {
+            var button = $("#" + workshop_id + "-" + attendee_id);
+            button.toggleClass('btn-success btn-danger');
+            button.attr("onclick","bookWorkshop('" + workshop_id + "', '" + attendee_id +" ')");
+            updateBookedInCount(workshop_id);
+        },
+        error: function (result) {
+            alert('Workshop failed to update ' + result);
+        }
+    });
+}
+
+function updateBookedInCount(workshop_id) {
+    $.ajax({
+        type: "POST",
+        url: "/update_booked_in_count",
+        data: {
+            workshop_id: workshop_id
+        },
+        success: function (result) {
+            $("#" + workshop_id + "-max-attendees").text(result);
+        },
+        error: function (result) {
+            alert('Error updating status');
+            window.location.reload();
+        }
+    });
+}
