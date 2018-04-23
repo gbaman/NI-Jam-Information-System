@@ -450,6 +450,8 @@ def get_volunteer_data(jam_id, current_user):
                     if room.workshop.workshop_room: # Room exists
                         if not workshop.workshop.workshop_volunteer_requirements:  # and does not have volunteers needed specified
                             workshop.workshop_needed_volunteers = room.workshop.workshop_room.room_volunteers_needed
+                        elif int(workshop.workshop.workshop_volunteer_requirements) < 0:
+                            workshop.workshop_needed_volunteers = 0
                         elif int(workshop.workshop.workshop_limit) != 0: # and does have volunteers specified while also does have attendees able to attend the workshop
                             max_attendees = min(int(workshop.workshop_room.room_capacity), int(workshop.workshop.workshop_limit))
                             volunteers_needed_from_attendees = 1 + (math.ceil(max_attendees / 10) * workshop.workshop.workshop_volunteer_requirements)
