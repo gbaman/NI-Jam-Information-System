@@ -33,7 +33,7 @@
             <tr>
                 <th></th>
             {% for workshop_room in workshop_rooms_in_use %}
-                <th width="15%">{{workshop_room.room_name}}</th>
+                <th width="{{90 / total_workshop_rooms | int}}%">{{workshop_room.room_name}}</th>
             {% endfor %}
             </tr>
 
