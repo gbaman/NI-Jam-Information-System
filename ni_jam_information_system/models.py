@@ -204,7 +204,7 @@ class WorkshopEquipment(Base):
 
     equipment_id = Column(ForeignKey('equipment.equipment_id'), primary_key=True, nullable=False, index=True)
     workshop_id = Column(ForeignKey('workshop.workshop_id'), primary_key=True, nullable=False, index=True)
-    quantity = Column(Integer, nullable=False)
+    equipment_per_attendee = Column(Integer)
 
     equipment = relationship("Equipment")
     workshop = relationship("Workshop")
@@ -214,7 +214,39 @@ class Equipment(Base):
     __tablename__ = 'equipment'
 
     equipment_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
-    equipment_title = Column(String(150), nullable=False)
+    equipment_name = Column(String(150), nullable=False)
+    equipment_code = Column(String(6), nullable=False)
+    equipment_group_id = Column(ForeignKey('equipment_group.equipment_group_id'), primary_key=True, nullable=False, index=True)
+    equipment_group = relationship("EquipmentGroup")
+
+
+class EquipmentGroup(Base):
+    __tablename__ = 'equipment_group'
+    equipment_group_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
+    equipment_group_name = Column(String(45), nullable=False)
+
+
+class EquipmentEntry(Base):
+    __tablename__ = 'equipment_entry'
+    equipment_entry_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
+    equipment_id = Column(ForeignKey('equipment.equipment_id'), primary_key=True, nullable=False, index=True)
+
+
+class InventoryEquipmentEntry(Base):
+    __tablename__ = 'inventory_equipment_entry'
+    inventory_id = Column(ForeignKey('inventory.inventory_id'), primary_key=True, nullable=False, index=True)
+    equipment_entry_id = Column(ForeignKey('equipment_entry.equipment_entry_id'), primary_key=True, nullable=False, index=True)
+    entry_quantity = Column(Integer, nullable=False)
+
+    inventory = relationship("Inventory")
+    equipment_entry = relationship("EquipmentEntry")
+
+
+class Inventory(Base):
+    __tablename__ = 'inventory'
+    inventory_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
+    inventory_title = Column(String(45), nullable=False)
+    inventory_date = Column(DateTime(), nullable=False)
 
 
 t_workshop_volunteers = Table(
@@ -222,3 +254,4 @@ t_workshop_volunteers = Table(
     Column('user_id', ForeignKey('login_users.user_id'), primary_key=True, nullable=False, index=True),
     Column('workshop_run_id', ForeignKey('raspberry_jam_workshop.workshop_run_id'), primary_key=True, nullable=False, index=True)
 )
+
