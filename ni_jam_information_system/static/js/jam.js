@@ -283,3 +283,28 @@ function updateBookedInCount(workshop_id) {
         }
     });
 }
+
+
+function selectInventory(inventory_id) {
+    $.ajax({
+        type: "POST",
+        url: "/admin/select_inventory_ajax",
+        data: {
+            inventory_id: inventory_id
+        },
+        success: function (result) {
+            window.location.reload();
+        },
+        error: function (result) {
+            swal({
+                  type: 'error',
+                  title: 'Error',
+                  allowOutsideClick: false,
+                  text: 'Unable to select inventory, do you have permissions?'
+                }).then((result) => {
+                    window.location.reload();
+                })
+
+        }
+    });
+}

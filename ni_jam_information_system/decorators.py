@@ -128,3 +128,11 @@ def module_api_required(f):
         return _module_required(f, configuration.Modules.module_api, *args, **kwargs)
 
     return decorated_function
+
+
+def module_equipment_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        return _module_required(f, configuration.Modules.module_equipment, *args, **kwargs)
+
+    return decorated_function

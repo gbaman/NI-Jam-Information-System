@@ -699,3 +699,32 @@ def get_file_for_download(workshop_id, file_path):
 def get_workshop_run(workshop_run_id):
     workshop_run = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.workshop_run_id == workshop_run_id).first()
     return workshop_run
+
+
+def get_inventories():
+    inventories = db_session.query(Inventory).all()
+    return inventories
+
+
+def add_inventory(inventory_title):
+    if db_session.query(Inventory).filter(Inventory.inventory_title == inventory_title).all():
+        return False
+    inventory = Inventory(inventory_title=inventory_title, inventory_date=datetime.datetime.now())
+    db_session.add(inventory)
+    db_session.commit()
+    return True
+
+
+def set_configuration_item(configuration_key, configuration_value):
+    current_configuration_items = db_session.query(Configuration).filter(Configuration.config_name == configuration_key)
+    if current_configuration_items:
+        for item in current_configuration_items:
+            db_session.delete(item)
+    new_configuration = Configuration(config_name=configuration_key, config_value=configuration_value)
+    db_session.add(new_configuration)
+    db_session.commit()
+
+
+def get_configuration_item(configuration_key):
+    current_configuration_item = db_session.query(Configuration).filter(Configuration.config_name == configuration_key).first()
+    return current_configuration_item.config_value

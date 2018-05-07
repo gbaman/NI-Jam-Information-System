@@ -253,6 +253,34 @@ def delete_workshop_file(file_id):
     return redirect("/admin/workshop_files/{}".format(workshop_id), code=302)
 
 
+@admin_routes.route("/admin/manage_inventories", methods=['GET', 'POST'])
+@volunteer_required
+@module_equipment_required
+def manage_inventories():
+    form = forms.InventoryForm(request.form)
+    if request.method == 'POST' and form.validate():
+        if database.add_inventory(request.form['inventory_title']):
+            return redirect(url_for("admin_routes.manage_inventories"))
+        flash("Unable to add a new inventory with the name '{}' because one with that name already exists.".format(request.form['inventory_title']), "danger")
+        return redirect(url_for("admin_routes.manage_inventories"))
+    return render_template("admin/manage_inventories.html", form=form, inventories = database.get_inventories(), current_selected_inventory=int(database.get_configuration_item("current_inventory")))
+
+
+
+@admin_routes.route("/admin/manage_inventory/<inventory_id>")
+@volunteer_required
+@module_equipment_required
+def manage_inventory(inventory_id):
+    pass
+
+
+@admin_routes.route("/admin/manage_equipment")
+@volunteer_required
+@module_equipment_required
+def manage_equipment():
+    pass
+
+
 
 ####################################### AJAX Routes #######################################
 
@@ -334,3 +362,12 @@ def update_attendee_info():
     current_jam = database.get_current_jam_id()
     database.update_attendees_from_eventbrite(current_jam)
     return " "
+
+
+@admin_routes.route("/admin/select_inventory_ajax", methods=['GET', 'POST'])
+@super_admin_required
+@module_core_required
+def select_inventory():
+    inventory_id = request.form['inventory_id']
+    database.set_configuration_item("current_inventory", inventory_id)
+    return ""

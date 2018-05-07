@@ -73,3 +73,7 @@ class UploadFileForm(FlaskForm):
             FileRequired(),
             FileAllowed(("pdf", "ppt", "pptx", "py"), 'Should be a PDF or Powerpoint file!')
         ])
+
+
+class InventoryForm(Form):
+    inventory_title = StringField("Inventory title", [validators.DataRequired()])
