@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+
+{% block content %}
+{% from "_formhelpers.html" import render_field %}
+
+<h1>Inventory</h1>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+          <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible" role="alert">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <!-- <strong>Title</strong> --> {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+
+<table class="table table-hover, table-bordered">
+    <tr bgcolor="#d3d3d3">
+        <th>Item name</th>
+        <th>Unique item code</th>
+        <th>Type code</th>
+        <th>Barcode?</th>
+        <th>Quantity</th>
+        <th>Remove</th>
+    </tr>
+    {% for equipment in inventory %}
+    <tr>
+        <td>{{equipment.equipment_name}}</td>
+        <td>{{equipment.equipment_item_code}}</td>
+        <td>{{equipment.equipment_code}}</td>
+        <td>{{equipment_}}</td>
+        <td></td>
+        <td><button class="btn btn-warning" onclick="selectInventory({{inventory.inventory_id}})">Select</button></td>
+    </tr>
+    {% endfor %}
+</table>
+
+
+{% endblock %}

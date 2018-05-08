@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+
+{% block content %}
+{% from "_formhelpers.html" import render_field %}
+
+<h1>Manage Equipment</h1>
+
+<form method=post style="max-width: 220px">
+    <dl>
+        {{ render_field(form.equipment_title, class = "form-control") }}
+        {{ render_field(form.equipment_code, class = "form-control") }}
+        {{ render_field(form.equipment_group, class="selectpicker", **{'data-live-search':'true'}) }}
+    </dl>
+    <p><input class="btn btn-primary" type=submit value="Add equipment">
+</form>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+          <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible" role="alert">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <!-- <strong>Title</strong> --> {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+<h3>Current Equipment</h3>
+
+<table class="table table-hover, table-bordered">
+    <tr bgcolor="#d3d3d3">
+        <th>Title</th>
+        <th>Code</th>
+        <th>Group title</th>
+        <th>Quantity</th>
+        <th>Show</th>
+    </tr>
+    {% for single_equipment in equipment %}
+    <tr>
+        <td>{{single_equipment.equipment_name}}</td>
+        <td>{{single_equipment.equipment_code}}</td>
+        <td>{{single_equipment.equipment_group.equipment_group_name}}</td>
+        <td>{{single_equipment.equipment_entries|count}}</td>
+        <td><a href="/admin/manage_inventory/" class="btn btn-success" role="button">Show</a></td>
+    </tr>
+    {% endfor %}
+</table>
+
+
+{% endblock %}
