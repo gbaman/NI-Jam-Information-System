@@ -218,6 +218,7 @@ class Equipment(Base):
     equipment_code = Column(String(6), nullable=False)
     equipment_group_id = Column(ForeignKey('equipment_group.equipment_group_id'), primary_key=True, nullable=False, index=True)
     equipment_group = relationship("EquipmentGroup")
+    equipment_entries = relationship("EquipmentEntry")
 
 
 class EquipmentGroup(Base):
@@ -230,6 +231,7 @@ class EquipmentEntry(Base):
     __tablename__ = 'equipment_entry'
     equipment_entry_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
     equipment_id = Column(ForeignKey('equipment.equipment_id'), primary_key=True, nullable=False, index=True)
+    equipment_entry_number = Column(Integer, nullable=False)
 
 
 class InventoryEquipmentEntry(Base):

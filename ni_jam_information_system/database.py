@@ -728,3 +728,46 @@ def set_configuration_item(configuration_key, configuration_value):
 def get_configuration_item(configuration_key):
     current_configuration_item = db_session.query(Configuration).filter(Configuration.config_name == configuration_key).first()
     return current_configuration_item.config_value
+
+
+def get_equipment_entries_in_inventory(inventory_id):
+    pass
+
+
+def get_all_equipment():
+    equipment = db_session.query(Equipment)
+
+    return equipment
+
+
+def get_equipment_groups():
+    equipment_groups = db_session.query(EquipmentGroup)
+    return equipment_groups
+
+
+def get_equipment_by_id(equipment_id):
+    single_equipment = db_session.query(Equipment).filter(Equipment.equipment_id == equipment_id).first()
+    return single_equipment
+
+
+def add_equipment_entries(equipment_id, quantity):
+    return_nums = []
+    equipment = get_equipment_by_id(equipment_id)
+    start_number = 0
+    if equipment.equipment_entries:
+        start_number = equipment.equipment_entries[-1].equipment_entry_number + 1
+    for num in range(0, quantity):
+        new_entry = EquipmentEntry(equipment_id=equipment_id, equipment_entry_number=start_number+num)
+        db_session.add(new_entry)
+        db_session.flush()
+        return_nums.append([new_entry.equipment_entry_id, equipment.equipment_code + str(start_number+num).zfill(3)])
+    db_session.commit()
+    return return_nums
+
+
+def add_equipment(equipment_name, equipment_code, equipment_group_id):
+    if db_session.query(Equipment).filter(Equipment.equipment_name == equipment_name).first():
+        return False
+    db_session.add(Equipment(equipment_name=equipment_name, equipment_code=equipment_code, equipment_group_id=equipment_group_id))
+    db_session.commit()
+    return True

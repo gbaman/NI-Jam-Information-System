@@ -274,11 +274,16 @@ def manage_inventory(inventory_id):
     pass
 
 
-@admin_routes.route("/admin/manage_equipment")
+@admin_routes.route("/admin/manage_equipment", methods=['GET', 'POST'])
 @volunteer_required
 @module_equipment_required
 def manage_equipment():
-    pass
+    form = forms.AddEquipmentForm(request.form)
+    if request.method == 'POST' and form.validate():
+        if not database.add_equipment(form.equipment_title.data, form.equipment_code.data, form.equipment_group.data):
+            flash("Unable to add equipment.", "danger")
+        return redirect(url_for("admin_routes.manage_equipment"))
+    return render_template("admin/manage_equipment.html", form=form, equipment=database.get_all_equipment())
 
 
 

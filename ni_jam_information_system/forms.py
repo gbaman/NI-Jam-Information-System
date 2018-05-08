@@ -4,7 +4,7 @@ from wtforms import Form, BooleanField, StringField, PasswordField, IntegerField
     SelectField, validators, HiddenField, FileField
 from flask import g, Flask, current_app
 
-from database import get_volunteers_to_select, get_workshops_to_select, get_individual_time_slots_to_select, get_workshop_rooms, get_workshop_from_workshop_id
+from database import get_volunteers_to_select, get_workshops_to_select, get_individual_time_slots_to_select, get_workshop_rooms, get_equipment_groups
 
 
 class CreateWorkshopForm(Form):
@@ -77,3 +77,13 @@ class UploadFileForm(FlaskForm):
 
 class InventoryForm(Form):
     inventory_title = StringField("Inventory title", [validators.DataRequired()])
+
+
+class AddEquipmentForm(Form):
+    equipment_title = StringField("Equipment title", [validators.DataRequired()])
+    equipment_code = StringField("Equipment code", [validators.DataRequired(), validators.Length(3, 3)])
+    equipment_group = SelectField("Equipment group", choices=[(str(group.equipment_group_id), group.equipment_group_name) for group in get_equipment_groups()])
+
+    def __init__(self, *args, **kwargs):
+        super(AddEquipmentForm, self).__init__(*args, **kwargs)
+        self.equipment_group.choices = [(str(group.equipment_group_id), group.equipment_group_name) for group in get_equipment_groups()]
