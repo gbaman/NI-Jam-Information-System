@@ -766,7 +766,9 @@ def add_equipment_entries(equipment_id, quantity):
 
 
 def add_equipment(equipment_name, equipment_code, equipment_group_id):
-    if db_session.query(Equipment).filter(Equipment.equipment_name == equipment_name).first():
+    if db_session.query(Equipment).filter(Equipment.equipment_name == equipment_name).first(): # Check equipment with same title doesn't already exist
+        return False
+    if db_session.query(Equipment).filter(Equipment.equipment_code == equipment_code).first(): # Check equipment with same code doesn't already exist
         return False
     db_session.add(Equipment(equipment_name=equipment_name, equipment_code=equipment_code, equipment_group_id=equipment_group_id))
     db_session.commit()
