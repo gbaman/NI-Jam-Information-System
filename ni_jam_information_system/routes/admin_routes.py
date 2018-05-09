@@ -388,3 +388,15 @@ def get_inventory_equipment():
     equipment = database.get_equipment_in_inventory(inventory_id)
     to_send = ([dict(equipment_id=e.equipment_id, equipment_name=e.equipment_name, equipment_code=e.equipment_code, equipment_entries=[dict(equipment_entry_id=ee.equipment_entry_id, equipment_entry_number=str(ee.equipment_entry_number).zfill(3)) for ee in e.equipment_entries]) for e in equipment])
     return json.dumps(to_send)
+
+
+@admin_routes.route("/admin/add_inventory_equipment_entry", methods=['GET', 'POST'])
+@volunteer_required
+@module_core_required
+def add_inventory_equipment_entry():
+    inventory_id = request.form['inventory_id']
+    equipment_entry_id = request.form['equipment_entry_id']
+    entry_quantity = request.form['entry_quantity']
+    database.add_equipment_entry_to_inventory(inventory_id, equipment_entry_id, entry_quantity)
+    return ""
+

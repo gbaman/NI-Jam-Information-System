@@ -734,6 +734,8 @@ def get_equipment_in_inventory(inventory_id):
     equipment = db_session.query(Equipment).filter(InventoryEquipmentEntry.inventory_id == inventory_id,
                                                    Equipment.equipment_id == EquipmentEntry.equipment_id, # Link the tables up
                                                    EquipmentEntry.equipment_entry_id == InventoryEquipmentEntry.equipment_entry_id).all() # Link the tables up
+
+    # TODO : This query above doesn't work properly. It returns all the equipment entries for equipment that is in an inventory, as opposed to only the equipment entries that are in the inventory. Maybe can be fixed in JS?
     return equipment
 
 
@@ -776,3 +778,14 @@ def add_equipment(equipment_name, equipment_code, equipment_group_id):
     db_session.add(Equipment(equipment_name=equipment_name, equipment_code=equipment_code, equipment_group_id=equipment_group_id))
     db_session.commit()
     return True
+
+
+def add_equipment_entry_to_inventory(inventory_id, equipment_entry_id, entry_quantity):
+    found_entry = db_session.query(InventoryEquipmentEntry).filter(InventoryEquipmentEntry.inventory == inventory_id, InventoryEquipmentEntry.equipment_entry_id == equipment_entry_id).first()
+    if found_entry:
+        found_entry.entry_quantity = entry_quantity
+    else:
+        db_session.add(InventoryEquipmentEntry(equipment_entry_id=equipment_entry_id, inventory_id=inventory_id, entry_quantity=entry_quantity))
+    db_session.commit()
+    return True
+

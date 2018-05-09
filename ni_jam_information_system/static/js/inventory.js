@@ -1,6 +1,18 @@
 $(document).ready(function(){
-    getInventoryEquipment(1)
+    getInventoryEquipment(1);
+    $('#barcodeEntry').focus();
+
+    document.getElementById('barcodeEntry').onkeypress = function(e){
+    if (!e) e = window.event;
+    var keyCode = e.keyCode || e.which;
+    if (keyCode == '13'){
+      console.log("Hello world");
+      return false;
+    }
+  };
+
 });
+
 
 function getInventoryEquipment(inventory_id) {
     $.ajax({
@@ -11,6 +23,26 @@ function getInventoryEquipment(inventory_id) {
         },
         success: function (result) {
             updateInventoryEquipmentTable(JSON.parse(result));
+        },
+        error: function (result) {
+
+
+        }
+    });
+}
+
+
+function addInventoryEquipmentEntry(inventory_id, equipment_entry_id, entry_quantity) {
+    $.ajax({
+        type: "POST",
+        url: "/admin/add_inventory_equipment_entry",
+        data: {
+            inventory_id: inventory_id,
+            equipment_entry_id: equipment_entry_id,
+            entry_quantity:entry_quantity
+        },
+        success: function (result) {
+            getInventoryEquipment(inventory_id);
         },
         error: function (result) {
 
