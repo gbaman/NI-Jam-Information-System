@@ -1,3 +1,4 @@
+import json
 import os
 from flask import Blueprint, render_template, request, make_response, redirect, flash
 from werkzeug.datastructures import CombinedMultiDict
@@ -271,7 +272,7 @@ def manage_inventories():
 @volunteer_required
 @module_equipment_required
 def manage_inventory(inventory_id):
-    pass
+    return render_template("admin/inventory.html")
 
 
 @admin_routes.route("/admin/manage_equipment", methods=['GET', 'POST'])
@@ -376,3 +377,14 @@ def select_inventory():
     inventory_id = request.form['inventory_id']
     database.set_configuration_item("current_inventory", inventory_id)
     return ""
+
+
+@admin_routes.route("/admin/get_inventory_equipment", methods=['GET', 'POST'])
+@volunteer_required
+@module_core_required
+def get_inventory_equipment():
+    #inventory_id = request.form['inventory_id']
+    inventory_id = 1
+    equipment = database.get_equipment_in_inventory(inventory_id)
+    to_send = ([dict(equipment_id=e.equipment_id, equipment_name=e.equipment_name, equipment_code=e.equipment_code, equipment_entries=[dict(equipment_entry_id=ee.equipment_entry_id, equipment_entry_number=str(ee.equipment_entry_number).zfill(3)) for ee in e.equipment_entries]) for e in equipment])
+    return json.dumps(to_send)

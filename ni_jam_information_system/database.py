@@ -730,8 +730,11 @@ def get_configuration_item(configuration_key):
     return current_configuration_item.config_value
 
 
-def get_equipment_entries_in_inventory(inventory_id):
-    pass
+def get_equipment_in_inventory(inventory_id):
+    equipment = db_session.query(Equipment).filter(InventoryEquipmentEntry.inventory_id == inventory_id,
+                                                   Equipment.equipment_id == EquipmentEntry.equipment_id, # Link the tables up
+                                                   EquipmentEntry.equipment_entry_id == InventoryEquipmentEntry.equipment_entry_id).all() # Link the tables up
+    return equipment
 
 
 def get_all_equipment():

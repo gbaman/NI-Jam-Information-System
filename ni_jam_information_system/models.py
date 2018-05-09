@@ -232,6 +232,7 @@ class EquipmentEntry(Base):
     equipment_entry_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
     equipment_id = Column(ForeignKey('equipment.equipment_id'), primary_key=True, nullable=False, index=True)
     equipment_entry_number = Column(Integer, nullable=False)
+    equipment_inventories = relationship("InventoryEquipmentEntry")
 
 
 class InventoryEquipmentEntry(Base):
