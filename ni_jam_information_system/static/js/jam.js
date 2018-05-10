@@ -242,14 +242,11 @@ function bookWorkshop(workshop_id, attendee_id) {
             updateBookedInCount(workshop_id);
         },
         error: function (result) {
-            swal({
-                  type: 'error',
-                  title: 'Error',
-                  allowOutsideClick: false,
-                  text: 'Workshop failed to update. This is likely due to the workshop already being full, or this attendee is already booked into another workshop in the same session.'
-                }).then((result) => {
+
+            alertify.alert("Workshop booking error", "Workshop failed to update. This is likely due to the workshop already being full, or this attendee is already booked into another workshop in the same session.",
+                function(){
                     window.location.reload();
-                })
+                });
 
         }
     });
@@ -271,13 +268,10 @@ function unbookWorkshop(workshop_id, attendee_id) {
             updateBookedInCount(workshop_id);
         },
         error: function (result) {
-            swal({
-                  type: 'error',
-                  title: 'Error',
-                  text: 'Workshop failed to update.'
+            alertify.alert("Workshop update error", "Workshop failed to update.",
+                function(){
+                    window.location.reload();
                 });
-            alert('Workshop failed to update.');
-            window.location.reload();
         }
     });
 }
@@ -293,7 +287,7 @@ function updateBookedInCount(workshop_id) {
             $("#" + workshop_id + "-max-attendees").text(result);
         },
         error: function (result) {
-            alert('Error updating status');
+            alert("Status update error", 'Error updating status');
             window.location.reload();
         }
     });
@@ -311,15 +305,10 @@ function selectInventory(inventory_id) {
             window.location.reload();
         },
         error: function (result) {
-            swal({
-                  type: 'error',
-                  title: 'Error',
-                  allowOutsideClick: false,
-                  text: 'Unable to select inventory, do you have permissions?'
-                }).then((result) => {
+            alertify.alert("Unable to select inventory, do you have permissions?",
+                function(){
                     window.location.reload();
-                })
-
+                });
         }
     });
 }
