@@ -64,6 +64,12 @@
                         {% if modules_enabled.module_attendees %}
                         <li><a href="/admin/fire_list">Fire list</a></li>
                         {% endif %}
+                        {% if modules_enabled.module_equipment %}
+                        <li><a href="/admin/manage_inventories">Manage inventories</a></li>
+                        {% endif %}
+                        {% if modules_enabled.module_equipment %}
+                        <li><a href="/admin/manage_equipment">Manage equipment</a></li>
+                        {% endif %}
                         {% if modules_enabled.module_core %}
                         <li><a href="/admin/add_jam">Add Jam (SA)</a></li>
                         {% endif %}
