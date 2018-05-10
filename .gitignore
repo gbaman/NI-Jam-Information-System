@@ -162,3 +162,4 @@ jam_venv/
 slackbot_venv/
 ni_jam_information_system/static/files/
 nijis_slack_bot/
+nijis_barcode_system/secrets/config.py

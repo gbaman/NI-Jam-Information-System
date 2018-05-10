@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/bootstrap-select.min.css">
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/bootstrap-select.min.js"></script>
+    <script src="/static/js/sweetalert2.js"></script>
+    <script src="/static/js/barcode-system.js"></script>
+    <link rel="stylesheet" type="text/css" href="/static/css/jam.css">
+    <title>NIJIS Barcode system</title>
+</head>
+<body>
+<div class="jam-main-body">
+    <meta id="equipment-data" data-equipment="{{equipment_json}}">
+    <div class="{{container_name or 'container'}}">
+        <h1>NIJIS Equipment Barcode Printing System</h1>
+
+        <h2>New Equipment</h2>
+        <table>
+            <tr>
+                <td><label for="equipment_name">New equipment name</label><input type="text" class="form-control"
+                                                                                 id="equipment_name"
+                                                                                 value=""></td>
+                <td><label for="equipment_code">New equipment code</label><input type="text" class="form-control"
+                                                                                 id="equipment_code"
+                                                                                 value=""></td>
+
+                <td>
+                    <label for="equipment_group_selector">Equipment group</label>
+                    <select class="selectpicker form-control" data-live-search='true' id="equipment_group_selector">
+                        {% for single_equipment_group in equipment_groups %}
+                        <option value={{single_equipment_group['equipment_group_id']}}>{{single_equipment_group['equipment_group_name']}}
+                        </option>
+                        {% endfor %}
+                    </select></td>
+
+                <td>
+                    <button class="btn btn-info" onclick="addNewEquipment()">Add to system</button>
+                </td>
+            </tr>
+            <tr>
+                <td style="border-left: 0; border-right: 0"><h2>Printing</h2></td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="equipment_selector">Equipment</label>
+                    <select class="selectpicker form-control" data-live-search='true' id="equipment_selector">
+                        {% for single_equipment in equipment %}
+                        <option value={{single_equipment['equipment_id']}}>{{single_equipment['equipment_name']}}
+                        </option>
+                        {% endfor %}
+                    </select></td>
+                <td>
+
+                    <label for="equipment_entry_selector">Entry code</label>
+                    <select class="selectpicker form-control" id="equipment_entry_selector">
+                    </select>
+                </td>
+                <td></td>
+                <td>
+                    <button class="btn btn-primary" onclick="reprintLabel()">Reprint label</button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="form-group"><label for="labels_to_print">Number of entries to add</label><input
+                            type="text" class="form-control" id="labels_to_print" value=""></div>
+                </td>
+                <td></td>
+                <td></td>
+                <td>
+                    <button class="btn btn-success" onclick="printLabels()">Print label/s</button>
+                </td>
+            </tr>
+
+
+        </table>
+    </div>
+</div>
+</body>
+</html>
