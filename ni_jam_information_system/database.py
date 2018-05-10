@@ -731,11 +731,24 @@ def get_configuration_item(configuration_key):
 
 
 def get_equipment_in_inventory(inventory_id):
-    equipment = db_session.query(Equipment).filter(InventoryEquipmentEntry.inventory_id == inventory_id,
+    equipment_entries = db_session.query(EquipmentEntry).filter(InventoryEquipmentEntry.inventory_id == inventory_id,
                                                    Equipment.equipment_id == EquipmentEntry.equipment_id, # Link the tables up
                                                    EquipmentEntry.equipment_entry_id == InventoryEquipmentEntry.equipment_entry_id).all() # Link the tables up
+    equipment = []
+    for equipment_entry in equipment_entries:
+        if equipment_entry.attached_equipment not in equipment:
+            equipment_entry.attached_equipment.equipment_entries = []
+            equipment.append(equipment_entry.attached_equipment)
+        equipment_entry.attached_equipment.equipment_entries.append(equipment_entry)
 
-    # TODO : This query above doesn't work properly. It returns all the equipment entries for equipment that is in an inventory, as opposed to only the equipment entries that are in the inventory. Maybe can be fixed in JS?
+    for single_equipment in equipment: # Add quantities on to individual entries
+        single_equipment.total_quantity = 0
+        for equipment_entry in single_equipment.equipment_entries:
+            for inventory in equipment_entry.equipment_inventories:
+                if inventory.inventory_id == inventory_id:
+                    equipment_entry.equipment_quantity = inventory.entry_quantity
+                    single_equipment.total_quantity += inventory.entry_quantity
+
     return equipment
 
 
@@ -781,7 +794,7 @@ def add_equipment(equipment_name, equipment_code, equipment_group_id):
 
 
 def add_equipment_entry_to_inventory(inventory_id, equipment_entry_id, entry_quantity):
-    found_entry = db_session.query(InventoryEquipmentEntry).filter(InventoryEquipmentEntry.inventory == inventory_id, InventoryEquipmentEntry.equipment_entry_id == equipment_entry_id).first()
+    found_entry = db_session.query(InventoryEquipmentEntry).filter(InventoryEquipmentEntry.inventory_id == inventory_id, InventoryEquipmentEntry.equipment_entry_id == equipment_entry_id).first()
     if found_entry:
         found_entry.entry_quantity = entry_quantity
     else:
@@ -789,3 +802,8 @@ def add_equipment_entry_to_inventory(inventory_id, equipment_entry_id, entry_qua
     db_session.commit()
     return True
 
+
+def remove_equipment_entry_to_inventory(inventory_id, equipment_entry_id):
+    found_inventory_entry = db_session.query(InventoryEquipmentEntry).filter(InventoryEquipmentEntry.inventory_id == inventory_id, InventoryEquipmentEntry.equipment_entry_id == equipment_entry_id).first()
+    if found_inventory_entry:
+        db_session.delete(found_inventory_entry)

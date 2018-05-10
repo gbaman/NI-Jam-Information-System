@@ -374,7 +374,7 @@ def update_attendee_info():
 @super_admin_required
 @module_core_required
 def select_inventory():
-    inventory_id = request.form['inventory_id']
+    inventory_id = int(request.form['inventory_id'])
     database.set_configuration_item("current_inventory", inventory_id)
     return ""
 
@@ -383,10 +383,9 @@ def select_inventory():
 @volunteer_required
 @module_core_required
 def get_inventory_equipment():
-    #inventory_id = request.form['inventory_id']
-    inventory_id = 1
+    inventory_id = int(request.form['inventory_id'])
     equipment = database.get_equipment_in_inventory(inventory_id)
-    to_send = ([dict(equipment_id=e.equipment_id, equipment_name=e.equipment_name, equipment_code=e.equipment_code, equipment_entries=[dict(equipment_entry_id=ee.equipment_entry_id, equipment_entry_number=str(ee.equipment_entry_number).zfill(3)) for ee in e.equipment_entries]) for e in equipment])
+    to_send = ([dict(equipment_id=e.equipment_id, equipment_name=e.equipment_name, equipment_code=e.equipment_code, total_quantity=e.total_quantity, equipment_entries=[dict(equipment_entry_id=ee.equipment_entry_id, equipment_entry_number=str(ee.equipment_entry_number).zfill(3), equipment_quantity=ee.equipment_quantity) for ee in e.equipment_entries]) for e in equipment])
     return json.dumps(to_send)
 
 
@@ -394,9 +393,19 @@ def get_inventory_equipment():
 @volunteer_required
 @module_core_required
 def add_inventory_equipment_entry():
-    inventory_id = request.form['inventory_id']
-    equipment_entry_id = request.form['equipment_entry_id']
-    entry_quantity = request.form['entry_quantity']
-    database.add_equipment_entry_to_inventory(inventory_id, equipment_entry_id, entry_quantity)
+    inventory_id = int(request.form['inventory_id'])
+    equipment_entry_id = int(request.form['equipment_entry_id'])
+    entry_quantity = int(request.form['entry_quantity'])
+    database.add_equipment_entry_to_inventory(int(inventory_id), int(equipment_entry_id), int(entry_quantity))
+    return ""
+
+
+@admin_routes.route("/admin/remove_inventory_equipment_entry", methods=['GET', 'POST'])
+@volunteer_required
+@module_core_required
+def remove_inventory_equipment_entry():
+    inventory_id = int(request.form['inventory_id'])
+    equipment_entry_id = int(request.form['equipment_entry_id'])
+    database.remove_equipment_entry_to_inventory(int(inventory_id), int(equipment_entry_id))
     return ""
 
