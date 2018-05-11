@@ -272,7 +272,8 @@ def manage_inventories():
 @volunteer_required
 @module_equipment_required
 def manage_inventory(inventory_id):
-    return render_template("admin/inventory.html")
+    equipment = database.get_all_equipment(manual_add_only=True)
+    return render_template("admin/inventory.html", equipment=equipment)
 
 
 @admin_routes.route("/admin/manage_equipment", methods=['GET', 'POST'])
@@ -397,6 +398,17 @@ def add_inventory_equipment_entry():
     equipment_entry_id = int(request.form['equipment_entry_id'])
     entry_quantity = int(request.form['entry_quantity'])
     database.add_equipment_entry_to_inventory(int(inventory_id), int(equipment_entry_id), int(entry_quantity))
+    return ""
+
+
+@admin_routes.route("/admin/add_inventory_equipment_entry_manual", methods=['GET', 'POST'])
+@volunteer_required
+@module_core_required
+def add_inventory_equipment_entry_manual():
+    inventory_id = int(request.form['inventory_id'])
+    equipment_id = int(request.form['equipment_id'])
+    entry_quantity = int(request.form['entry_quantity'])
+    database.add_equipment_quantity_to_inventory(inventory_id, equipment_id, entry_quantity)
     return ""
 
 

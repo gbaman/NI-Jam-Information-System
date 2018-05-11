@@ -36,6 +36,26 @@ function getInventoryEquipment(inventory_id) {
     });
 }
 
+function addInventoryEquipmentEntryManual(){
+    $.ajax({
+        type: "POST",
+        url: "/admin/add_inventory_equipment_entry_manual",
+        data: {
+            inventory_id: inventory_id,
+            equipment_id: $('#equipment_selector').val(),
+            entry_quantity:$('#quantity_add').val()
+        },
+        success: function (result) {
+            getInventoryEquipment(inventory_id);
+            alertify.success('Item with ID {0} added (or quantity updated)'.format($('#equipment_selector').val()));
+        },
+        error: function (result) {
+            alertify.error('Failed to add item. May not exist or already been added');
+
+        }
+    });
+}
+
 
 function addInventoryEquipmentEntry(inventory_id, equipment_entry_id, entry_quantity) {
     $.ajax({
@@ -59,7 +79,7 @@ function addInventoryEquipmentEntry(inventory_id, equipment_entry_id, entry_quan
 }
 
 
-function removeInventoryEquipmentEntry(inventory_id, equipment_entry_id) {
+function removeInventoryEquipmentEntry(equipment_entry_id) {
     $.ajax({
         type: "POST",
         url: "/admin/remove_inventory_equipment_entry",
@@ -83,7 +103,7 @@ function updateInventoryEquipmentTable(equipmentData){
     var tableHTML = "";
     for (equipmentID in equipmentData){
         equipment_item = equipmentData[equipmentID];
-        tableHTML = tableHTML + "<tr class='clickable' data-toggle='collapse' id='collapsed{0}' data-target='.collapsed{0}' bgcolor='#efefef'> <td><i class='glyphicon glyphicon-plus'></i></td> <td><b> {1} </b></td> <td><b> {2} </b></td> <td><b> {3}</b></td> </tr>".format(equipment_item.equipment_id, equipment_item.equipment_name, equipment_item.equipment_code, equipment_item.total_quantity);
+        tableHTML = tableHTML + "<tr class='clickable' data-toggle='collapse' id='collapsed{0}' data-target='.collapsed{0}' bgcolor='#efefef'> <td><i class='glyphicon glyphicon-plus'></i></td> <td><b> {1} </b></td> <td><b> {2} </b></td> <td><b> {3}</b></td><td></td> </tr>".format(equipment_item.equipment_id, equipment_item.equipment_name, equipment_item.equipment_code, equipment_item.total_quantity);
         for (equipmentEntryID in equipment_item.equipment_entries){
             selectedEntry = equipment_item.equipment_entries[equipmentEntryID];
             removeButton = "<button class=\"btn btn-danger\" onclick=\"removeInventoryEquipmentEntry({0})\">Remove</button>".format(selectedEntry.equipment_entry_id);

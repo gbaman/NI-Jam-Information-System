@@ -23,6 +23,28 @@
 
 <h3>Add items</h3>
 
+<table>
+    <tr>
+        <td>
+        <label for="equipment_selector">Equipment</label>
+        <select class="selectpicker form-control" data-live-search='true' id="equipment_selector">
+            {% for single_equipment in equipment %}
+            <option value={{single_equipment['equipment_id']}}>{{single_equipment['equipment_name']}}
+            </option>
+            {% endfor %}
+        </select>
+        </td>
+        <td>
+            <div class="form-group"><label for="quantity_add">Quantity to set to</label><input
+                type="text" class="form-control" id="quantity_add" value=""></div>
+        </td>
+        <td>
+            <button class="btn btn-success" onclick="addInventoryEquipmentEntryManual()">Add/modify in inventory</button>
+        </td>
+    </tr>
+</table>
+
+
 <div class="form-group"><label for="barcodeEntry">Barcode entry</label>
     <input type="text" class="form-control" autofocus id="barcodeEntry" value=""></div>
 

@@ -11,6 +11,7 @@ from eventbrite_interactions import get_eventbrite_attendees_for_event
 import datetime
 from copy import deepcopy
 import configuration
+from sqlalchemy import or_, not_, and_
 
 red = "#fc9f9f"
 orange = "#fcbd00"
@@ -752,8 +753,16 @@ def get_equipment_in_inventory(inventory_id):
     return equipment
 
 
-def get_all_equipment():
-    equipment = db_session.query(Equipment)
+def get_all_equipment(manual_add_only=False):
+    """
+    :param manual_add_only: If is set for manual adding, don't return any equipment that has multiple entries in the system
+    """
+    if manual_add_only:
+        equipment = db_session.query(Equipment).filter(or_(and_(EquipmentEntry.equipment_entry_number == -1, Equipment.equipment_id == EquipmentEntry.equipment_id), not_(Equipment.equipment_entries.any())))
+        #equipment2 = db_session.query(Equipment).filter(Equipment.equipment_id == EquipmentEntry.equipment_id, not_(Equipment.equipment_entries.any()))
+
+    else:
+        equipment = db_session.query(Equipment)
 
     return equipment
 
@@ -793,6 +802,23 @@ def add_equipment(equipment_name, equipment_code, equipment_group_id):
     return True
 
 
+def add_equipment_quantity_to_inventory(inventory_id, equipment_id, entry_quantity):
+    found_first_inventory_equipment = db_session.query(InventoryEquipmentEntry).filter(Equipment.equipment_id == equipment_id,
+                                                                                   EquipmentEntry.equipment_id == Equipment.equipment_id,
+                                                                                   EquipmentEntry.equipment_entry_id == InventoryEquipmentEntry.equipment_entry_id,
+                                                                                   InventoryEquipmentEntry.inventory_id == inventory_id
+                                                                                   ).first()
+    if found_first_inventory_equipment:
+        found_first_inventory_equipment.entry_quantity = entry_quantity
+    else:
+        new_equipment_entry = EquipmentEntry(equipment_id=equipment_id, equipment_entry_number=-1)
+        db_session.add(new_equipment_entry)
+        db_session.flush()
+        db_session.add(InventoryEquipmentEntry(inventory_id=inventory_id, equipment_entry_id=new_equipment_entry.equipment_entry_id, entry_quantity=entry_quantity))
+    db_session.commit()
+    return True
+
+
 def add_equipment_entry_to_inventory(inventory_id, equipment_entry_id, entry_quantity):
     found_entry = db_session.query(InventoryEquipmentEntry).filter(InventoryEquipmentEntry.inventory_id == inventory_id, InventoryEquipmentEntry.equipment_entry_id == equipment_entry_id).first()
     if found_entry:
@@ -807,3 +833,4 @@ def remove_equipment_entry_to_inventory(inventory_id, equipment_entry_id):
     found_inventory_entry = db_session.query(InventoryEquipmentEntry).filter(InventoryEquipmentEntry.inventory_id == inventory_id, InventoryEquipmentEntry.equipment_entry_id == equipment_entry_id).first()
     if found_inventory_entry:
         db_session.delete(found_inventory_entry)
+        db_session.commit()
