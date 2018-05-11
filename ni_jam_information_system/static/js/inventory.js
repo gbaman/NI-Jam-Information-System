@@ -48,6 +48,7 @@ function addInventoryEquipmentEntry(inventory_id, equipment_entry_id, entry_quan
         },
         success: function (result) {
             getInventoryEquipment(inventory_id);
+            document.getElementById('barcodeEntry').value='';
             alertify.success('Item with ID {0} added (or quantity updated)'.format(equipment_entry_id));
         },
         error: function (result) {
