@@ -2,7 +2,7 @@ import json
 
 import requests
 from flask import Flask, render_template, request
-import nijis_barcode_system.secrets.config as config
+import secrets.config as config
 
 app = Flask(__name__)
 
