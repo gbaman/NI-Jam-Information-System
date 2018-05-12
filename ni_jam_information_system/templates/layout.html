@@ -70,6 +70,9 @@
                         {% if modules_enabled.module_equipment %}
                         <li><a href="/admin/manage_equipment">Manage equipment</a></li>
                         {% endif %}
+                        {% if modules_enabled.module_volunteer_signup %}
+                        <li><a href="/admin/wrangler_overview">Wrangler overview</a></li>
+                        {% endif %}
                         {% if modules_enabled.module_core %}
                         <li><a href="/admin/add_jam">Add Jam (SA)</a></li>
                         {% endif %}

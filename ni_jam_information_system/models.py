@@ -186,6 +186,7 @@ class WorkshopSlot(Base):
     slot_id = Column(Integer, primary_key=True)
     slot_time_start = Column(Time, nullable=False)
     slot_time_end = Column(Time, nullable=False)
+    workshops_in_slot = relationship("RaspberryJamWorkshop")
 
 
 class WorkshopFile(Base):

@@ -291,6 +291,12 @@ def manage_equipment():
     return render_template("admin/manage_equipment.html", form=form, equipment=database.get_all_equipment())
 
 
+@admin_routes.route("/admin/wrangler_overview", methods=['GET', 'POST'])
+@volunteer_required
+@module_volunteer_signup_required
+def wrangler_overview():
+    return render_template("admin/wrangler_overview.html", jam_id=database.get_current_jam_id(), raspberry_jam=database.get_jam_details(database.get_current_jam_id()).name, slots=database.get_wrangler_overview(database.get_current_jam_id()))
+
 
 ####################################### AJAX Routes #######################################
 

@@ -836,3 +836,8 @@ def remove_equipment_entry_to_inventory(inventory_id, equipment_entry_id):
     if found_inventory_entry:
         db_session.delete(found_inventory_entry)
         db_session.commit()
+
+
+def get_wrangler_overview(jam_id):
+    sessions_data = db_session.query(WorkshopSlot).filter(RaspberryJamWorkshop.jam_id == jam_id)
+    return sessions_data
