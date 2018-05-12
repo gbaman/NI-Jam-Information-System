@@ -728,7 +728,9 @@ def set_configuration_item(configuration_key, configuration_value):
 
 def get_configuration_item(configuration_key):
     current_configuration_item = db_session.query(Configuration).filter(Configuration.config_name == configuration_key).first()
-    return current_configuration_item.config_value
+    if current_configuration_item:
+        return current_configuration_item.config_value
+    return None
 
 
 def get_equipment_in_inventory(inventory_id):

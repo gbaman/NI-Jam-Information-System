@@ -264,7 +264,10 @@ def manage_inventories():
             return redirect(url_for("admin_routes.manage_inventories"))
         flash("Unable to add a new inventory with the name '{}' because one with that name already exists.".format(request.form['inventory_title']), "danger")
         return redirect(url_for("admin_routes.manage_inventories"))
-    return render_template("admin/manage_inventories.html", form=form, inventories = database.get_inventories(), current_selected_inventory=int(database.get_configuration_item("current_inventory")))
+    current_inventoy = database.get_configuration_item("current_inventory")
+    if current_inventoy:
+        current_inventoy = int(current_inventoy)
+    return render_template("admin/manage_inventories.html", form=form, inventories = database.get_inventories(), current_selected_inventory=current_inventoy)
 
 
 
