@@ -144,9 +144,9 @@ def update_attendees_from_eventbrite(event_id):
         new_attendee.age = attendee["profile"].get("age"),
         new_attendee.email_address = "Unknown",
         new_attendee.gender = attendee["profile"]["gender"],
-        new_attendee.town = attendee["answers"][0]["answer"],
-        new_attendee.experience_level = str(attendee["answers"][1]["answer"]).split()[0],
-        new_attendee.school = school,
+        #new_attendee.town = attendee["answers"][0]["answer"],
+        #new_attendee.experience_level = str(attendee["answers"][1]["answer"]).split()[0],
+        #new_attendee.school = school,
         new_attendee.order_id = attendee["order_id"],
         new_attendee.ticket_type = attendee["ticket_class_name"]
         new_attendee.jam_id = int(event_id)

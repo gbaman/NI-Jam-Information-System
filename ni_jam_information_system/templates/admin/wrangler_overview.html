@@ -9,7 +9,6 @@
     <tr bgcolor="#d3d3d3">
         <th>Workshop title</th>
         <th>Workshop room</th>
-        <th>Coordinated by</th>
         <th>Volunteers</th>
         <th>Checked off</th>
     </tr>
@@ -22,15 +21,13 @@
         <td bgcolor="#eaeaea">{{workshop.workshop.workshop_title}}</td>
         <td bgcolor="#eaeaea">{{workshop.workshop_room.room_name}}</td>
         {% if workshop.users[0] %}
-        <td>{{workshop.users[0].first_name}} {{workshop.users[0].surname}}</td>
-        <td>{{workshop.users[0].first_name}} {{workshop.users[0].surname}}</td>
+        <td><b>{{workshop.users[0].first_name}} {{workshop.users[0].surname}}</b></td>
         <td></td>
         {% endif %}
     </tr>
     {% if workshop.users[0] %}
     {% for volunteer in workshop.users[1:] %}
         <tr>
-        <td></td>
         <td></td>
         <td></td>
         <td>{{volunteer.first_name}} {{volunteer.surname}}</td>
