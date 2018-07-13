@@ -25,12 +25,12 @@
             <th>Check out</th>
         </tr>
         {% for attendee in attendees %}
-            <tr bgcolor="{{ attendee.bg_colour }}">
+            <tr id=tr-{{attendee.attendee_id}} bgcolor="{{ attendee.bg_colour }}">
                 <td>{{attendee.first_name}}</td>
                 <td>{{attendee.surname}}</td>
                 <td>{{attendee.age}}</td>
                 <td>{{attendee.order_id}}</td>
-                <td>{{attendee.current_location}}</td>
+                <td id="loc-{{attendee.attendee_id}}">{{attendee.current_location}}</td>
                 <td>
                 <button id="check_in_button" data-id="{{attendee.attendee_id}}" class="btn btn-warning"
                         onclick="checkInAttendee({{attendee.attendee_id}})" value="val_1" name="but1">Check in

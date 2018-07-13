@@ -220,12 +220,18 @@ function checkOutAttendee(attendee_id) {
             attendee_id: attendee_id
         },
         success: function (result) {
-            alert("Attendee status updated");
-            window.location.reload();
+            var row = $("#tr-" + attendee_id);
+            row.attr("bgcolor","#fff60a");
+            var loc = $("#loc-" + attendee_id);
+            loc.text("Checked out")
         },
         error: function (result) {
-            alert('Error updating status');
-            window.location.reload();
+
+            alertify.alert("Check out error", "The attendee has been unable to be checked out.",
+                function(){
+                    window.location.reload();
+                });
+
         }
     });
 }
@@ -239,15 +245,20 @@ function checkInAttendee(attendee_id) {
             attendee_id: attendee_id
         },
         success: function (result) {
-            alert("Attendee status updated");
-            window.location.reload();
+            var row = $("#tr-" + attendee_id);
+            row.attr("bgcolor","#c4fc9f");
+            var loc = $("#loc-" + attendee_id);
+            loc.text("Checked in")
         },
         error: function (result) {
-            alert('Error updating status');
-            window.location.reload();
+            alertify.alert("Check in error", "The attendee has been unable to be checked in.",
+                function(){
+                    window.location.reload();
+                });
         }
     });
 }
+
 
 function updateAttendeeInfo() {
     $.ajax({
