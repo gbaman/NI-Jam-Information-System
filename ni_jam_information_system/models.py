@@ -82,6 +82,7 @@ class LoginUser(Base):
     group_id = Column(ForeignKey('groups.group_id'), primary_key=True, nullable=False, index=True)
     email = Column(String(45))
     reset_code = Column(String(10))
+    active = Column(Integer)
 
     attending = relationship("VolunteerAttendance")
     group = relationship('Group')

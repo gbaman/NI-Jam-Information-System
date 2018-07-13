@@ -176,7 +176,7 @@ def get_attendees_in_order(order_id):
 
 
 def get_volunteers_to_select():
-    volunteers = db_session.query(LoginUser)
+    volunteers = db_session.query(LoginUser).filter(LoginUser.active == 1)
     to_return = []
     for volunteer in volunteers:
         to_return.append((volunteer.user_id, "{} {}".format(volunteer.first_name, volunteer.surname)))
@@ -329,8 +329,11 @@ def remove_attendee_to_workshop(jam_id, attendee_id, workshop_run_id):
     return False
 
 
-def get_users():
-    return db_session.query(LoginUser).all()
+def get_users(include_inactive=False):
+    users = db_session.query(LoginUser)
+    if include_inactive:
+        return users.all()
+    return users.filter(LoginUser.active == 1)
 
 
 def get_user_details_from_username(username):
@@ -560,7 +563,8 @@ def get_attending_volunteers(jam_id, only_attending_volunteers=False): # Get all
         for user in attending_volunteers:
             all_volunteers.append(user.user)
     else:
-        all_volunteers = db_session.query(LoginUser).all()
+        all_volunteers = get_users()
+        #all_volunteers = db_session.query(LoginUser).all()
     for volunteer in all_volunteers:
         volunteer.current_jam_workshops_involved_in = []
         for workshop in volunteer.workshop_runs:
@@ -841,3 +845,9 @@ def remove_equipment_entry_to_inventory(inventory_id, equipment_entry_id):
 def get_wrangler_overview(jam_id):
     sessions_data = db_session.query(WorkshopSlot).filter(RaspberryJamWorkshop.jam_id == jam_id)
     return sessions_data
+
+
+def enable_user(user_id, enable):
+    user = db_session.query(LoginUser).filter(LoginUser.user_id == user_id).first()
+    user.active = enable
+    db_session.commit()

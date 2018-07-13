@@ -15,11 +15,16 @@
                 <th>Permission level</th>
                 <th>Change password</th>
                 <th>Upgrade to volunteer</th>
+                <th>Disable/Enable</th>
                 <th>Remove (WIP)</th>
             </tr>
         </thead>
         {% for user in users %}
-        <tr>
+        {% if user.active %}
+            <tr>
+        {% else %}
+            <tr bgcolor="#d3d3d3">
+        {% endif %}
             <td>{{user.first_name}}</td>
             <td>{{user.surname}}</td>
             <td>{{user.username}}</td>
@@ -30,10 +35,23 @@
                         onclick="getPasswordResetCode({{user.user_id}})" value="val_1" name="but1">Get reset code
                 </button></td>
             <td>
-                <button id="upgrade_to_volunteer_button" data-id="{{user.user_id}}" class="btn btn-warning"
+                <button id="upgrade_to_volunteer_button" data-id="{{user.user_id}}" class="btn btn-primary"
                         onclick="upgradeToVolunteerPermission({{user.user_id}})" value="val_2" name="but2">Upgrade to volunteer
                 </button>
             </td>
+            {% if user.active %}
+            <td>
+                <button id="disable_volunteer_button" data-id="{{user.user_id}}" class="btn btn-warning"
+                        onclick="disableVolunteerAccount({{user.user_id}})" value="val_4" name="but4">Disable
+                </button>
+            </td>
+            {% else %}
+            <td>
+                <button id="enable_volunteer_button" data-id="{{user.user_id}}" class="btn btn-success"
+                        onclick="enableVolunteerAccount({{user.user_id}})" value="val_5" name="but5">Enable
+                </button>
+            </td>
+            {% endif %}
             <td>
                 <button id="remove_user_button" data-id="{{user.user_id}}" class="btn btn-danger"
                         onclick="TODO({{user.user_id}})" value="val_3" name="but3">Remove

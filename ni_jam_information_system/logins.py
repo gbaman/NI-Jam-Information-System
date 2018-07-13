@@ -12,7 +12,9 @@ def validate_login(username, password):
     user = database.get_user_details_from_username(username)
     if user:
         if flask_bcrypt.check_password_hash(user.password_hash, password + user.password_salt):
-            return True, user
+            if user.active:
+                return True, user
+            return False, user
     return False, None
 
 

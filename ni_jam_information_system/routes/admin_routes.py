@@ -131,7 +131,8 @@ def admin_workshops():
 @super_admin_required
 @module_core_required
 def manage_users():
-    users = database.get_users()
+    users = database.get_users(include_inactive=True)
+    users = sorted(users, key=lambda x: x.active, reverse=True)
     return render_template("admin/manage_users.html", users=users)
 
 
@@ -318,6 +319,24 @@ def get_password_reset_code():
 def upgrade_user_permission():
     user_id = request.form['user_id']
     database.set_group_for_user(user_id, 3)
+    return ""
+
+
+@admin_routes.route("/admin/disable_volunteer_account_ajax", methods=['GET', 'POST'])
+@super_admin_required
+@module_core_required
+def disable_volunteer_account():
+    user_id = request.form['user_id']
+    database.enable_user(user_id, False)
+    return ""
+
+
+@admin_routes.route("/admin/enable_volunteer_account_ajax", methods=['GET', 'POST'])
+@super_admin_required
+@module_core_required
+def enable_volunteer_account():
+    user_id = request.form['user_id']
+    database.enable_user(user_id, True)
     return ""
 
 

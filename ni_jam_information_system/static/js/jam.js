@@ -174,6 +174,44 @@ function upgradeToVolunteerPermission(user_id) {
 }
 
 
+function disableVolunteerAccount(user_id) {
+    $.ajax({
+        type: "POST",
+        url: "/admin/disable_volunteer_account_ajax",
+        data: {
+            user_id: user_id
+        },
+        success: function (result) {
+            alert("User disabled");
+            window.location.reload();
+        },
+        error: function (result) {
+            alert('Error disabling user');
+            window.location.reload();
+        }
+    });
+}
+
+
+function enableVolunteerAccount(user_id) {
+    $.ajax({
+        type: "POST",
+        url: "/admin/enable_volunteer_account_ajax",
+        data: {
+            user_id: user_id
+        },
+        success: function (result) {
+            alert("User enabled");
+            window.location.reload();
+        },
+        error: function (result) {
+            alert('Error enabling user');
+            window.location.reload();
+        }
+    });
+}
+
+
 function checkOutAttendee(attendee_id) {
     $.ajax({
         type: "POST",

@@ -49,7 +49,10 @@ def login():
             resp = make_response(logins.redirect_back('admin_routes.admin_home'))
             resp.set_cookie("jam_login", database.new_cookie_for_user(user.user_id))
             return resp
-        flash("Unable to login, credentials incorrect.", "danger")
+        if user:
+            flash("This user account has been disabled and so can not be logged into.", "danger")
+        else:
+            flash("Unable to login, credentials incorrect.", "danger")
         return render_template("login.html", form=form)
     return render_template("login.html", next=next, form=form)
 
