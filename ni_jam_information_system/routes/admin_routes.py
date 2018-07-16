@@ -299,6 +299,39 @@ def wrangler_overview():
     return render_template("admin/wrangler_overview.html", jam_id=database.get_current_jam_id(), raspberry_jam=database.get_jam_details(database.get_current_jam_id()).name, slots=database.get_wrangler_overview(database.get_current_jam_id()))
 
 
+
+@admin_routes.route('/admin/jam_setup', methods=['GET', 'POST'])
+@admin_routes.route('/admin/jam_setup/slot/<slot_id>', methods=['GET', 'POST'])
+@admin_routes.route('/admin/jam_setup/room/<room_id>', methods=['GET', 'POST'])
+@super_admin_required
+@module_core_required
+def jam_setup(slot_id=None, room_id=None):
+    room_form = forms.RoomForm(request.form)
+    slot_form = forms.SlotForm(request.form)
+    if slot_id and request.method == "GET":
+        slot = database.get_time_slots_objects().filter(database.WorkshopSlot.slot_id == slot_id).first()
+        slot_form.slot_time_start.default = slot.slot_time_start
+        slot_form.slot_time_end.default = slot.slot_time_end
+        slot_form.slot_id.default = slot.slot_id
+        slot_form.process()
+    if request.method == 'POST' and slot_form.validate():
+        if slot_form.slot_time_start.data < slot_form.slot_time_end.data:
+            database.add_slot(slot_form.slot_id.data, slot_form.slot_time_start.data, slot_form.slot_time_end.data)
+        else:
+            flash("Error - Start time is after end time!", "danger")
+        return redirect(('admin/jam_setup'))
+    return render_template('admin/jam_setup.html', form_room=room_form, form_slot=slot_form, rooms=database.get_workshop_rooms_objects(), slots=database.get_time_slots_objects())
+
+
+@admin_routes.route('/admin/jam_setup/remove_slot/<slot_id>', methods=['GET', 'POST'])
+@super_admin_required
+@module_core_required
+def remote_slot(slot_id):
+    database.remove_slot(slot_id)
+    flash("Slot removed.", "success")
+    return redirect(('admin/jam_setup'))
+
+
 ####################################### AJAX Routes #######################################
 
 
@@ -448,4 +481,3 @@ def remove_inventory_equipment_entry():
     equipment_entry_id = int(request.form['equipment_entry_id'])
     database.remove_equipment_entry_to_inventory(int(inventory_id), int(equipment_entry_id))
     return ""
-

@@ -1,7 +1,8 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileRequired, FileAllowed
 from wtforms import Form, BooleanField, StringField, PasswordField, IntegerField, TextAreaField, RadioField, \
-    SelectField, validators, HiddenField, FileField
+    SelectField, validators, HiddenField, FileField, DateTimeField
+from wtforms_components import TimeField
 from flask import g, Flask, current_app
 
 from database import get_volunteers_to_select, get_workshops_to_select, get_individual_time_slots_to_select, get_workshop_rooms, get_equipment_groups
@@ -87,3 +88,15 @@ class AddEquipmentForm(Form):
     def __init__(self, *args, **kwargs):
         super(AddEquipmentForm, self).__init__(*args, **kwargs)
         self.equipment_group.choices = [(str(group.equipment_group_id), group.equipment_group_name) for group in get_equipment_groups()]
+
+
+class RoomForm(Form):
+    room_name = StringField("Room name", [validators.DataRequired()])
+    room_capacity = IntegerField("Room capacity", [validators.DataRequired()])
+    room_volunteers_needed = IntegerField("Room volunteers", [validators.DataRequired()])
+
+
+class SlotForm(Form):
+    slot_id = HiddenField("Workshop ID", default="")
+    slot_time_start = TimeField("Slot time start", [validators.DataRequired()])
+    slot_time_end = TimeField("Slot time finish", [validators.DataRequired()])

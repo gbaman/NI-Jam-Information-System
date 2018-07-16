@@ -201,6 +201,10 @@ def get_individual_time_slots_to_select():
         to_return.append((time_slots.slot_id, str(time_slots.slot_time_start)))
     return to_return
 
+def get_time_slots_objects():
+    slots = db_session.query(WorkshopSlot)
+    return slots
+
 
 def get_workshop_rooms():
     to_return = []
@@ -208,6 +212,10 @@ def get_workshop_rooms():
         to_return.append((workshop_room.room_id, workshop_room.room_name))
     return to_return
 
+
+def get_workshop_rooms_objects():
+    rooms = db_session.query(WorkshopRoom)
+    return rooms
 
 def get_time_slots_to_select(jam_id, user_id, admin_mode=False):
     workshop_slots = []
@@ -850,4 +858,21 @@ def get_wrangler_overview(jam_id):
 def enable_user(user_id, enable):
     user = db_session.query(LoginUser).filter(LoginUser.user_id == user_id).first()
     user.active = enable
+    db_session.commit()
+
+
+def add_slot(slot_id, slot_time_start, slot_time_end):
+    if slot_id or slot_id == 0: # Already existing slot
+        slot = db_session.query(WorkshopSlot).filter(WorkshopSlot.slot_id == slot_id).first()
+    else: # New slot
+        slot = WorkshopSlot()
+    slot.slot_time_start = slot_time_start
+    slot.slot_time_end = slot_time_end
+    db_session.add(slot)
+    db_session.commit()
+
+
+def remove_slot(slot_id):
+    slot = db_session.query(WorkshopSlot).filter(WorkshopSlot.slot_id == int(slot_id)).first()
+    db_session.delete(slot)
     db_session.commit()
