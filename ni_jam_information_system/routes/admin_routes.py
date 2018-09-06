@@ -217,10 +217,10 @@ def fire_list():
     return render_template("admin/fire_list.html", attendees=jam_attendees)
 
 
-@admin_routes.route("/admin/workshop_files/<workshop_id>", methods=['GET', 'POST'])
+@admin_routes.route("/admin/workshop_details/<workshop_id>", methods=['GET', 'POST'])
 @volunteer_required
 @module_workshops_required
-def workshop_files(workshop_id):
+def workshop_details(workshop_id):
     form = forms.UploadFileForm(CombinedMultiDict((request.files, request.form)), csrf_enabled=False)
     if form.validate_on_submit():
         f = form.upload.data
@@ -240,19 +240,19 @@ def workshop_files(workshop_id):
             flash("File upload successful.", "success")
         else:
             flash("Failed to upload - File of same name already exists.", "danger")
-        return redirect(url_for('admin_routes.workshop_files', workshop_id=workshop_id))
+        return redirect(url_for('admin_routes.workshop_details', workshop_id=workshop_id))
 
     workshop = database.get_workshop_from_workshop_id(workshop_id)
-    return render_template("admin/workshop_files.html", workshop=workshop, form=form)
+    return render_template("admin/workshop_details.html", workshop=workshop, form=form)
 
 
-@admin_routes.route("/admin/delete_workshop_files/<file_id>")
+@admin_routes.route("/admin/delete_workshop_file/<file_id>")
 @volunteer_required
 @module_workshops_required
 def delete_workshop_file(file_id):
     workshop_id = database.remove_workshop_file(file_id)
     flash("File has been removed.", category="success")
-    return redirect("/admin/workshop_files/{}".format(workshop_id), code=302)
+    return redirect("/admin/workshop_details/{}".format(workshop_id), code=302)
 
 
 @admin_routes.route("/admin/manage_inventories", methods=['GET', 'POST'])
