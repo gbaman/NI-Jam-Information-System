@@ -53,13 +53,14 @@ def create_password_salt(password):
     return salt, bcrypt_password
 
 
-def create_new_user():
+def create_new_user(group_id=1):
     username = input("Username: ")
     password = input("Password: ")
     first_name = input("First Name:")
     surname = input("Surname: ")
+    email = input("Email: ")
     salt, bcrypt_password = create_password_salt(password)
-    database.create_user(username, bcrypt_password, salt, first_name, surname)
+    database.create_user(username, bcrypt_password, salt, first_name, surname, email, group_id)
 
 
 # Methods from http://flask.pocoo.org/snippets/62/

@@ -30,6 +30,16 @@ def init_db():
     Base.metadata.create_all(bind=engine, pool_recycle=25200)
 
 
+def first_time_setup():
+    if len(db_session.query(Group).all()) == 0:
+        db_session.add(Group(group_id=1, group_name="Guest"))
+        db_session.add(Group(group_id=2, group_name="Attendee"))
+        db_session.add(Group(group_id=3, group_name="Volunteer"))
+        db_session.add(Group(group_id=4, group_name="SuperAdmin"))
+        return True
+    return False
+
+
 def convert_to_mysql_datetime(datetime_to_convert: datetime.datetime) -> str:
     f = '%Y-%m-%d %H:%M:%S'
     return datetime_to_convert.strftime(f)
@@ -202,7 +212,10 @@ def get_individual_time_slots_to_select():
     return to_return
 
 def get_time_slots_objects():
-    slots = db_session.query(WorkshopSlot)
+    slots = db_session.query(WorkshopSlot).order_by(WorkshopSlot.slot_time_start)
+    for slot in slots: # TODO : Need to figure out how to subtract 2 datetime.time objects...
+        #slot.slot_duration = datetime.datetime(slot.slot_time_end) - datetime.datetime(slot.slot_time_start)
+        slot.slot_duration = 0 # TODO: Get slot duration working...
     return slots
 
 
@@ -355,7 +368,7 @@ def get_user_from_cookie(cookie_value):
     return None
 
 
-def create_user(username, password_hash, password_salt, first_name, surname, email):
+def create_user(username, password_hash, password_salt, first_name, surname, email, group_id=1, active=True):
     db_session.commit()
     user = LoginUser()
     user.username = username
@@ -363,8 +376,9 @@ def create_user(username, password_hash, password_salt, first_name, surname, ema
     user.password_salt = password_salt
     user.first_name = first_name
     user.surname = surname
-    user.group_id = 1
+    user.group_id = group_id
     user.email = email
+    user.active = active
 
     db_session.add(user)
     db_session.commit()
@@ -658,8 +672,10 @@ def set_group_for_user(user_id, group_id):
 
 
 def get_current_jam_id():
-    jam_id = int(db_session.query(Configuration).filter(Configuration.config_name == "jam_id").first().config_value)
-    return jam_id
+    jam = db_session.query(Configuration).filter(Configuration.config_name == "jam_id").first()
+    if jam:
+        return int(jam.config_value)
+    return 0
 
 
 def check_out_attendee(attendee_id):
@@ -683,7 +699,10 @@ def check_in_attendee(attendee_id):
 
 
 def get_jam_details(jam_id):
-    return db_session.query(RaspberryJam).filter(RaspberryJam.jam_id == jam_id).first()
+    jam = db_session.query(RaspberryJam).filter(RaspberryJam.jam_id == jam_id).first()
+    if jam:
+        return jam
+    return RaspberryJam(name="*** No Jam selected - Please select one from Add Jam ***")
 
 
 def remove_workshop_file(file_id):
@@ -875,4 +894,25 @@ def add_slot(slot_id, slot_time_start, slot_time_end):
 def remove_slot(slot_id):
     slot = db_session.query(WorkshopSlot).filter(WorkshopSlot.slot_id == int(slot_id)).first()
     db_session.delete(slot)
+    db_session.commit()
+
+
+def add_workshop_room(room_id, room_name, room_capacity, room_volunteers_needed):
+    if room_id or room_id == 0:
+        room = db_session.query(WorkshopRoom).filter(WorkshopRoom.room_id == room_id).first()
+    else:
+        if db_session.query(WorkshopRoom).filter(WorkshopRoom.room_name == room_name).all():
+            return False
+        room = WorkshopRoom()
+    room.room_name = room_name
+    room.room_capacity = room_capacity
+    room.room_volunteers_needed = room_volunteers_needed
+    db_session.add(room)
+    db_session.commit()
+    return True
+
+
+def remove_room(room_id):
+    room = db_session.query(WorkshopRoom).filter(WorkshopRoom.room_id == int(room_id)).first()
+    db_session.delete(room)
     db_session.commit()

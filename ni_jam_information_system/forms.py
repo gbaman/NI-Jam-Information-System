@@ -91,6 +91,7 @@ class AddEquipmentForm(Form):
 
 
 class RoomForm(Form):
+    room_id = HiddenField("Workshop room", default="")
     room_name = StringField("Room name", [validators.DataRequired()])
     room_capacity = IntegerField("Room capacity", [validators.DataRequired()])
     room_volunteers_needed = IntegerField("Room volunteers", [validators.DataRequired()])

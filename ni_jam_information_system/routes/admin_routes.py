@@ -276,7 +276,8 @@ def manage_inventories():
 @volunteer_required
 @module_equipment_required
 def manage_inventory(inventory_id):
-    equipment = database.get_all_equipment(manual_add_only=True)
+    #equipment = database.get_all_equipment(manual_add_only=True)
+    equipment = database.get_all_equipment(manual_add_only=False)
     return render_template("admin/inventory.html", equipment=equipment)
 
 
@@ -314,12 +315,22 @@ def jam_setup(slot_id=None, room_id=None):
         slot_form.slot_time_end.default = slot.slot_time_end
         slot_form.slot_id.default = slot.slot_id
         slot_form.process()
-    if request.method == 'POST' and slot_form.validate():
+    elif room_id and request.method == "GET":
+        room = database.get_workshop_rooms_objects().filter(database.WorkshopRoom.room_id == room_id).first()
+        room_form.room_name.default = room.room_name
+        room_form.room_capacity.default = room.room_capacity
+        room_form.room_volunteers_needed.default = room.room_volunteers_needed
+        room_form.room_id.default = room.room_id
+        room_form.process()
+    if request.method == 'POST' and (slot_form.validate()):
         if slot_form.slot_time_start.data < slot_form.slot_time_end.data:
             database.add_slot(slot_form.slot_id.data, slot_form.slot_time_start.data, slot_form.slot_time_end.data)
         else:
             flash("Error - Start time is after end time!", "danger")
         return redirect(('admin/jam_setup'))
+    elif request.method == 'POST' and room_form.validate():
+        if not database.add_workshop_room(room_id, room_form.room_name.data, room_form.room_capacity.data, room_form.room_volunteers_needed.data):
+            flash("Error - Unable to add new workshop room. Does a workshop already exist with that name?", "danger")
     return render_template('admin/jam_setup.html', form_room=room_form, form_slot=slot_form, rooms=database.get_workshop_rooms_objects(), slots=database.get_time_slots_objects())
 
 
@@ -329,6 +340,15 @@ def jam_setup(slot_id=None, room_id=None):
 def remote_slot(slot_id):
     database.remove_slot(slot_id)
     flash("Slot removed.", "success")
+    return redirect(('admin/jam_setup'))
+
+
+@admin_routes.route('/admin/jam_setup/remove_workshop_room/<room_id>', methods=['GET', 'POST'])
+@super_admin_required
+@module_core_required
+def remote_workshop_room(room_id):
+    database.remove_room(room_id)
+    flash("Room removed.", "success")
     return redirect(('admin/jam_setup'))
 
 

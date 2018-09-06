@@ -6,17 +6,6 @@
 <h1>Jam setup</h1>
 <p>Use this page to configure the Jam configuration in NIJIS. </p>
 
-<h2>Time slots</h2>
-
-<form method=post style="max-width: 220px">
-    <dl>
-        {{ render_field(form_slot.slot_time_start, class = "form-control") }}
-        {{ render_field(form_slot.slot_time_end, class = "form-control") }}
-        {{ form_slot.slot_id }}
-    </dl>
-    <p><input class="btn btn-primary" type=submit value="Add/edit time slot">
-</form>
-
 {% with messages = get_flashed_messages(with_categories=true) %}
           <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
           {% if messages %}
@@ -29,6 +18,17 @@
           {% endif %}
         {% endwith %}
 
+<h2>Time slots</h2>
+
+<form method=post style="max-width: 220px">
+    <dl>
+        {{ render_field(form_slot.slot_time_start, class = "form-control") }}
+        {{ render_field(form_slot.slot_time_end, class = "form-control") }}
+        {{ form_slot.slot_id }}
+    </dl>
+    <p><input class="btn btn-primary" type=submit value="Add/edit time slot">
+</form>
+
 <h3>Current time slots</h3>
 
 <table class="table table-hover, table-bordered">
@@ -36,6 +36,7 @@
         <th>Slot ID</th>
         <th>Start time</th>
         <th>End time</th>
+        <th>Length</th>
         <th>Edit</th>
         <th>Remove</th>
     </tr>
@@ -50,6 +51,7 @@
         <td>{{slot.slot_id}}</td>
         <td>{{slot.slot_time_start}}</td>
         <td>{{slot.slot_time_end}}</td>
+        <td>{{slot.slot_duration}}</td>
         <td><a href="/admin/jam_setup/slot/{{slot.slot_id}}" class="btn btn-success" role="button">Edit</a></td>
         <td><a href="/admin/jam_setup/remove_slot/{{slot.slot_id}}" class="btn btn-warning" role="button">Remove</a></td>
     </tr>
@@ -64,7 +66,7 @@
         {{ render_field(form_room.room_capacity, class = "form-control") }}
         {{ render_field(form_room.room_volunteers_needed, class = "form-control") }}
     </dl>
-    <p><input class="btn btn-primary" type=submit value="Add/edit time slot">
+    <p><input class="btn btn-primary" type=submit value="Add/edit workshop room">
 </form>
 
 <h3>Current rooms</h3>
@@ -89,7 +91,7 @@
         <td>{{room.room_capacity}}</td>
         <td>{{room.room_volunteers_needed}}</td>
         <td><a href="/admin/jam_setup/room/{{room.room_id}}" class="btn btn-success" role="button">Edit</a></td>
-        <td><button class="btn btn-warning" onclick="selectInventory()">Remove</button></td>
+        <td><a href="/admin/jam_setup/remove_workshop_room/{{room.room_id}}" class="btn btn-warning" role="button">Remove</a></td>
     </tr>
     {% endfor %}
 </table>
