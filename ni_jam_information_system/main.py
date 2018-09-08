@@ -2,18 +2,24 @@ import uuid
 from flask import Flask, render_template, request
 from flask_uploads import UploadSet, configure_uploads, ALL
 
+import logins
 import database as database
 import configuration
 
 app = Flask(__name__)
 
+if database.first_time_setup():
+    print("Setting up super admin account...")
+    logins.create_new_user(group_id=4)
+    print("A super admin user is now set up. You can now log in using this account.")
+    print("Once logged in, add a Raspberry Jam via the Add Jam page, then set up workshop rooms and slots times.")
+    print(10 * "\n")
 
 from routes.api_routes import api_routes
 from routes.public_routes import public_routes
 from routes.attendee_routes import attendee_routes
 from routes.admin_routes import admin_routes
 from routes.misc_routes import misc_routes
-import logins
 
 
 
@@ -36,13 +42,6 @@ app.register_blueprint(admin_routes)
 app.register_blueprint(misc_routes)
 
 configuration.output_modules_enabled()
-
-if database.first_time_setup():
-    print("Setting up super admin...")
-    logins.create_new_user(group_id=4)
-    print("A super admin user is now set up. You can now log in using this account.")
-    print("Once logged in, add a Raspberry Jam via the Add Jam page, then set up workshop rooms and slots times.")
-    print(10 * "\n")
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):

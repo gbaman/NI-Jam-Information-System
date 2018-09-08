@@ -27,10 +27,11 @@ def init_db():
     # import all modules here that might define models so that
     # they will be registered properly on the metadata.  Otherwise
     # you will have to import them first before calling init_db()
-    Base.metadata.create_all(bind=engine, pool_recycle=25200)
+    Base.metadata.create_all(bind=engine)
 
 
 def first_time_setup():
+    init_db()
     if len(db_session.query(Group).all()) == 0:
         db_session.add(Group(group_id=1, group_name="Guest"))
         db_session.add(Group(group_id=2, group_name="Attendee"))
