@@ -337,7 +337,7 @@ def jam_setup(slot_id=None, room_id=None):
 @admin_routes.route('/admin/jam_setup/remove_slot/<slot_id>', methods=['GET', 'POST'])
 @super_admin_required
 @module_core_required
-def remote_slot(slot_id):
+def remove_slot(slot_id):
     database.remove_slot(slot_id)
     flash("Slot removed.", "success")
     return redirect(('admin/jam_setup'))
@@ -454,7 +454,7 @@ def update_attendee_info():
 
 @admin_routes.route("/admin/select_inventory_ajax", methods=['GET', 'POST'])
 @super_admin_required
-@module_core_required
+@module_equipment_required
 def select_inventory():
     inventory_id = int(request.form['inventory_id'])
     database.set_configuration_item("current_inventory", inventory_id)
@@ -463,7 +463,7 @@ def select_inventory():
 
 @admin_routes.route("/admin/get_inventory_equipment", methods=['GET', 'POST'])
 @volunteer_required
-@module_core_required
+@module_equipment_required
 def get_inventory_equipment():
     inventory_id = int(request.form['inventory_id'])
     equipment = database.get_equipment_in_inventory(inventory_id)
@@ -473,7 +473,7 @@ def get_inventory_equipment():
 
 @admin_routes.route("/admin/add_inventory_equipment_entry", methods=['GET', 'POST'])
 @volunteer_required
-@module_core_required
+@module_equipment_required
 def add_inventory_equipment_entry():
     inventory_id = int(request.form['inventory_id'])
     equipment_entry_id = int(request.form['equipment_entry_id'])
@@ -484,7 +484,7 @@ def add_inventory_equipment_entry():
 
 @admin_routes.route("/admin/add_inventory_equipment_entry_manual", methods=['GET', 'POST'])
 @volunteer_required
-@module_core_required
+@module_equipment_required
 def add_inventory_equipment_entry_manual():
     inventory_id = int(request.form['inventory_id'])
     equipment_id = int(request.form['equipment_id'])
@@ -495,7 +495,7 @@ def add_inventory_equipment_entry_manual():
 
 @admin_routes.route("/admin/remove_inventory_equipment_entry", methods=['GET', 'POST'])
 @volunteer_required
-@module_core_required
+@module_equipment_required
 def remove_inventory_equipment_entry():
     inventory_id = int(request.form['inventory_id'])
     equipment_entry_id = int(request.form['equipment_entry_id'])
