@@ -2,11 +2,66 @@
 
 {% block content %}
 
-<h1>{{workshop.workshop_title}} files</h1>
+<h1>"{{workshop.workshop_title}}" workshop details</h1>
 <p></p>
 
 <br>
 
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+          <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible" role="alert">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <!-- <strong>Title</strong> --> {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+
+<h2>Workshop equipment</h2>
+
+
+<table>
+    <tr>
+        <th>Equipment name</th>
+        <th>Quantity required per attendee</th>
+        <th>Quantity required per workshop</th>
+        <th>Total available in the system</th>
+        <th>Remove</th>
+    </tr>
+
+    {% for equipment in equipments %}
+        <tr>
+        <td>{{equipment.equipment.equipment_name}}</td>
+        {% if equipment.equipment_per_attendee %}
+            <td>{{equipment.equipment_quantity}}</td>
+            <td>N/A</td>
+        {% else %}
+            <td>N/A</td>
+            <td>{{equipment.equipment_quantity}}</td>
+        {% endif %}
+        <td>N/A</td>
+        <td><a href="/admin/delete_workshop_equipment/{{equipment.equipment_id}}/{{equipment.workshop_id}}" class="btn btn-danger" role="button">Remove</a><br></td>
+        </tr>
+    {% endfor %}
+    
+</table>
+
+<h3>Add equipment</h3>
+
+<form method="POST" enctype="multipart/form-data" style="max-width: 220px">
+  <dl>
+    {{ render_field(equipment_form.equipment_name, class="selectpicker", **{'data-live-search':'true'}) }}
+    {{ render_field(equipment_form.equipment_quantity_needed, class = "form-control") }}
+    {{ render_field(equipment_form.per_attendee) }}
+  </dl>
+  <p><input class="btn btn-primary" type=submit value="Add equipment">
+</form>
+
+<hr>
 
 <h2>Workshop files</h2>
 
@@ -33,26 +88,14 @@
 
 </table>
 
-{% with messages = get_flashed_messages(with_categories=true) %}
-          <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
-          {% if messages %}
-            {% for category, message in messages %}
-              <div class="alert alert-{{ category }} alert-dismissible" role="alert">
-              <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-              <!-- <strong>Title</strong> --> {{ message }}
-              </div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-
 
 <h3>Upload new files</h3>
 
 <form method="POST" enctype="multipart/form-data" style="max-width: 220px">
   <dl>
-    {{ render_field(form.file_title, class = "form-control") }}
-    {{ render_field(form.file_permission, class = "form-control") }}
-    {{ render_field(form.upload) }}
+    {{ render_field(file_form.file_title, class = "form-control") }}
+    {{ render_field(file_form.file_permission, class = "form-control") }}
+    {{ render_field(file_form.upload) }}
   </dl>
   <p><input class="btn btn-primary" type=submit value="Upload file">
 </form>

@@ -206,7 +206,8 @@ class WorkshopEquipment(Base):
 
     equipment_id = Column(ForeignKey('equipment.equipment_id'), primary_key=True, nullable=False, index=True)
     workshop_id = Column(ForeignKey('workshop.workshop_id'), primary_key=True, nullable=False, index=True)
-    equipment_per_attendee = Column(Integer)
+    equipment_per_attendee = Column(Boolean)
+    equipment_quantity = Column(Integer)
 
     equipment = relationship("Equipment")
     workshop = relationship("Workshop")

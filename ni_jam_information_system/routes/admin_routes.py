@@ -221,9 +221,9 @@ def fire_list():
 @volunteer_required
 @module_workshops_required
 def workshop_details(workshop_id):
-    form = forms.UploadFileForm(CombinedMultiDict((request.files, request.form)), csrf_enabled=False)
-    if form.validate_on_submit():
-        f = form.upload.data
+    file_form = forms.UploadFileForm(CombinedMultiDict((request.files, request.form)))
+    if file_form.validate_on_submit():
+        f = file_form.upload.data
         print(f.filename)
         filename = secure_filename(f.filename)
         base_dir = "static/files/{}".format(workshop_id)
@@ -242,8 +242,16 @@ def workshop_details(workshop_id):
             flash("Failed to upload - File of same name already exists.", "danger")
         return redirect(url_for('admin_routes.workshop_details', workshop_id=workshop_id))
 
+    equipment_form = forms.EquipmentAddToWorkshopForm()
+    if equipment_form.validate_on_submit():
+        equipment_id = int(request.form['equipment_name'])
+        equipment_quantity = int(request.form['equipment_quantity_needed'])
+        per_attendee = False
+        if request.form['per_attendee'] == "True": per_attendee = True
+        database.add_equipment_to_workshop(equipment_id, workshop_id, equipment_quantity, per_attendee)
+
     workshop = database.get_workshop_from_workshop_id(workshop_id)
-    return render_template("admin/workshop_details.html", workshop=workshop, form=form)
+    return render_template("admin/workshop_details.html", workshop=workshop, file_form=file_form, equipment_form=equipment_form, equipments=database.get_all_equipment_for_workshop(workshop_id))
 
 
 @admin_routes.route("/admin/delete_workshop_file/<file_id>")
@@ -252,6 +260,15 @@ def workshop_details(workshop_id):
 def delete_workshop_file(file_id):
     workshop_id = database.remove_workshop_file(file_id)
     flash("File has been removed.", category="success")
+    return redirect("/admin/workshop_details/{}".format(workshop_id), code=302)
+
+
+@admin_routes.route("/admin/delete_workshop_equipment/<equipment_id>/<workshop_id>")
+@volunteer_required
+@module_workshops_required
+def delete_workshop_equipment(equipment_id, workshop_id):
+    database.remove_workshop_equipment(equipment_id, workshop_id)
+    flash("Equipment has been removed.", category="success")
     return redirect("/admin/workshop_details/{}".format(workshop_id), code=302)
 
 

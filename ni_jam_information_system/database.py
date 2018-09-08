@@ -11,7 +11,7 @@ from eventbrite_interactions import get_eventbrite_attendees_for_event
 import datetime
 from copy import deepcopy
 import configuration
-from sqlalchemy import or_, not_, and_
+from sqlalchemy import or_, not_, and_, func, funcfilter
 
 red = "#fc9f9f"
 orange = "#fcbd00"
@@ -803,6 +803,26 @@ def get_all_equipment(manual_add_only=False):
     return equipment
 
 
+def get_all_equipment_for_workshop(workshop_id):
+    current_inventory = get_configuration_item("current_inventory")
+    if current_inventory:
+        #equipment = db_session.query(WorkshopEquipment).filter(Equipment.equipment_id == WorkshopEquipment.equipment_id, 
+        #                                                       WorkshopEquipment.workshop_id == workshop_id,
+        #                                                       funcfilter(func.sum(InventoryEquipmentEntry).label("total"), InventoryEquipmentEntry.inventory_id == current_inventory, InventoryEquipmentEntry.equipment_entry.equipment_id == Equipment.equipment_id)
+        #                                                       ).all()
+        # TODO : Someday ideally the query above would be finished, to count the amount of a piece of equipment total and include it with the returned equipment
+        equipment = db_session.query(WorkshopEquipment).filter(Equipment.equipment_id == WorkshopEquipment.equipment_id, WorkshopEquipment.workshop_id == workshop_id).all() # Temporary
+    else:
+        equipment = db_session.query(WorkshopEquipment).filter(Equipment.equipment_id == WorkshopEquipment.equipment_id, WorkshopEquipment.workshop_id == workshop_id).all()
+    return equipment
+
+
+def remove_workshop_equipment(equipment_id, workshop_id):
+    workshop_equipment = db_session.query(WorkshopEquipment).filter(WorkshopEquipment.workshop_id == workshop_id, WorkshopEquipment.equipment_id == equipment_id).first()
+    db_session.delete(workshop_equipment)
+    db_session.commit()
+
+
 def get_equipment_groups():
     equipment_groups = db_session.query(EquipmentGroup)
     return equipment_groups
@@ -812,6 +832,10 @@ def get_equipment_by_id(equipment_id):
     single_equipment = db_session.query(Equipment).filter(Equipment.equipment_id == equipment_id).first()
     return single_equipment
 
+
+def add_equipment_to_workshop(equipment_id, workshop_id, equipment_quantity, per_attendee):
+    db_session.add(WorkshopEquipment(equipment_id=equipment_id, workshop_id=workshop_id, equipment_per_attendee=per_attendee, equipment_quantity=equipment_quantity))
+    db_session.commit()
 
 def add_equipment_entries(equipment_id, quantity):
     return_nums = []

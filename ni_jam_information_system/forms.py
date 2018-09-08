@@ -5,7 +5,7 @@ from wtforms import Form, BooleanField, StringField, PasswordField, IntegerField
 from wtforms_components import TimeField
 from flask import g, Flask, current_app
 
-from database import get_volunteers_to_select, get_workshops_to_select, get_individual_time_slots_to_select, get_workshop_rooms, get_equipment_groups
+from database import get_volunteers_to_select, get_workshops_to_select, get_individual_time_slots_to_select, get_workshop_rooms, get_equipment_groups, get_all_equipment
 
 
 class CreateWorkshopForm(Form):
@@ -68,12 +68,14 @@ class ResetPasswordForm(Form):
 
 
 class UploadFileForm(FlaskForm):
-        file_title = StringField("File title (optional)",)
-        file_permission = SelectField("Visibility level", choices=[("Public", "Public"), ("Jam team only", "Jam team only")])
-        upload = FileField('File', validators=[
-            FileRequired(),
-            FileAllowed(("pdf", "ppt", "pptx", "py"), 'Should be a PDF or Powerpoint file!')
-        ])
+    class Meta:
+        csrf = False
+    file_title = StringField("File title (optional)",)
+    file_permission = SelectField("Visibility level", choices=[("Public", "Public"), ("Jam team only", "Jam team only")])
+    upload = FileField('File', validators=[
+        FileRequired(),
+        FileAllowed(("pdf", "ppt", "pptx", "py"), 'Should be a PDF or Powerpoint file!')
+    ])
 
 
 class InventoryForm(Form):
@@ -101,3 +103,14 @@ class SlotForm(Form):
     slot_id = HiddenField("Workshop ID", default="")
     slot_time_start = TimeField("Slot time start", [validators.DataRequired()])
     slot_time_end = TimeField("Slot time finish", [validators.DataRequired()])
+    
+    
+class EquipmentAddToWorkshopForm(FlaskForm):
+    equipment_name = SelectField("Equipment name")
+    equipment_quantity_needed = IntegerField("Equipment quantity", [validators.DataRequired()])
+    per_attendee = RadioField("Allocation", choices=[("True", "Per attendee"), ("False", "Shared equipment")])
+    
+    def __init__(self, *args, **kwargs):
+        super(EquipmentAddToWorkshopForm, self).__init__(*args, **kwargs)
+        self.equipment_name.choices = [(str(equipment.equipment_id), equipment.equipment_name) for equipment in get_all_equipment()]
+    
