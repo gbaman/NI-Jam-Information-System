@@ -37,6 +37,8 @@ def first_time_setup():
         db_session.add(Group(group_id=2, group_name="Attendee"))
         db_session.add(Group(group_id=3, group_name="Volunteer"))
         db_session.add(Group(group_id=4, group_name="SuperAdmin"))
+        db_session.add(EquipmentGroup(equipment_group_id=0, equipment_group_name="Default equipment group"))
+        db_session.commit()
         return True
     return False
 
