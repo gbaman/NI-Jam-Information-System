@@ -7,6 +7,7 @@
 <p>You are now logged in. Select an NIJIS admin option below.</p>
 
 {% if modules_enabled.module_workshops %}
+<h4>Workshops</h4>
 <a href="/admin/manage_workshop_catalog" class="btn btn-primary" role="button">Manage Workshop Catalog</a> <br>
 <br>
 {% endif %}
@@ -15,6 +16,7 @@
 <br>
 {% endif %}
 {% if modules_enabled.module_volunteer_signup %}
+<h4>Volunteers</h4>
 <a href="/admin/volunteer" class="btn btn-primary" role="button">Volunteer Signup</a><br>
 <br>
 {% endif %}
@@ -22,6 +24,18 @@
 <a href="/admin/volunteer_attendance" class="btn btn-primary" role="button">Volunteer Attendance</a> <br>
 <br>
 {% endif %}
+
+{% if modules_enabled.module_equipment %}
+<h4>Inventory/Equipment</h4>
+<a href="/admin/manage_inventories" class="btn btn-primary" role="button">Manage Inventories</a><br>
+<br>
+{% endif %}
+{% if modules_enabled.module_equipment %}
+<a href="/admin/manage_equipment" class="btn btn-primary" role="button">Manage Equipment</a><br>
+<br>
+{% endif %}
+
+<h4>Attendees</h4>
 {% if modules_enabled.module_attendees %}
 <a href="/admin/manage_attendees" class="btn btn-primary" role="button">Attendee Management</a><br>
 <br>
@@ -34,14 +48,20 @@
 <a href="/admin/fire_list" class="btn btn-info" role="button">Fire List</a><br>
 <br>
 {% endif %}
-{% if modules_enabled.module_core %}
-<br>
 
+
+{% if modules_enabled.module_core %}
+<h4>Administration</h4>
+<br>
 <a href="/admin/add_jam" class="btn btn-warning" role="button">Add New Jam</a><br>
 <br>
 {% endif %}
 {% if modules_enabled.module_core %}
 <a href="/admin/manage_users" class="btn btn-warning" role="button">User Management</a><br>
+<br>
+{% endif %}
+{% if modules_enabled.module_workshops %}
+<a href="/admin/jam_setup" class="btn btn-warning" role="button">Jam Setup</a><br>
 {% endif %}
 
 {% endblock %}
