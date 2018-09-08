@@ -2,6 +2,8 @@
 
 NIJIS is split into a set of modules that can be enabled/disabled via the config file (found at /config/config.ini). They are
 
+![](images/NIJIS_modules_diagram.jpg)
+
 ## Core
 #### module_core
  - Home page
@@ -33,6 +35,7 @@ Depends on Core, Workshops and Public Schedule being enabled.
 Depends on Core being enabled.
  - Workshop catalog
  - Workshop scheduling
+ - Jam setup
  
  
 ## Volunteer attendance
@@ -51,3 +54,9 @@ Depends on Core and Workshops being enabled.
 Depends on Core and Volunteer Attendance being enabled.
  - Jam info
  - Users not responded
+
+## Equipment
+#### module_equipment
+Depends on Core and Workshops being enabled.
+ - Equipment
+ - Inventories

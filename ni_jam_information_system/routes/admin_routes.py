@@ -305,7 +305,7 @@ def wrangler_overview():
 @admin_routes.route('/admin/jam_setup/slot/<slot_id>', methods=['GET', 'POST'])
 @admin_routes.route('/admin/jam_setup/room/<room_id>', methods=['GET', 'POST'])
 @super_admin_required
-@module_core_required
+@module_workshops_required
 def jam_setup(slot_id=None, room_id=None):
     room_form = forms.RoomForm(request.form)
     slot_form = forms.SlotForm(request.form)
