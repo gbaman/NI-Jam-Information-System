@@ -576,7 +576,10 @@ def remove_jam(jam_id):
 
 def select_jam(jam_id):
     config_option = db_session.query(Configuration).filter(Configuration.config_name == "jam_id").first()
-    config_option.config_value = str(jam_id)
+    if config_option:
+        config_option.config_value = str(jam_id)
+    else:
+        db_session.add(Configuration(config_name="jam_id", config_value=jam_id))
     db_session.commit()
 
 
