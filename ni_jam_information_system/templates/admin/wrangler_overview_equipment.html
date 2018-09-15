@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+{% for slot in slots %}
+<h1>Wrangler Overview - Slot {{loop.index0}}</h1>
+<h3>{{raspberry_jam}}</h3>
+    <h3>{{slot.slot_time_start}} - {{slot.slot_time_end}}</h3>
+    <table class="table table-hover, table-bordered">
+        <tr bgcolor="#d3d3d3">
+        <th>Workshop title</th>
+        <th>Workshop room</th>
+        <th>Equipment</th>
+        <th>Volunteers</th>
+    </tr>
+        
+    {% for workshop in slot.workshops_in_slot %}
+    {% if workshop.jam_id == jam_id %}
+    <tr>
+        <td>{{workshop.workshop.workshop_title}}</td>
+        <td>{{workshop.workshop_room.room_name}}</td>
+        
+        <td>
+            {% for equipment in workshop.workshop.workshop_equipment %}
+            {% if equipment.equipment_per_attendee %}
+                {% if workshop.workshop.workshop_limit|int < workshop.workshop_room.room_capacity|int %}
+                    <p>☐ x{{equipment.equipment_quantity|int * workshop.workshop.workshop_limit|int }} {{equipment.equipment.equipment_name}} </p>
+                {% else %}
+                    <p>☐ x{{equipment.equipment_quantity|int * workshop.workshop_room.room_capacity|int }} {{equipment.equipment.equipment_name}} </p>
+                {% endif %}
+            {% else %}
+                <p>☐ x{{equipment.equipment_quantity}} {{equipment.equipment.equipment_name}} </p>
+            {% endif %}
+            {% endfor %}
+        </td>
+        
+        <td>
+            {% for volunteer in workshop.users %}
+            <p>☐ {{volunteer.first_name}} {{volunteer.surname}} </p>
+            {% endfor %}
+        </td>
+    </tr>
+    
+    {% endif %}
+    {% endfor %}
+    
+    </table>
+<div class="pagebreak"> </div>
+
+{% endfor %}
+
+
+{% endblock %}

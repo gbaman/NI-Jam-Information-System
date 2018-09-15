@@ -158,7 +158,8 @@ class Workshop(Base):
     workshop_archived = Column(Integer)
 
     workshop_files = relationship('WorkshopFile')
-    workshop_equipment = relationship("Equipment", secondary="workshop_equipment")
+    #workshop_equipment = relationship("Equipment", secondary="workshop_equipment")
+    workshop_equipment = relationship('WorkshopEquipment')
 
 
 class WorkshopAttendee(Base):
