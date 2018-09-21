@@ -16,12 +16,14 @@ To install, run the following command from inside the `ni_jam_information_system
 python3 setup.py install
 ```    
 
-Then setup your MySQL database, using the model found in the database folder. Once setup, rename secrets/config_example.py to secrets/config.py and populate it.   
+As well as the required libraries, you also need a MySQL server set up. Create a schema to use for NIJIS (default is just NIJIS). 
+Once your schema is created, copy secrets/config_example.py to secrets/config.py and populate it.   
 
 To start the project 
 ```bash
 python3 main.py
 ```   
+On first run, keep an eye on the console as it will ask for details for super admin account.
 
 If running a full scale setup, it should be run by Gunicorn with a proxy in front (like Nginx).
 
