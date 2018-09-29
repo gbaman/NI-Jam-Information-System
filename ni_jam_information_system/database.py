@@ -388,7 +388,7 @@ def create_user(username, password_hash, password_salt, first_name, surname, ema
     db_session.commit()
 
 
-def add_workshop_to_jam_from_catalog(jam_id, workshop_id, volunteer_id, slot_id, room_id, pilot):
+def add_workshop_to_jam_from_catalog(jam_id, workshop_id, volunteer_id, slot_id, room_id, pilot, card_uuid=None):
     # TODO : Add a whole pile of checks here including if the volunteer is double booked, room is double booked etc.
     workshop = RaspberryJamWorkshop()
     workshop.jam_id = jam_id
@@ -396,6 +396,7 @@ def add_workshop_to_jam_from_catalog(jam_id, workshop_id, volunteer_id, slot_id,
     workshop.slot_id = slot_id
     workshop.workshop_room_id = room_id
     workshop.pilot = pilot
+    workshop.card_uuid = card_uuid
     if volunteer_id and int(volunteer_id) >= 0: # If the None user has been selected, then hit the else
         if workshop.users:
             workshop.users.append(db_session.query(LoginUser).filter(LoginUser.user_id == volunteer_id).first())
@@ -949,7 +950,11 @@ def remove_room(room_id):
     db_session.commit()
     
 
-def get_all_scheduled_workshops():
+def get_all_scheduled_workshops() -> List[RaspberryJamWorkshop]:
     workshops = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.jam_id == get_current_jam_id()).all()
     return workshops
     
+    
+def get_workshop_run_from_card_uuid(card_uuid) -> RaspberryJamWorkshop:
+    result = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.card_uuid == card_uuid).first()
+    return result

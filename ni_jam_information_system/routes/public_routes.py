@@ -132,7 +132,7 @@ def mozfest_import_workshops():
                         break
                 if not workshop_found:
                     database.add_workshop(None, card.attached_issue.title, "N/A", 100, "Beginner", card.attached_issue.url, 0)
-
+    return "Done"
 
 @public_routes.route("/mozfest_import")
 @module_core_required
@@ -143,6 +143,9 @@ def mozfest_import():
     rooms = database.get_workshop_rooms_objects()
     workshops_available = database.get_workshops_to_select()
     time_slots = database.get_time_slots_objects()
+
+    matched_card_ids = []
+    
     for column in results:
         if column.name.startswith("#") or column.name.startswith("@") or "!all-day" in column.name:
             continue
@@ -154,8 +157,7 @@ def mozfest_import():
                 break
         if not found_room:
             continue
-        
-        
+
         for card in column.cards:
             if card and card.attached_issue:
                 workshop_found = False
@@ -172,7 +174,22 @@ def mozfest_import():
                             
                             break
                     if time_slot_found:
-                        database.add_workshop_to_jam_from_catalog(database.get_current_jam_id(), workshop_found.workshop_id, None, time_slot_found.slot_id, found_room.room_id, False)
-                        print("I can add a {} to {} at {}".format(workshop_found.workshop_title, found_room.room_name, time_slot_found.slot_time_start))
+                        existing_session = database.get_workshop_run_from_card_uuid(card.id)
+                        if existing_session:
+                            if existing_session.workshop_id == workshop_found.workshop_id and existing_session.slot_id == time_slot_found.slot_id and existing_session.workshop_room_id == found_room.room_id:
+                                pass
+                            else:
+                                print("Changing workshop {} from room {} at {} to room {} at {}".format(existing_session.workshop.workshop_title, existing_session.workshop_room.room_name, existing_session.workshop_time_slot, found_room.room_name, time_slot_found.slot_id))
+                                database.remove_workshop_from_jam(existing_session.workshop_run_id)
+                                database.add_workshop_to_jam_from_catalog(database.get_current_jam_id(), workshop_found.workshop_id, None, time_slot_found.slot_id, found_room.room_id, False, card.id)
+                        else:
+                            database.add_workshop_to_jam_from_catalog(database.get_current_jam_id(), workshop_found.workshop_id, None, time_slot_found.slot_id, found_room.room_id, False, card.id)
+                            print("I can add a {} to {} at {}".format(workshop_found.workshop_title, found_room.room_name, time_slot_found.slot_time_start))
+                        matched_card_ids.append(card.id)
+                        
+    workshops = database.get_all_scheduled_workshops()
+    for workshop in workshops:
+        if not workshop.card_uuid in matched_card_ids:
+            database.remove_workshop_from_jam(workshop.workshop_run_id)
     
-    print()
+    return "Done"
