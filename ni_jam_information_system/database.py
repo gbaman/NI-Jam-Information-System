@@ -5,6 +5,7 @@ import uuid
 import os
 
 import math
+from typing import List
 
 from models import *
 from eventbrite_interactions import get_eventbrite_attendees_for_event
@@ -196,7 +197,7 @@ def get_volunteers_to_select():
     return to_return
 
 
-def get_workshops_to_select(show_archived=False):
+def get_workshops_to_select(show_archived=False) -> List[Workshop]:
     workshops = db_session.query(Workshop)
     if show_archived:
         return workshops
@@ -214,7 +215,7 @@ def get_individual_time_slots_to_select():
         to_return.append((time_slots.slot_id, str(time_slots.slot_time_start)))
     return to_return
 
-def get_time_slots_objects():
+def get_time_slots_objects() -> List[WorkshopSlot]:
     slots = db_session.query(WorkshopSlot).order_by(WorkshopSlot.slot_time_start)
     for slot in slots: # TODO : Need to figure out how to subtract 2 datetime.time objects...
         #slot.slot_duration = datetime.datetime(slot.slot_time_end) - datetime.datetime(slot.slot_time_start)
@@ -229,7 +230,7 @@ def get_workshop_rooms():
     return to_return
 
 
-def get_workshop_rooms_objects():
+def get_workshop_rooms_objects() -> List[WorkshopRoom]:
     rooms = db_session.query(WorkshopRoom)
     return rooms
 
@@ -395,7 +396,7 @@ def add_workshop_to_jam_from_catalog(jam_id, workshop_id, volunteer_id, slot_id,
     workshop.slot_id = slot_id
     workshop.workshop_room_id = room_id
     workshop.pilot = pilot
-    if int(volunteer_id) >= 0: # If the None user has been selected, then hit the else
+    if volunteer_id and int(volunteer_id) >= 0: # If the None user has been selected, then hit the else
         if workshop.users:
             workshop.users.append(db_session.query(LoginUser).filter(LoginUser.user_id == volunteer_id).first())
         else:
@@ -946,3 +947,9 @@ def remove_room(room_id):
     room = db_session.query(WorkshopRoom).filter(WorkshopRoom.room_id == int(room_id)).first()
     db_session.delete(room)
     db_session.commit()
+    
+
+def get_all_scheduled_workshops():
+    workshops = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.jam_id == get_current_jam_id()).all()
+    return workshops
+    
