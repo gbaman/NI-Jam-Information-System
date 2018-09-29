@@ -119,6 +119,7 @@ class RaspberryJamWorkshop(Base):
     workshop_time_slot = Column(String(45))
     slot_id = Column(ForeignKey('workshop_slots.slot_id'), primary_key=True, nullable=False, index=True)
     pilot = Column(Integer, nullable=False, server_default=text("'0'"))
+    card_uuid = Column(String(60), nullable=True)
 
     jam = relationship('RaspberryJam')
     slot = relationship('WorkshopSlot')
@@ -188,6 +189,7 @@ class WorkshopSlot(Base):
     slot_id = Column(Integer, primary_key=True)
     slot_time_start = Column(Time, nullable=False)
     slot_time_end = Column(Time, nullable=False)
+    slot_day = Column(String(45))
     workshops_in_slot = relationship("RaspberryJamWorkshop")
 
 
