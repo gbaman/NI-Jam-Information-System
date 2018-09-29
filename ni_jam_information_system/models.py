@@ -148,7 +148,7 @@ class Workshop(Base):
     __tablename__ = 'workshop'
 
     workshop_id = Column(Integer, primary_key=True)
-    workshop_title = Column(String(45), nullable=False)
+    workshop_title = Column(String(100), nullable=False)
     workshop_limit = Column(Integer, nullable=False)
     workshop_description = Column(String(500))
     workshop_level = Column(String(45))
