@@ -2,6 +2,8 @@ import uuid
 from flask import Flask, render_template, request
 from flask_uploads import UploadSet, configure_uploads, ALL
 
+from secrets.config import email_username, email_password
+
 import logins
 import database as database
 import configuration
@@ -30,6 +32,17 @@ files = UploadSet("jamDocs", SUPPORTED_FILES)
 app.config["UPLOADS_DEFAULT_DEST"] = "static/files"
 app.config["WTF_CSRF_ENABLED"] = False
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+
+mail_settings = {
+    "MAIL_SERVER": 'smtp.gmail.com',
+    "MAIL_PORT": 465,
+    "MAIL_USE_TLS": False,
+    "MAIL_USE_SSL": True,
+    "MAIL_USERNAME": email_username,
+    "MAIL_PASSWORD": email_password
+}
+
+app.config.update(mail_settings)
 
 configure_uploads(app, files)
 

@@ -113,4 +113,7 @@ class EquipmentAddToWorkshopForm(FlaskForm):
     def __init__(self, *args, **kwargs):
         super(EquipmentAddToWorkshopForm, self).__init__(*args, **kwargs)
         self.equipment_name.choices = [(str(equipment.equipment_id), equipment.equipment_name) for equipment in get_all_equipment()]
-    
+
+
+class MagicLoginForm(Form):
+    email = StringField("Email address", [validators.DataRequired()])

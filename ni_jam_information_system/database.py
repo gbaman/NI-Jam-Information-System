@@ -427,8 +427,8 @@ def get_cookie(cookie_value):
 
 
 def new_cookie_for_user(user_id):
-    new_cookie_value = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))
-    new_cookie_expiry = datetime.datetime.now() + datetime.timedelta(hours=24)
+    new_cookie_value = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(40))
+    new_cookie_expiry = datetime.datetime.now() + datetime.timedelta(hours=48)
     new_cookie = LoginCookie(cookie_value=new_cookie_value, user_id=user_id, cookie_expiry=new_cookie_expiry)
     db_session.add(new_cookie)
     db_session.commit()
@@ -957,4 +957,9 @@ def get_all_scheduled_workshops() -> List[RaspberryJamWorkshop]:
     
 def get_workshop_run_from_card_uuid(card_uuid) -> RaspberryJamWorkshop:
     result = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.card_uuid == card_uuid).first()
+    return result
+
+
+def validate_email_address_in_system(email) -> LoginUser:
+    result = db_session.query(LoginUser).filter(LoginUser.email == email, LoginUser.active == 1).first()
     return result

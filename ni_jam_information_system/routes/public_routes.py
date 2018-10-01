@@ -1,3 +1,8 @@
+import random
+
+import emails
+import time
+
 from flask import Blueprint, render_template, request, make_response, redirect, flash, send_file, abort
 import database
 from datetime import datetime, timedelta
@@ -191,5 +196,32 @@ def mozfest_import():
     for workshop in workshops:
         if not workshop.card_uuid in matched_card_ids:
             database.remove_workshop_from_jam(workshop.workshop_run_id)
-    
     return "Done"
+
+
+@public_routes.route("/magic_login", methods=['GET', 'POST'])
+def magic_login():
+    form = forms.MagicLoginForm(request.form)
+    if request.method == 'POST' and form.validate():
+        user = database.validate_email_address_in_system(form.email.data)
+        if user:
+            cookie = database.new_cookie_for_user(user.user_id)
+            emails.send_cookie_login_email(user.email, cookie)
+        else:
+            time.sleep(random.random())
+        flash("If this email address exists, a login link has been sent to it.", "success")
+
+        return render_template("magic_login.html", form=form)
+    return render_template("magic_login.html", next=next, form=form)
+
+
+@public_routes.route("/magic/<cookie>")
+def magic_link(cookie):
+    if logins.validate_cookie(cookie):
+        resp = make_response(redirect('admin/admin_home'))
+        resp.set_cookie("jam_login", cookie)
+        return resp
+        
+        #return redirect('admin/admin_home')
+    else:
+        flash("Error, login token invalid. It may have expired or timed out, please request another link", "danger")
