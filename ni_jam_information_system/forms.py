@@ -74,7 +74,7 @@ class UploadFileForm(FlaskForm):
     file_permission = SelectField("Visibility level", choices=[("Public", "Public"), ("Jam team only", "Jam team only")])
     upload = FileField('File', validators=[
         FileRequired(),
-        FileAllowed(("pdf", "ppt", "pptx", "py"), 'Should be a PDF or Powerpoint file!')
+        FileAllowed(("pdf", "ppt", "pptx", "py", "txt"), 'Should be a PDF or txt or Powerpoint file!')
     ])
 
 

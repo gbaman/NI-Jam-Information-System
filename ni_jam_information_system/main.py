@@ -26,7 +26,7 @@ from routes.misc_routes import misc_routes
 
 
 # Setup files uploading with flask_uploads
-SUPPORTED_FILES = tuple("pdf ppt py".split())
+SUPPORTED_FILES = tuple("pdf ppt py txt".split())
 files = UploadSet("jamDocs", SUPPORTED_FILES)
 
 app.config["UPLOADS_DEFAULT_DEST"] = "static/files"
