@@ -5,6 +5,8 @@ NIJIS is a system built for the Northern Ireland Raspberry Jam to manage a numbe
 - Volunteer on the day management.
 - Attendee management (for front desk).
 - Fire list (who is in the building).
+- Full equipment management with support for inventories.
+- On the day "wrangler" (coordinator) printable sheet generating.
 
 The current list of features, along with what is still be worked on can be found in the [Proposed spec](NIJIS-spec.md)   .
 
