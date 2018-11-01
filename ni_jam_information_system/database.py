@@ -7,6 +7,7 @@ import os
 import math
 from typing import List, Union
 
+
 from models import *
 from eventbrite_interactions import get_eventbrite_attendees_for_event
 import datetime
@@ -197,7 +198,7 @@ def get_volunteers_to_select():
     return to_return
 
 
-def get_workshops_to_select(show_archived=False):
+def get_workshops_to_select(show_archived=False) -> List[Workshop]:
     workshops = db_session.query(Workshop)
     if show_archived:
         return workshops
@@ -215,7 +216,7 @@ def get_individual_time_slots_to_select():
         to_return.append((time_slots.slot_id, str(time_slots.slot_time_start)))
     return to_return
 
-def get_time_slots_objects():
+def get_time_slots_objects() -> List[WorkshopSlot]:
     slots = db_session.query(WorkshopSlot).order_by(WorkshopSlot.slot_time_start)
     for slot in slots: # TODO : Need to figure out how to subtract 2 datetime.time objects...
         #slot.slot_duration = datetime.datetime(slot.slot_time_end) - datetime.datetime(slot.slot_time_start)
@@ -230,7 +231,7 @@ def get_workshop_rooms():
     return to_return
 
 
-def get_workshop_rooms_objects():
+def get_workshop_rooms_objects() -> List[WorkshopRoom]:
     rooms = db_session.query(WorkshopRoom)
     return rooms
 
@@ -388,7 +389,7 @@ def create_user(username, password_hash, password_salt, first_name, surname, ema
     db_session.commit()
 
 
-def add_workshop_to_jam_from_catalog(jam_id, workshop_id, volunteer_id, slot_id, room_id, pilot):
+def add_workshop_to_jam_from_catalog(jam_id, workshop_id, volunteer_id, slot_id, room_id, pilot, card_uuid=None):
     # TODO : Add a whole pile of checks here including if the volunteer is double booked, room is double booked etc.
     workshop = RaspberryJamWorkshop()
     workshop.jam_id = jam_id
@@ -396,7 +397,8 @@ def add_workshop_to_jam_from_catalog(jam_id, workshop_id, volunteer_id, slot_id,
     workshop.slot_id = slot_id
     workshop.workshop_room_id = room_id
     workshop.pilot = pilot
-    if int(volunteer_id) >= 0: # If the None user has been selected, then hit the else
+    workshop.card_uuid = card_uuid
+    if volunteer_id and int(volunteer_id) >= 0: # If the None user has been selected, then hit the else
         if workshop.users:
             workshop.users.append(db_session.query(LoginUser).filter(LoginUser.user_id == volunteer_id).first())
         else:
@@ -426,8 +428,8 @@ def get_cookie(cookie_value):
 
 
 def new_cookie_for_user(user_id):
-    new_cookie_value = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))
-    new_cookie_expiry = datetime.datetime.now() + datetime.timedelta(hours=24)
+    new_cookie_value = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(40))
+    new_cookie_expiry = datetime.datetime.now() + datetime.timedelta(hours=48)
     new_cookie = LoginCookie(cookie_value=new_cookie_value, user_id=user_id, cookie_expiry=new_cookie_expiry)
     db_session.add(new_cookie)
     db_session.commit()
@@ -959,3 +961,19 @@ def remove_room(room_id):
 def get_inventory_from_id(inventory_id) -> Inventory:
     inventory = db_session.query(Inventory).filter(Inventory.inventory_id == inventory_id).first()
     return inventory
+    
+
+def get_all_scheduled_workshops() -> List[RaspberryJamWorkshop]:
+    workshops = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.jam_id == get_current_jam_id()).all()
+    return workshops
+    
+    
+def get_workshop_run_from_card_uuid(card_uuid) -> RaspberryJamWorkshop:
+    result = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.card_uuid == card_uuid).first()
+    return result
+
+
+def validate_email_address_in_system(email) -> LoginUser:
+    result = db_session.query(LoginUser).filter(LoginUser.email == email, LoginUser.active == 1).first()
+    return result
+

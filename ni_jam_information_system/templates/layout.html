@@ -90,7 +90,7 @@
                 {% if logged_in_user %}
                     <li><a href="/admin/admin_home"> {{ logged_in_user.first_name|capitalize }} {{ logged_in_user.surname|capitalize }}</a></li>
                 {% else %}
-                    <li><a href="/login"><span class="glyphicon glyphicon-log-in"></span> Volunteer Login</a></li>
+                    <li><a href="/magic_login"><span class="glyphicon glyphicon-log-in"></span> Volunteer Login</a></li>
                 {% endif %}
             </ul>
         </div>

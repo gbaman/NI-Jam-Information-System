@@ -3,21 +3,21 @@
 {% block content %}
 
 <h2>Admin Home Page</h2>
-<h3>The current selected Jam is - {{ eventbrite_event_name }}</h3>
-<p>You are now logged in. Select an NIJIS admin option below.</p>
+<h3>The current selected event is - {{ eventbrite_event_name }}</h3>
+<p>You are now logged in. Select an option below</p>
 
 {% if modules_enabled.module_workshops %}
 <h4>Workshops</h4>
-<a href="/admin/manage_workshop_catalog" class="btn btn-primary" role="button">Manage Workshop Catalog</a> <br>
+<a href="/admin/manage_workshop_catalog" class="btn btn-primary" role="button">Manage Workshop Catalog</a> <---- Want to upload a worksheet for printing or add equipment to your workshop? <br>
 <br>
 {% endif %}
 {% if modules_enabled.module_workshops %}
-<a href="/admin/add_workshop_to_jam" class="btn btn-primary" role="button">Manage Upcoming Jam Workshop Schedule</a><br>
+<a href="/admin/add_workshop_to_jam" class="btn btn-primary" role="button">Manage Upcoming Jam Workshop Schedule</a> <---- Ignore this one. <br>
 <br>
 {% endif %}
 {% if modules_enabled.module_volunteer_signup %}
 <h4>Volunteers</h4>
-<a href="/admin/volunteer" class="btn btn-primary" role="button">Volunteer Signup</a><br>
+<a href="/admin/volunteer" class="btn btn-primary" role="button">Volunteer Signup</a> <---- Sign up to volunteer for workshops here. But hold off till Wednesday 24th Oct.<br>
 <br>
 {% endif %}
 {% if modules_enabled.module_volunteer_attendance %}
@@ -27,25 +27,25 @@
 
 {% if modules_enabled.module_equipment %}
 <h4>Inventory/Equipment</h4>
-<a href="/admin/manage_inventories" class="btn btn-primary" role="button">Manage Inventories</a><br>
+<a href="/admin/manage_inventories" class="btn btn-primary" role="button">Manage Inventories</a> <---- Ignore this one.<br>
 <br>
 {% endif %}
 {% if modules_enabled.module_equipment %}
-<a href="/admin/manage_equipment" class="btn btn-primary" role="button">Manage Equipment</a><br>
+<a href="/admin/manage_equipment" class="btn btn-primary" role="button">Manage Equipment</a> <---- Want to add some equipment to the system (to be able to use in your workshop)?.<br>
 <br>
 {% endif %}
 
 <h4>Attendees</h4>
 {% if modules_enabled.module_attendees %}
-<a href="/admin/manage_attendees" class="btn btn-primary" role="button">Attendee Management</a><br>
+<a href="/admin/manage_attendees" class="btn btn-primary" role="button">Attendee Management</a> <---- Ignore this one.<br>
 <br>
 {% endif %}
 {% if modules_enabled.module_attendees %}
-<a href="/admin/attendee_list" class="btn btn-info" role="button">Attendee List</a><br>
+<a href="/admin/attendee_list" class="btn btn-info" role="button">Attendee List</a> <---- Ignore this one.<br>
 <br>
 {% endif %}
 {% if modules_enabled.module_attendees %}
-<a href="/admin/fire_list" class="btn btn-info" role="button">Fire List</a><br>
+<a href="/admin/fire_list" class="btn btn-info" role="button">Fire List</a> <---- Ignore this one.<br>
 <br>
 {% endif %}
 
@@ -53,15 +53,15 @@
 {% if modules_enabled.module_core %}
 <h4>Administration</h4>
 <br>
-<a href="/admin/add_jam" class="btn btn-warning" role="button">Add New Jam</a><br>
+<a href="/admin/add_jam" class="btn btn-warning" role="button">Add New Jam</a> <---- Ignore this one.<br>
 <br>
 {% endif %}
 {% if modules_enabled.module_core %}
-<a href="/admin/manage_users" class="btn btn-warning" role="button">User Management</a><br>
+<a href="/admin/manage_users" class="btn btn-warning" role="button">User Management</a> <---- Ignore this one.<br>
 <br>
 {% endif %}
 {% if modules_enabled.module_workshops %}
-<a href="/admin/jam_setup" class="btn btn-warning" role="button">Jam Setup</a><br>
+<a href="/admin/jam_setup" class="btn btn-warning" role="button">Jam Setup</a> <---- Ignore this one.<br>
 {% endif %}
 
 {% endblock %}

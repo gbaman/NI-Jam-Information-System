@@ -3,6 +3,7 @@ flask_mysql
 flask_wtf
 flask_bcrypt
 flask-uploads
+flask_mail
 eventbrite
 SQLAlchemy
 wtforms

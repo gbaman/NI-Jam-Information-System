@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <div class="container">
+            <h2>Volunteer Login</h2>
+            <p>Enter your email address and if on the system, you will receive an email to log in with.</p>
+            <form method=post style="max-width: 220px">
+                <dl>
+                    {{ render_field(form.email, class="form-control col-xs-5 col-lg-1") }}
+                </dl>
+                <p><input class="btn btn-primary" type=submit value="Send login email"> <a href="/login" class="btn btn-danger" role="button">Username/password login</a></p>
+                <input type=hidden value="{{ next or '' }}" name=next>
+            </form>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }} alert-dismissible" role="alert">
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <!-- <strong>Title</strong> --> {{ message }}
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+    </div>
+{% endblock %}

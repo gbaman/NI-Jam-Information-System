@@ -1,3 +1,8 @@
+import random
+
+import emails
+import time
+
 from flask import Blueprint, render_template, request, make_response, redirect, flash, send_file, abort
 import database
 from datetime import datetime, timedelta
@@ -112,3 +117,111 @@ def files_download(workshop_id, filename):
         return send_file(file.file_path)
     else:
         abort(404)
+
+@public_routes.route("/mozfest_import_workshops")
+@module_core_required
+def mozfest_import_workshops():
+    import github_queries
+    results = github_queries.get_github_project_data()
+    workshops_available = database.get_workshops_to_select().all()
+    for column in results:
+        if column.name.startswith("#") or column.name.startswith("@") or "!all-day" in column.name:
+            continue
+        found_room = column.name.split("(")[0].strip()
+        for card in column.cards:
+            if card and card.attached_issue:
+                workshop_found = False
+                for workshop_available in workshops_available:
+                    if workshop_available.workshop_title == card.attached_issue.title:
+                        workshop_found = True
+                        break
+                if not workshop_found:
+                    database.add_workshop(None, card.attached_issue.title, "N/A", 100, "Beginner", card.attached_issue.url, 0)
+    return "Done"
+
+@public_routes.route("/mozfest_import")
+@module_core_required
+def mozfest_import():
+    import github_queries
+    results = github_queries.get_github_project_data()
+    workshops = database.get_all_scheduled_workshops()
+    rooms = database.get_workshop_rooms_objects()
+    workshops_available = database.get_workshops_to_select()
+    time_slots = database.get_time_slots_objects()
+
+    matched_card_ids = []
+    
+    for column in results:
+        if column.name.startswith("#") or column.name.startswith("@") or "!all-day" in column.name:
+            continue
+        found_room_string = column.name.split("(")[0].strip()
+        found_room = False
+        for room in rooms:
+            if room.room_name == found_room_string:
+                found_room = room
+                break
+        if not found_room:
+            continue
+
+        for card in column.cards:
+            if card and card.attached_issue:
+                workshop_found = False
+                for workshop_available in workshops_available:
+                    if workshop_available.workshop_title == card.attached_issue.title:
+                        workshop_found = workshop_available
+                        break
+                if workshop_found:
+                    time_slot_found = False
+                    time_slot_string = card.time.split("\r")[0].split(" ")[1]
+                    for time_slot in time_slots:
+                        if time_slot.slot_id == int(time_slot_string.replace("a", "").replace("b", "")):
+                            time_slot_found = time_slot
+                            
+                            break
+                    if time_slot_found:
+                        existing_session = database.get_workshop_run_from_card_uuid(card.id)
+                        if existing_session:
+                            if existing_session.workshop_id == workshop_found.workshop_id and existing_session.slot_id == time_slot_found.slot_id and existing_session.workshop_room_id == found_room.room_id:
+                                pass
+                            else:
+                                print("Changing workshop {} from room {} at {} to room {} at {}".format(existing_session.workshop.workshop_title, existing_session.workshop_room.room_name, existing_session.workshop_time_slot, found_room.room_name, time_slot_found.slot_id))
+                                database.remove_workshop_from_jam(existing_session.workshop_run_id)
+                                database.add_workshop_to_jam_from_catalog(database.get_current_jam_id(), workshop_found.workshop_id, None, time_slot_found.slot_id, found_room.room_id, False, card.id)
+                        else:
+                            database.add_workshop_to_jam_from_catalog(database.get_current_jam_id(), workshop_found.workshop_id, None, time_slot_found.slot_id, found_room.room_id, False, card.id)
+                            print("I can add a {} to {} at {}".format(workshop_found.workshop_title, found_room.room_name, time_slot_found.slot_time_start))
+                        matched_card_ids.append(card.id)
+                        
+    workshops = database.get_all_scheduled_workshops()
+    for workshop in workshops:
+        if not workshop.card_uuid in matched_card_ids:
+            database.remove_workshop_from_jam(workshop.workshop_run_id)
+    return "Done"
+
+
+@public_routes.route("/magic_login", methods=['GET', 'POST'])
+def magic_login():
+    form = forms.MagicLoginForm(request.form)
+    if request.method == 'POST' and form.validate():
+        user = database.validate_email_address_in_system(form.email.data)
+        if user:
+            cookie = database.new_cookie_for_user(user.user_id)
+            emails.send_cookie_login_email(user.email, cookie)
+        else:
+            time.sleep(random.random())
+        flash("If this email address exists, a login link has been sent to it.", "success")
+
+        return render_template("magic_login.html", form=form)
+    return render_template("magic_login.html", next=next, form=form)
+
+
+@public_routes.route("/magic/<cookie>")
+def magic_link(cookie):
+    if logins.validate_cookie(cookie):
+        resp = make_response(redirect('admin/admin_home'))
+        resp.set_cookie("jam_login", cookie)
+        return resp
+        
+        #return redirect('admin/admin_home')
+    else:
+        flash("Error, login token invalid. It may have expired or timed out, please request another link", "danger")

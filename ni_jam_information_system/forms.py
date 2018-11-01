@@ -74,7 +74,7 @@ class UploadFileForm(FlaskForm):
     file_permission = SelectField("Visibility level", choices=[("Public", "Public"), ("Jam team only", "Jam team only")])
     upload = FileField('File', validators=[
         FileRequired(),
-        FileAllowed(("pdf", "ppt", "pptx", "py"), 'Should be a PDF or Powerpoint file!')
+        FileAllowed(("pdf", "ppt", "pptx", "py", "txt"), 'Should be a PDF or txt or Powerpoint file!')
     ])
 
 
@@ -113,4 +113,7 @@ class EquipmentAddToWorkshopForm(FlaskForm):
     def __init__(self, *args, **kwargs):
         super(EquipmentAddToWorkshopForm, self).__init__(*args, **kwargs)
         self.equipment_name.choices = [(str(equipment.equipment_id), equipment.equipment_name) for equipment in get_all_equipment()]
-    
+
+
+class MagicLoginForm(Form):
+    email = StringField("Email address", [validators.DataRequired()])
