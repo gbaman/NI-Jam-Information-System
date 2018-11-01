@@ -5,6 +5,19 @@
 {% for slot in slots %}
 <h1>Wrangler Overview - Slot {{loop.index0}}</h1>
 <h3>{{raspberry_jam}}</h3>
+{% if loop.index0 == 0 %}
+<p>In session 0, the role of the wrangler is to make sure</p>
+ <ol type="1">
+  <li>1. All volunteers are where they should be for registration / car parking.</li>
+  <li>2. All equipment for <b>all workshops</b> throughout the full Jam is in place (and worksheets).</li>
+  <li>3. Once the slot ends, this clipboard must be physically handed to the next wrangler!.</li>
+</ol> 
+
+{% else %}
+<p>At the start of this slot, verify all the volunteers are where they should be, along with all equipment / worksheets as well.</p>
+<p>Half way through the slot, also check up with each volunteer running a workshop.</p>
+<p>Finally, at the end of the workshop, physically hand this clip board to the next wrangler!</p>
+{% endif %}
     <h3>{{slot.slot_time_start}} - {{slot.slot_time_end}}</h3>
     <table class="table table-hover, table-bordered">
         <tr bgcolor="#d3d3d3">
