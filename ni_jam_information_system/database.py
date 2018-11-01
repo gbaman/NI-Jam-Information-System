@@ -5,6 +5,7 @@ import uuid
 import os
 
 import math
+from typing import List, Union
 
 from models import *
 from eventbrite_interactions import get_eventbrite_attendees_for_event
@@ -770,26 +771,33 @@ def get_configuration_item(configuration_key):
     return None
 
 
-def get_equipment_in_inventory(inventory_id):
+def get_equipment_in_inventory(inventory_id) -> List[List[Union[Equipment, int]]]:
+    inventory_id = int(inventory_id)
     equipment_entries = db_session.query(EquipmentEntry).filter(InventoryEquipmentEntry.inventory_id == inventory_id,
                                                    Equipment.equipment_id == EquipmentEntry.equipment_id, # Link the tables up
                                                    EquipmentEntry.equipment_entry_id == InventoryEquipmentEntry.equipment_entry_id).all() # Link the tables up
+    #equipment_entries = []
+    #for entry in equipment_entries_main:
+    #    equipment_entries.append(deepcopy(entry))
+    
     equipment = []
     for equipment_entry in equipment_entries:
         if equipment_entry.attached_equipment not in equipment:
             equipment_entry.attached_equipment.equipment_entries = []
             equipment.append(equipment_entry.attached_equipment)
         equipment_entry.attached_equipment.equipment_entries.append(equipment_entry)
-
+    return_equipment = []
     for single_equipment in equipment: # Add quantities on to individual entries
-        single_equipment.total_quantity = 0
+        total_quantity = 0
         for equipment_entry in single_equipment.equipment_entries:
             for inventory in equipment_entry.equipment_inventories:
                 if inventory.inventory_id == inventory_id:
                     equipment_entry.equipment_quantity = inventory.entry_quantity
-                    single_equipment.total_quantity += inventory.entry_quantity
+                    total_quantity += inventory.entry_quantity
+                    single_equipment.total_quantity = total_quantity
+        return_equipment.append([single_equipment, total_quantity])
 
-    return equipment
+    return return_equipment
 
 
 def get_all_equipment(manual_add_only=False):
@@ -946,3 +954,8 @@ def remove_room(room_id):
     room = db_session.query(WorkshopRoom).filter(WorkshopRoom.room_id == int(room_id)).first()
     db_session.delete(room)
     db_session.commit()
+
+
+def get_inventory_from_id(inventory_id) -> Inventory:
+    inventory = db_session.query(Inventory).filter(Inventory.inventory_id == inventory_id).first()
+    return inventory
