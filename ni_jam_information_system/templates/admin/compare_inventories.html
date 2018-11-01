@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h1>Inventory comparison</h1>
+Comparing between {{inventory1}} and {{inventory2}}.
+<br><br>
+<a href="/admin/manage_inventories" class="btn btn-info" role="button">Return to inventories</a> <br>
+    
+<br>
+<table>
+    <tr>
+        <th>Item name</th>
+        <th>{{inventory1}}</th>
+        <th>{{inventory2}}</th>
+        <th>Difference</th>
+    </tr>
+    {% for line in inventory_comparison %}
+        <tr>
+            {% if line[0] %}
+                <td>{{ line[0][0].equipment_name }}</td>
+            {% else %}
+                <td>{{ line[1][0].equipment_name }}</td>
+            {% endif %}
+        
+            {% if line[0] %}
+                <td>{{ line[0][1] }}</td>
+            {% else %}
+                <td>N/A</td>
+            {% endif %}
+        
+            {% if line[1] %}
+                <td>{{ line[1][1] }}</td>
+            {% else %}
+                <td>N/A</td>
+            {% endif %}
+            
+        {% if not line[2] == None %}
+            {% if line[2] < 0 %}
+                <td bgcolor="#f08080">{{ line[2] }}</td>
+            {% elif line[2] > 0 %}
+                <td bgcolor="#90ee90">{{ line[2] }}</td>
+            {% else %}
+                <td>{{ line[2] }}</td>
+            {% endif %}
+            
+        {% else %}
+            <td bgcolor="#d3d3d3">N/A</td>
+        {% endif %}
+        
+        </tr>
+    {% endfor %}
+    
+</table>
+
+{% endblock %}

@@ -288,6 +288,35 @@ def manage_inventories():
     return render_template("admin/manage_inventories.html", form=form, inventories = database.get_inventories(), current_selected_inventory=current_inventoy)
 
 
+@admin_routes.route("/admin/compare_inventories/<inventory1_id>/<inventory2_id>")
+@volunteer_required
+@module_equipment_required
+def compare_inventories(inventory1_id, inventory2_id):
+    inventory = []
+    inventory1_equipment = database.get_equipment_in_inventory(inventory1_id)
+    inventory2_equipment = database.get_equipment_in_inventory(inventory2_id)
+    for inventory1_item in inventory1_equipment:
+        inventory_line = [inventory1_item, None, None]
+        for inventory2_item in inventory2_equipment:
+            if inventory1_item[0].equipment_id == inventory2_item[0].equipment_id:
+                inventory_line = [inventory1_item, inventory2_item, inventory2_item[1] - inventory1_item[1]]
+        inventory.append(inventory_line)
+    for inventory2_item in inventory2_equipment:
+        for inventory1_item in inventory1_equipment:
+            if inventory1_item[0].equipment_id == inventory2_item[0].equipment_id:
+                continue
+        found = False
+        for item_row in inventory:
+            # Double check not already been added to the list of equipment elsewhere
+            if (item_row[0] and item_row[0][0].equipment_id == inventory2_item[0].equipment_id) or (item_row[1] and item_row[1][0].equipment_id == inventory2_item[0].equipment_id):
+                found = True
+                break
+        if not found:
+            inventory_line = [None, inventory2_item, None]
+            inventory.append(inventory_line)
+    
+    return render_template("admin/compare_inventories.html", inventory1=database.get_inventory_from_id(inventory1_id).inventory_title, inventory2=database.get_inventory_from_id(inventory2_id).inventory_title, inventory_comparison=inventory)
+
 
 @admin_routes.route("/admin/manage_inventory/<inventory_id>")
 @volunteer_required
@@ -490,7 +519,10 @@ def select_inventory():
 @module_equipment_required
 def get_inventory_equipment():
     inventory_id = int(request.form['inventory_id'])
-    equipment = database.get_equipment_in_inventory(inventory_id)
+    equipment_raw = database.get_equipment_in_inventory(inventory_id)
+    equipment = []
+    for item in equipment_raw:
+        equipment.append(item[0])
     to_send = ([dict(equipment_id=e.equipment_id, equipment_name=e.equipment_name, equipment_code=e.equipment_code, total_quantity=e.total_quantity, equipment_entries=[dict(equipment_entry_id=ee.equipment_entry_id, equipment_entry_number=str(ee.equipment_entry_number).zfill(3), equipment_quantity=ee.equipment_quantity) for ee in e.equipment_entries]) for e in equipment])
     return json.dumps(to_send)
 
