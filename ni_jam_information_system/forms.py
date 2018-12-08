@@ -24,6 +24,7 @@ class AddWorkshopToJam(Form):
     slot = SelectField("Time slot", choices=get_individual_time_slots_to_select())
     room = SelectField("Room", choices=get_workshop_rooms())
     pilot = SelectField("Pilot", choices=[("False", "False"), ("True", "True")])
+    pair = SelectField("Pairs required", choices=[("False", "False"), ("True", "True")])
 
     def __init__(self, *args, **kwargs):
         super(AddWorkshopToJam, self).__init__(*args, **kwargs)

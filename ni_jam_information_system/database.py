@@ -270,7 +270,8 @@ def get_time_slots_to_select(jam_id, user_id, admin_mode=False):
                         "attendee_ids":attendee_ids,
                         "workshop_id":workshop.workshop_run_id,
                         "volunteer": volunteer,
-                        "pilot": workshop.pilot}
+                        "pilot": workshop.pilot,
+                        "pair":workshop.pair}
 
         next((x for x in workshop_slots if x["slot_id"] == workshop.slot.slot_id), None)["workshops"].append(new_workshop)
         #workshop_slots[workshop.slot.slot_id]["workshops"].append(new_workshop)
@@ -387,7 +388,7 @@ def create_user(username, password_hash, password_salt, first_name, surname, ema
     db_session.commit()
 
 
-def add_workshop_to_jam_from_catalog(jam_id, workshop_id, volunteer_id, slot_id, room_id, pilot):
+def add_workshop_to_jam_from_catalog(jam_id, workshop_id, volunteer_id, slot_id, room_id, pilot, pair):
     # TODO : Add a whole pile of checks here including if the volunteer is double booked, room is double booked etc.
     workshop = RaspberryJamWorkshop()
     workshop.jam_id = jam_id
@@ -395,6 +396,7 @@ def add_workshop_to_jam_from_catalog(jam_id, workshop_id, volunteer_id, slot_id,
     workshop.slot_id = slot_id
     workshop.workshop_room_id = room_id
     workshop.pilot = pilot
+    workshop.pair = pair
     if int(volunteer_id) >= 0: # If the None user has been selected, then hit the else
         if workshop.users:
             workshop.users.append(db_session.query(LoginUser).filter(LoginUser.user_id == volunteer_id).first())
