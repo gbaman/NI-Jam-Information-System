@@ -1,3 +1,5 @@
+import datetime
+
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, BigInteger, Time, Boolean, text
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship
@@ -140,6 +142,7 @@ class VolunteerAttendance(Base):
     food_attending = Column(Integer)
     notes = Column(String(300))
     current_location = Column(String(15))
+    last_edit_date = Column(DateTime, default=datetime.datetime.utcnow)
 
     jam = relationship('RaspberryJam')
     user = relationship('LoginUser')

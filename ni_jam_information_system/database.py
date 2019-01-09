@@ -626,6 +626,7 @@ def add_volunteer_attendance(jam_id, user_id, attending_jam, attending_setup, at
     attendance.food_attending = attending_food
     attendance.notes = notes
     attendance.current_location = "Not arrived"
+    attendance.last_edit_date = func.current_timestamp()
     if new:
         db_session.add(attendance)
     db_session.commit()
