@@ -4,7 +4,7 @@
 
 <h1>Volunteer Attendance</h1>
 
-<h4>The current selected Jam is - {{ eventbrite_event_name }}</h4>
+<h4>The current selected Jam is - {{ selected_jam.name }} - {{ selected_jam.date.strftime('%d/%m/%Y') }}</h4>
 {%include 'admin/modify_attendance.html'%}
 
 <div class="attendees">

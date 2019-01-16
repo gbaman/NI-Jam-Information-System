@@ -26,7 +26,7 @@ def import_from_eventbrite(jam_id):
 @volunteer_required
 @module_core_required
 def admin_home():
-    return render_template("admin/admin_home.html", eventbrite_event_name = database.get_jam_details(database.get_current_jam_id()).name)
+    return render_template("admin/admin_home.html", selected_jam = database.get_jam_details(database.get_current_jam_id()))
 
 
 @admin_routes.route("/admin/add_jam")
@@ -162,7 +162,7 @@ def volunteer_attendance():
         database.add_volunteer_attendance(database.get_current_jam_id(), request.logged_in_user.user_id, int(literal_eval(form.attending_jam.data)), int(literal_eval(form.attending_setup.data)), int(literal_eval(form.attending_packdown.data)), int(literal_eval(form.attending_food.data)), form.notes.data, form.arrival_time.data)
 
         return redirect(("/admin/volunteer_attendance"), code=302)
-    return render_template("admin/volunteer_attendance.html", form=form, volunteer_attendances=volunteer_attendances, user_id=request.logged_in_user.user_id, eventbrite_event_name = database.get_jam_details(database.get_current_jam_id()).name)
+    return render_template("admin/volunteer_attendance.html", form=form, volunteer_attendances=volunteer_attendances, user_id=request.logged_in_user.user_id, selected_jam = database.get_jam_details(database.get_current_jam_id()))
 
 
 @admin_routes.route("/admin/manage_attendees")

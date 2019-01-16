@@ -712,7 +712,7 @@ def get_jam_details(jam_id):
     jam = db_session.query(RaspberryJam).filter(RaspberryJam.jam_id == jam_id).first()
     if jam:
         return jam
-    return RaspberryJam(name="*** No Jam selected - Please select one from Add Jam ***")
+    return RaspberryJam(name="*** No Jam selected - Please select one from Add Jam ***", date=datetime.datetime.now())
 
 
 def remove_workshop_file(file_id):

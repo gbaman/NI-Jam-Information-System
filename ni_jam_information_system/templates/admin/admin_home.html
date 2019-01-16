@@ -3,7 +3,7 @@
 {% block content %}
 
 <h2>Admin Home Page</h2>
-<h3>The current selected Jam is - {{ eventbrite_event_name }}</h3>
+<h3>The current selected Jam is - {{ selected_jam.name }} - {{ selected_jam.date.strftime('%d/%m/%Y') }}</h3>
 <p>You are now logged in. Select an NIJIS admin option below.</p>
 
 {% if modules_enabled.module_workshops %}

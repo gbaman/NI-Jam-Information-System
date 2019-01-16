@@ -99,7 +99,7 @@ def logout():
 @module_public_schedule_required
 def public_schedule():
     time_slots, workshop_rooms_in_use =database.get_workshop_timetable_data(database.get_current_jam_id())
-    return render_template("public_schedule.html", time_slots = time_slots, workshop_rooms_in_use = workshop_rooms_in_use, total_workshop_rooms=len(workshop_rooms_in_use), container_name = " ", jam_title = database.get_jam_details(database.get_current_jam_id()).name)
+    return render_template("public_schedule.html", time_slots = time_slots, workshop_rooms_in_use = workshop_rooms_in_use, total_workshop_rooms=len(workshop_rooms_in_use), container_name = " ", selected_jam = database.get_jam_details(database.get_current_jam_id()))
 
 
 @public_routes.route("/static/files/<workshop_id>/<filename>")
