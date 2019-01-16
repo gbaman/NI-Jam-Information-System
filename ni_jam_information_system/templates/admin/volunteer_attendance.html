@@ -16,6 +16,7 @@
             <th>Attending Setup</th>
             <th>Attending Packdown</th>
             <th>Attending Food After</th>
+            <th>Arrival time</th>
             <th style="width: 30%">Notes</th>
             <th>Last edited</th>
             <th>Sessions</th>
@@ -45,6 +46,11 @@
                     {% else %}
                         <td bgcolor="#f08080">No</td>
                     {% endif %}
+                    {% if volunteer_attendance.attend.arrival_time == None %}
+                        <td></td>
+                    {% else %}
+                        <td>{{volunteer_attendance.attend.arrival_time.strftime('%H:%M')}}</td>
+                    {% endif %}
                     {% if volunteer_attendance.attend.notes == None %}
                         <td></td>
                     {% else %}
@@ -61,6 +67,7 @@
                     <td bgcolor="orange">Not replied</td>
                     <td bgcolor="orange">Not replied</td>
                     <td bgcolor="orange">Not replied</td>
+                    <td></td>
                     <td></td>
                     <td></td>
                 {% endif %}

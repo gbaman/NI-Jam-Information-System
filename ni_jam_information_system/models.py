@@ -143,6 +143,7 @@ class VolunteerAttendance(Base):
     notes = Column(String(300))
     current_location = Column(String(15))
     last_edit_date = Column(DateTime, default=datetime.datetime.utcnow)
+    arrival_time = Column(Time)
 
     jam = relationship('RaspberryJam')
     user = relationship('LoginUser')

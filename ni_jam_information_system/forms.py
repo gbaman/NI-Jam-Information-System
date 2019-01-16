@@ -4,6 +4,7 @@ from wtforms import Form, BooleanField, StringField, PasswordField, IntegerField
     SelectField, validators, HiddenField, FileField, DateTimeField
 from wtforms_components import TimeField
 from flask import g, Flask, current_app
+import datetime
 
 from database import get_volunteers_to_select, get_workshops_to_select, get_individual_time_slots_to_select, get_workshop_rooms, get_equipment_groups, get_all_equipment
 
@@ -60,6 +61,7 @@ class VolunteerAttendance(Form):
     attending_packdown = SelectField("Attending Packdown", choices=[("False", "False"), ("True", "True")])
     attending_food = SelectField("Attending Food After", choices=[("False", "False"), ("True", "True")])
     notes = TextAreaField("Notes")
+    arrival_time = TimeField("Expected arrival time for Jam", default=datetime.time(hour=11, minute=0))
 
 
 class ResetPasswordForm(Form):
