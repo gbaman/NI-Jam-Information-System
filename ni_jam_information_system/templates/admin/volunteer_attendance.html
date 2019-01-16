@@ -46,7 +46,7 @@
                     {% else %}
                         <td bgcolor="#f08080">No</td>
                     {% endif %}
-                    {% if volunteer_attendance.attend.arrival_time == None %}
+                    {% if volunteer_attendance.attend.arrival_time == None or not volunteer_attendance.attend.volunteer_attending %}
                         <td></td>
                     {% else %}
                         <td>{{volunteer_attendance.attend.arrival_time.strftime('%H:%M')}}</td>
