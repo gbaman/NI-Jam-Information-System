@@ -634,7 +634,7 @@ def add_volunteer_attendance(jam_id, user_id, attending_jam, attending_setup, at
 
 
 def get_users_not_responded_to_attendance(jam_id):
-    all_volunteers = db_session.query(LoginUser).all()
+    all_volunteers = db_session.query(LoginUser).filter(LoginUser.active).all()
     all_volunteers_responded_attendance = db_session.query(VolunteerAttendance).filter(VolunteerAttendance.jam_id == jam_id).all()
     all_volunteers_responded = []
     for volunteer in all_volunteers_responded_attendance:
