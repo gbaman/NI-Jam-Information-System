@@ -262,6 +262,38 @@ class Inventory(Base):
     inventory_date = Column(DateTime(), nullable=False)
 
 
+class AttendeeLogin(Base):
+    __tablename__ = 'attendee_login'
+    attendee_login_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
+    attendee_login_name = Column(String(45), nullable=False)
+    
+
+class AttendeeLoginBadges(Base):
+    __tablename__ = 'attendee_login_badges'
+    attendee_login_id = Column(ForeignKey('attendee_login.attendee_login_id'), primary_key=True, nullable=False, index=True)
+    badge_id = Column(ForeignKey('badge_library.badge_id'), primary_key=True, nullable=False, index=True)
+    badge_award_date = Column(DateTime, nullable=False)
+    
+    
+class BadgeLibrary(Base):
+    __tablename__ = 'badge_library'
+    badge_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
+    badge_name = Column(String(45), nullable=False)
+    badge_description = Column(String(200), nullable=False)
+    badge_hidden = Column(Boolean, nullable=False)
+    badge_children_required_count = Column(Integer, nullable=False)
+    workshop_id = Column(ForeignKey('workshop.workshop_id'), primary_key=False, nullable=True, index=True)
+
+
+class WorkshopDependencies(Base):
+    __tablename__ = 'workshop_dependencies'
+    badge_dependency_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
+    badge_id = Column(ForeignKey('badge_library.badge_id'), primary_key=True, nullable=False, index=True)
+
+    dependency_badge_id = Column(ForeignKey('badge_library.badge_id'), primary_key=True, nullable=False, index=True)
+    badge_awarded_core = Column(Boolean, nullable=False)
+
+
 t_workshop_volunteers = Table(
     'workshop_volunteers', metadata,
     Column('user_id', ForeignKey('login_users.user_id'), primary_key=True, nullable=False, index=True),
