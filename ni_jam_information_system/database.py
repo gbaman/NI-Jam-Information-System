@@ -950,3 +950,43 @@ def remove_room(room_id):
     room = db_session.query(WorkshopRoom).filter(WorkshopRoom.room_id == int(room_id)).first()
     db_session.delete(room)
     db_session.commit()
+    
+
+def get_all_badges(include_hidden=False):
+    badges = db_session.query(BadgeLibrary)
+    if include_hidden:
+        return badges
+    else:
+        return badges.filter((BadgeLibrary.badge_hidden == 0) | (BadgeLibrary.badge_hidden == None))
+    
+
+def add_badge(badge_id, badge_name, badge_description, badge_hidden = False):
+    if badge_id == -1 or not db_session.query(BadgeLibrary).filter(BadgeLibrary.badge_id == badge_id).first(): # New badge
+        badge = BadgeLibrary(badge_name=badge_name, badge_description=badge_description, badge_hidden=badge_hidden, badge_children_required_count=0)
+        db_session.add(badge)
+    else:
+        badge = db_session.query(BadgeLibrary).filter(BadgeLibrary.badge_id == badge_id).first()
+        badge.badge_id = int(badge_id)
+        badge.badge_name = badge_name
+        badge.badge_description = badge_description
+        badge.badge_hidden=badge_hidden
+        
+    db_session.commit()
+    
+
+def get_badge(badge_id):
+    badge = db_session.query(BadgeLibrary).filter(BadgeLibrary.badge_id == badge_id).first()
+    return badge
+
+
+def get_all_dependent_badges(badge_id):
+    dependent_badges = db_session.query(BadgeDependencies).filter(BadgeDependencies.badge_id == badge_id).all()
+    return dependent_badges
+        
+    
+def add_badge_dependency(badge_id, dependent_badge_id, badge_awarded_core):
+    if db_session.query(BadgeDependencies).filter(BadgeDependencies.badge_id == int(badge_id) and BadgeDependencies.dependency_badge_id == int(dependent_badge_id)).first():
+        return False # Already exists
+    badge_dependency = BadgeDependencies(badge_id=badge_id, dependency_badge_id=dependent_badge_id, badge_awarded_core=badge_awarded_core)
+    db_session.add(badge_dependency)
+    db_session.commit()

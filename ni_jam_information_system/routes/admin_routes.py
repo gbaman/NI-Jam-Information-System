@@ -376,6 +376,35 @@ def remote_workshop_room(room_id):
     return redirect(('admin/jam_setup'))
 
 
+@admin_routes.route('/admin/badge', methods=['GET', 'POST'])
+@volunteer_required
+@module_badge_required
+def badge_catalog():
+    form = forms.AddBadgeForm(request.form)
+    if request.method == 'POST' and form.validate():
+        if not database.add_badge(form.badge_id.data, form.badge_name.data, form.badge_description.data):
+            flash("Unable to add badge.", "danger")
+        return redirect(url_for("admin_routes.badge_catalog"))
+    form.badge_id.default = -1
+    return render_template("admin/badge_catalog.html", form=form, badges=database.get_all_badges())
+
+
+@admin_routes.route('/admin/badge/edit/<badge_id>', methods=['GET', 'POST'])
+@volunteer_required
+@module_badge_required
+def badge_edit(badge_id):
+    form = forms.AddBadgeDependencyForm(request.form, badge_id = int(badge_id))
+    if request.method == 'POST' and form.validate():
+        if not database.add_badge_dependency(badge_id, form.badge_id.data, int(literal_eval(form.badge_awarded_core.data))):
+            flash("Unable to add badge dependency.", "danger")
+        else:
+            flash("Badge dependency added.", "success")
+        return redirect(url_for("admin_routes.badge_edit", badge_id=badge_id))
+    #form.badge_id.default = -1
+    return render_template("admin/badge_edit.html", form=form, badge=database.get_badge(badge_id))
+
+
+
 ####################################### AJAX Routes #######################################
 
 

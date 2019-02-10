@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+
+{% block content %}
+{% from "_formhelpers.html" import render_field %}
+
+<h1>Badges</h1>
+<p></p>
+    
+    
+    <form method=post style="max-width: 220px">
+    <dl>
+        {{ render_field(form.badge_name, class = "form-control") }}
+        {{ render_field(form.badge_description, class = "form-control") }}
+        {{ form.badge_id }}
+    </dl>
+    <p><input class="btn btn-primary" type=submit value="Add badge">
+</form>
+    
+<table>
+    <tr>
+        <th>Badge ID</th>
+        <th>Badge name</th>
+        <th>Badge description</th>
+        <th>Configure badge</th>
+    </tr>
+
+    {% for badge in badges %}
+        <tr>
+            <td>{{badge.badge_id}}</td>
+            <td>{{badge.badge_name}}</td>
+            <td>{{badge.badge_description}}</td>
+            <td><a href="/admin/badge/edit/{{badge.badge_id}}" class="btn btn-success" role="button">Edit</a></td>
+        </tr>
+    {% endfor %}
+
+</table>
+
+
+
+{% endblock %}
