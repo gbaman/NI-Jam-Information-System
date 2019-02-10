@@ -133,6 +133,6 @@ class AddBadgeDependencyForm(FlaskForm):
         badge_choices = []
         parent_badge = get_badge(kwargs["badge_id"])
         for badge in get_all_badges(include_hidden=True):
-            if badge.badge_id != int(parent_badge.badge_id) and badge not in parent_badge.dependent_badges:
+            if badge.badge_id != int(parent_badge.badge_id) and not any(b.dependency_badge_id == badge.badge_id for b in parent_badge.dependent_badges):
                 badge_choices.append([badge.badge_id, badge.badge_name])
         self.badge_id.choices = badge_choices

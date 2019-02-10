@@ -980,13 +980,14 @@ def get_badge(badge_id):
 
 
 def get_all_dependent_badges(badge_id):
-    dependent_badges = db_session.query(BadgeDependencies).filter(BadgeDependencies.badge_id == badge_id).all()
+    dependent_badges = db_session.query(BadgeDependencies).filter(BadgeDependencies.parent_badge_id == badge_id).all()
     return dependent_badges
         
     
 def add_badge_dependency(badge_id, dependent_badge_id, badge_awarded_core):
-    if db_session.query(BadgeDependencies).filter(BadgeDependencies.badge_id == int(badge_id) and BadgeDependencies.dependency_badge_id == int(dependent_badge_id)).first():
+    if db_session.query(BadgeDependencies).filter(BadgeDependencies.parent_badge_id == int(badge_id), BadgeDependencies.dependency_badge_id == int(dependent_badge_id)).first():
         return False # Already exists
-    badge_dependency = BadgeDependencies(badge_id=badge_id, dependency_badge_id=dependent_badge_id, badge_awarded_core=badge_awarded_core)
+    badge_dependency = BadgeDependencies(parent_badge_id=badge_id, dependency_badge_id=dependent_badge_id, badge_awarded_core=badge_awarded_core)
     db_session.add(badge_dependency)
     db_session.commit()
+    return True

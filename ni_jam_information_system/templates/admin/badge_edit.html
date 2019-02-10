@@ -44,8 +44,8 @@
 
     {% for dependent_badge in badge.dependent_badges %}
         <tr>
-            <td>{{dependent_badge.badge.badge_name}}</td>
-            <td>{{dependent_badge.badge.badge_description}}</td>
+            <td>{{dependent_badge.dependency_badge.badge_name}}</td>
+            <td>{{dependent_badge.dependency_badge.badge_description}}</td>
             <td><a href="/admin/badge/{{badge.badge_dependency_id}}" class="btn btn-danger" role="button">Delete</a></td>
         </tr>
     {% endfor %}
