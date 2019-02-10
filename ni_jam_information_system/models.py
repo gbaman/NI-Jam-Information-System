@@ -297,6 +297,14 @@ class BadgeLibrary(Base):
     dependent_badges = relationship('BadgeDependencies', foreign_keys=BadgeDependencies.parent_badge_id)
 
 
+class WorkshopBadge(Base):
+    __tablename__ = 'workshop_badge'
+    badge_id = Column(ForeignKey('badge_library.badge_id'), primary_key=True, nullable=False, index=True)
+    workshop_id = Column(ForeignKey('workshop.workshop_id'), primary_key=True, nullable=False, index=True)
+    workshop = relationship('Workshop')
+    badge = relationship('BadgeLibrary')
+
+
 t_workshop_volunteers = Table(
     'workshop_volunteers', metadata,
     Column('user_id', ForeignKey('login_users.user_id'), primary_key=True, nullable=False, index=True),
