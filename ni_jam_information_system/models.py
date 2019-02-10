@@ -273,8 +273,18 @@ class AttendeeLoginBadges(Base):
     attendee_login_id = Column(ForeignKey('attendee_login.attendee_login_id'), primary_key=True, nullable=False, index=True)
     badge_id = Column(ForeignKey('badge_library.badge_id'), primary_key=True, nullable=False, index=True)
     badge_award_date = Column(DateTime, nullable=False)
-    
-    
+
+
+class BadgeDependencies(Base):
+    __tablename__ = 'badge_dependencies'
+    badge_dependency_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
+    badge_id = Column(ForeignKey('badge_library.badge_id'), primary_key=True, nullable=False, index=True)
+    dependency_badge_id = Column(ForeignKey('badge_library.badge_id'), primary_key=True, nullable=False, index=True)
+    badge_awarded_core = Column(Boolean, nullable=False)
+    badge = relationship("BadgeLibrary", foreign_keys=badge_id)
+    dependency_badge = relationship("BadgeLibrary", foreign_keys=dependency_badge_id)
+
+
 class BadgeLibrary(Base):
     __tablename__ = 'badge_library'
     badge_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
@@ -283,15 +293,8 @@ class BadgeLibrary(Base):
     badge_hidden = Column(Boolean, nullable=False)
     badge_children_required_count = Column(Integer, nullable=False)
     workshop_id = Column(ForeignKey('workshop.workshop_id'), primary_key=False, nullable=True, index=True)
-
-
-class WorkshopDependencies(Base):
-    __tablename__ = 'workshop_dependencies'
-    badge_dependency_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
-    badge_id = Column(ForeignKey('badge_library.badge_id'), primary_key=True, nullable=False, index=True)
-
-    dependency_badge_id = Column(ForeignKey('badge_library.badge_id'), primary_key=True, nullable=False, index=True)
-    badge_awarded_core = Column(Boolean, nullable=False)
+    badge_icon_path = Column(String(150), nullable=True)
+    dependent_badges = relationship('BadgeDependencies', foreign_keys=BadgeDependencies.badge_id)
 
 
 t_workshop_volunteers = Table(
