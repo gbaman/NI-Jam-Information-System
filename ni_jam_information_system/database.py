@@ -991,3 +991,21 @@ def add_badge_dependency(badge_id, dependent_badge_id, badge_awarded_core):
     db_session.add(badge_dependency)
     db_session.commit()
     return True
+
+
+def remove_badge_workshop_requirement(workshop_id, badge_id):
+    badge_requirement = db_session.query(WorkshopBadge).filter(WorkshopBadge.workshop_id == workshop_id, WorkshopBadge.badge_id == badge_id).first()
+    db_session.delete(badge_requirement)
+    db_session.commit()
+
+
+def add_badge_to_workshop(workshop_id, badge_id):
+    workshop_badge = WorkshopBadge(workshop_id=workshop_id, badge_id=badge_id)
+    db_session.add(workshop_badge)
+    db_session.commit()
+
+
+def remove_badge_dependency(badge_id, dependency_badge_id):
+    badge_dependency = db_session.query(BadgeDependencies).filter(BadgeDependencies.parent_badge_id == badge_id, BadgeDependencies.dependency_badge_id == dependency_badge_id).first()
+    db_session.delete(badge_dependency)
+    db_session.commit()

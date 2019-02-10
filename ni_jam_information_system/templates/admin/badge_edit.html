@@ -39,6 +39,7 @@
         <th>Dependent badge name</th>
         <th>Dependent badge description</th>
         <th>Badge required</th>
+        <th>Remove dependency</th>
 
     </tr>
 
@@ -46,7 +47,8 @@
         <tr>
             <td>{{dependent_badge.dependency_badge.badge_name}}</td>
             <td>{{dependent_badge.dependency_badge.badge_description}}</td>
-            <td><a href="/admin/badge/{{badge.badge_dependency_id}}" class="btn btn-danger" role="button">Delete</a></td>
+            <td>{{dependent_badge.badge_awarded_core}}</td>
+            <td><a href="/admin/badge/remove_badge_dependency/{{badge.badge_id}}/{{dependent_badge.dependency_badge.badge_id}}" class="btn btn-danger" role="button">Delete</a></td>
         </tr>
     {% endfor %}
 

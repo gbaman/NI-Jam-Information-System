@@ -25,6 +25,11 @@
 <br>
 {% endif %}
 
+{% if modules_enabled.module_volunteer_signup %}
+<a href="/admin/wrangler_overview" class="btn btn-primary" role="button">Wrangler Overview</a> <br>
+<br>
+{% endif %}
+
 {% if modules_enabled.module_equipment %}
 <h4>Inventory/Equipment</h4>
 <a href="/admin/manage_inventories" class="btn btn-primary" role="button">Manage Inventories</a><br>
@@ -49,6 +54,11 @@
 <br>
 {% endif %}
 
+{% if modules_enabled.module_badge %}
+<h4>Badges</h4>
+<a href="/admin/badge" class="btn btn-primary" role="button">Badge catalog</a><br>
+<br>
+{% endif %}
 
 {% if modules_enabled.module_core %}
 <h4>Administration</h4>

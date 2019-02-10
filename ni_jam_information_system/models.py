@@ -165,6 +165,7 @@ class Workshop(Base):
     workshop_files = relationship('WorkshopFile')
     #workshop_equipment = relationship("Equipment", secondary="workshop_equipment")
     workshop_equipment = relationship('WorkshopEquipment')
+    badges = relationship('BadgeLibrary', secondary='workshop_badge')
 
 
 class WorkshopAttendee(Base):

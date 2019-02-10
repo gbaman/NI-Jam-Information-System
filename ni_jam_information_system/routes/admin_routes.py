@@ -249,9 +249,15 @@ def workshop_details(workshop_id):
         per_attendee = False
         if request.form['per_attendee'] == "True": per_attendee = True
         database.add_equipment_to_workshop(equipment_id, workshop_id, equipment_quantity, per_attendee)
-
+    
+    badge_form = forms.AddBadgeWorkshopForm(workshop_id=workshop_id)
+    if badge_form.validate_on_submit():
+        badge_id = int(request.form['badge_id'])
+        database.add_badge_to_workshop(workshop_id, badge_id)
+        return redirect(url_for('admin_routes.workshop_details', workshop_id=workshop_id))
+    
     workshop = database.get_workshop_from_workshop_id(workshop_id)
-    return render_template("admin/workshop_details.html", workshop=workshop, file_form=file_form, equipment_form=equipment_form, equipments=database.get_all_equipment_for_workshop(workshop_id))
+    return render_template("admin/workshop_details.html", workshop=workshop, file_form=file_form, equipment_form=equipment_form, equipments=database.get_all_equipment_for_workshop(workshop_id), badge_form=badge_form)
 
 
 @admin_routes.route("/admin/delete_workshop_file/<file_id>")
@@ -403,6 +409,21 @@ def badge_edit(badge_id):
     #form.badge_id.default = -1
     return render_template("admin/badge_edit.html", form=form, badge=database.get_badge(badge_id))
 
+
+@admin_routes.route('/admin/badge/remove_workshop_requirement/<badge_id>/<workshop_id>')
+@volunteer_required
+@module_badge_required
+def remove_badge_workshop_requirement(badge_id, workshop_id):
+    database.remove_badge_workshop_requirement(workshop_id, badge_id)
+    return redirect(url_for("admin_routes.workshop_details", workshop_id=workshop_id))
+
+
+@admin_routes.route('/admin/badge/remove_badge_dependency/<badge_id>/<dependency_badge_id>')
+@volunteer_required
+@module_badge_required
+def remove_badge_dependency(badge_id, dependency_badge_id):
+    database.remove_badge_dependency(badge_id, dependency_badge_id)
+    return redirect(url_for("admin_routes.badge_edit", badge_id=badge_id))
 
 
 ####################################### AJAX Routes #######################################

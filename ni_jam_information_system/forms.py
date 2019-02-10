@@ -6,7 +6,7 @@ from wtforms_components import TimeField
 from flask import g, Flask, current_app
 import datetime
 
-from database import get_volunteers_to_select, get_workshops_to_select, get_individual_time_slots_to_select, get_workshop_rooms, get_equipment_groups, get_all_equipment, get_all_badges, get_badge
+from database import get_volunteers_to_select, get_workshops_to_select, get_individual_time_slots_to_select, get_workshop_rooms, get_equipment_groups, get_all_equipment, get_all_badges, get_badge, get_workshop_from_workshop_id
 
 
 class CreateWorkshopForm(Form):
@@ -134,5 +134,18 @@ class AddBadgeDependencyForm(FlaskForm):
         parent_badge = get_badge(kwargs["badge_id"])
         for badge in get_all_badges(include_hidden=True):
             if badge.badge_id != int(parent_badge.badge_id) and not any(b.dependency_badge_id == badge.badge_id for b in parent_badge.dependent_badges):
+                badge_choices.append([badge.badge_id, badge.badge_name])
+        self.badge_id.choices = badge_choices
+
+
+class AddBadgeWorkshopForm(FlaskForm):
+    badge_id = SelectField("Badge name", coerce=int)
+    
+    def __init__(self, *args, **kwargs):
+        super(AddBadgeWorkshopForm, self).__init__(*args, **kwargs)
+        badge_choices = []
+        workshop = get_workshop_from_workshop_id(kwargs["workshop_id"])
+        for badge in get_all_badges(include_hidden=True):
+            if not any(b.badge_id == badge.badge_id for b in workshop.badges):
                 badge_choices.append([badge.badge_id, badge.badge_name])
         self.badge_id.choices = badge_choices
