@@ -5,6 +5,7 @@ import uuid
 import os
 
 import math
+from typing import List
 
 from models import *
 from eventbrite_interactions import get_eventbrite_attendees_for_event
@@ -506,7 +507,7 @@ def get_volunteer_data(jam_id, current_user):
     return time_slots, sorted(workshop_rooms_in_use, key=lambda x: x.room_name, reverse=False)
 
 
-def get_workshop_timetable_data(jam_id): # Similar to get_volunteer_data(), but for the large TV with different colouring.
+def get_workshop_timetable_data(jam_id) -> (List[WorkshopSlot], List[WorkshopRoom]): # Similar to get_volunteer_data(), but for the large TV with different colouring.
     time_slots = db_session.query(WorkshopSlot).all()[1:]
 
     workshop_data = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.jam_id == jam_id, RaspberryJamWorkshop.workshop_id == Workshop.workshop_id , Workshop.workshop_hidden != 1).all()

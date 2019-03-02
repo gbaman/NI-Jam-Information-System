@@ -11,6 +11,13 @@ api_routes = Blueprint('api_routes', __name__,
                         template_folder='templates')
 
 
+def verify_token():
+    token = request.headers.get("token")
+    if token and token in api_keys:
+        return True
+    return False
+
+
 @api_routes.route("/api/users_not_responded/<token>")
 @module_api_required
 def get_users_not_responded_to_attendance(token):
@@ -76,3 +83,24 @@ def add_equipment(token):
         if database.add_equipment(equipment_name, str(equipment_code).upper(), equipment_group_id):
             return ""
         abort(400)
+
+
+@api_routes.route("/api/jam_workshops/get_workshops_by_slot")
+@module_api_required
+def get_jam_workshops():
+    if verify_token():
+        jam_id = database.get_current_jam_id()
+        slots, workshop_data = database.get_workshop_timetable_data(jam_id)
+        print()
+        to_return = []
+        for slot in slots:
+            for slot_w in slot.workshops_in_slot:
+                if slot_w.jam_id == jam_id:
+                    pass
+                
+            slot_workshop = {}
+            
+            to_return.append({"slot_start":slot.slot_time_start, "slot_end":slot.slot_time_end})
+    else:
+        return "Invalid token"
+    
