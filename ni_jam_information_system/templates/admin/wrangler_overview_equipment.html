@@ -10,13 +10,16 @@
  <ol type="1">
   <li>1. All volunteers are where they should be for registration / car parking.</li>
   <li>2. All equipment for <b>all workshops</b> throughout the full Jam is in place (and worksheets).</li>
-  <li>3. Once the slot ends, this clipboard must be physically handed to the next wrangler!.</li>
-</ol> 
+  <li>3. Once the slot ends, this clipboard must be physically handed to the next wrangler!</li>
+</ol>
+    <p>Note that workshops that include a worksheet on NIJIS are marked in bold.</p>
 
 {% else %}
 <p>At the start of this slot, verify all the volunteers are where they should be, along with all equipment / worksheets as well.</p>
 <p>Half way through the slot, also check up with each volunteer running a workshop.</p>
 <p>Finally, at the end of the workshop, physically hand this clip board to the next wrangler!</p>
+    
+<p>Note that workshops that include a worksheet on NIJIS are marked in bold.</p>
 {% endif %}
     <h3>{{slot.slot_time_start}} - {{slot.slot_time_end}}</h3>
     <table class="table table-hover, table-bordered">
@@ -30,17 +33,27 @@
     {% for workshop in slot.workshops_in_slot %}
     {% if workshop.jam_id == jam_id %}
     <tr>
-        <td>{{workshop.workshop.workshop_title}}</td>
+        {% if workshop.workshop.workshop_files %}
+            <td><b>{{workshop.workshop.workshop_title}}</b></td>
+        {% else %}
+           <td>{{workshop.workshop.workshop_title}}</td> 
+        {% endif %}
+        
         <td>{{workshop.workshop_room.room_name}}</td>
         
+        {% if workshop.workshop.workshop_limit|int < workshop.workshop_room.room_capacity|int %}
+            {% set max_capacity = workshop.workshop.workshop_limit|int %}
+        {% else %}
+            {% set max_capacity = workshop.workshop_room.room_capacity|int %}
+        {% endif %}
+    
+    
         <td>
+            {% if workshop.workshop.workshop_files %} <p>☐ <a href="/admin/workshop_details/{{ workshop.workshop.workshop_id }}">x{{ max_capacity|int }} Worksheets</a></p> {% endif %}
             {% for equipment in workshop.workshop.workshop_equipment %}
+                
             {% if equipment.equipment_per_attendee %}
-                {% if workshop.workshop.workshop_limit|int < workshop.workshop_room.room_capacity|int %}
-                    <p>☐ x{{equipment.equipment_quantity|int * workshop.workshop.workshop_limit|int }} {{equipment.equipment.equipment_name}} </p>
-                {% else %}
-                    <p>☐ x{{equipment.equipment_quantity|int * workshop.workshop_room.room_capacity|int }} {{equipment.equipment.equipment_name}} </p>
-                {% endif %}
+                <p>☐ x{{equipment.equipment_quantity|int * max_capacity|int }} {{equipment.equipment.equipment_name}} </p>
             {% else %}
                 <p>☐ x{{equipment.equipment_quantity}} {{equipment.equipment.equipment_name}} </p>
             {% endif %}
