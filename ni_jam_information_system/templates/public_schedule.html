@@ -55,5 +55,14 @@
             {% endfor %}
 
         </table>
+        <br>
+        <p align="center">Select a previous Jam - 
+        <label>
+            <select data-width="auto" onchange="location = this.value;" class="selectpicker" data-live-search="true">
+            {% for jam in jams %}
+                <option value="/public_schedule/{{ jam.jam_id }}">{{ jam.name }}</option>
+            {% endfor %}
+        </select>
+        </label></p>
     </div>
 {% endblock %}
