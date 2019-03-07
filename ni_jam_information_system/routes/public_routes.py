@@ -96,10 +96,14 @@ def logout():
 
 
 @public_routes.route("/public_schedule")
+@public_routes.route("/public_schedule/<jam_id>")
 @module_public_schedule_required
-def public_schedule():
-    time_slots, workshop_rooms_in_use =database.get_workshop_timetable_data(database.get_current_jam_id())
-    return render_template("public_schedule.html", time_slots = time_slots, workshop_rooms_in_use = workshop_rooms_in_use, total_workshop_rooms=len(workshop_rooms_in_use), container_name = " ", selected_jam = database.get_jam_details(database.get_current_jam_id()))
+def public_schedule(jam_id=None):
+    if not jam_id: 
+        jam_id = database.get_current_jam_id()
+    jams = database.get_jams_in_db()
+    time_slots, workshop_rooms_in_use =database.get_workshop_timetable_data(jam_id)
+    return render_template("public_schedule.html", time_slots=time_slots, workshop_rooms_in_use=workshop_rooms_in_use, total_workshop_rooms=len(workshop_rooms_in_use), container_name = " ", selected_jam=database.get_jam_details(jam_id), jams=jams)
 
 
 @public_routes.route("/static/files/<workshop_id>/<filename>")
