@@ -43,6 +43,10 @@ app.register_blueprint(misc_routes)
 
 configuration.output_modules_enabled()
 
+if configuration.verify_modules_enabled().module_finance:
+    import google_sheets
+
+
 @app.teardown_appcontext
 def shutdown_session(exception=None):
     database.db_session.remove()

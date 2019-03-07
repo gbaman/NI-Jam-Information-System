@@ -13,6 +13,7 @@ class Modules:
     module_volunteer_signup = ["module_core", "module_volunteer_signup", "module_workshops"]
     module_api = ["module_core", "module_api", "module_volunteer_attendance"]
     module_equipment = ["module_core", "module_equipment", "module_workshops"]
+    module_finance = ["module_core",]
 
 
 def _get_config_file():
