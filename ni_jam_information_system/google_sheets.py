@@ -10,24 +10,6 @@ sheet = client.open_by_key(finance_google_sheet_id)
 
 
 class Transaction():
-    transaction_id = None
-    bank_date = None
-    receipt_date = None
-    supplier = None
-    bank_text = None
-    description = None
-    receipt_url = None
-    paid_out = None
-    paid_in = None
-    payment_by_id = None
-    payment_by = None
-    secondary_approved_by_id = None
-    secondary_approved_by = None
-    verified_by_id = None
-    verified_by = None
-    category = None
-    treasurer_notes = None
-
     def __init__(self, raw_row, offset=1):
         row = raw_row[offset:]
         self.transaction_id = row[0]
@@ -47,7 +29,6 @@ class Transaction():
         self.verified_by = row[14]
         self.category = row[15]
         self.treasurer_notes = [16]
-        print()
 
 
 class Expense():
@@ -65,7 +46,6 @@ class Expense():
         self.secondary_approved_by = row[9]
         self.status = row[10]
         self.rejected_reason = row[11]
-        print()
 
 
 def get_transaction_table(offset=3):
@@ -84,7 +64,7 @@ def get_volunteer_expenses_table(offset=3):
     data = worksheet.get_all_values()[offset:]
     for line in data:
         expense_data.append(Expense(line))
-    
+
     return expense_data
 
 
