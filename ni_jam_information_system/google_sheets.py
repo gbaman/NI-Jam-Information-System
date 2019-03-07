@@ -1,3 +1,5 @@
+import datetime
+
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from secrets.config import finance_google_sheet_id
@@ -13,8 +15,8 @@ class Transaction():
     def __init__(self, raw_row, offset=1):
         row = raw_row[offset:]
         self.transaction_id = row[0]
-        self.bank_date = row[1]
-        self.receipt_date = row[2]
+        self.bank_date = datetime.datetime.strptime(row[1], "%d/%m/%Y").date()
+        self.receipt_date = datetime.datetime.strptime(row[2], "%d/%m/%Y").date()
         self.supplier = row[3]
         self.bank_text = row[4]
         self.description = row[5]
@@ -34,18 +36,20 @@ class Transaction():
 class Expense():
     def __init__(self, raw_row, offset=1):
         row = raw_row[offset:]
-        self.receipt_date = row[0]
-        self.volunteer_id = row[1]
-        self.volunteer_name = row[2]
-        self.paypal_email = row[3]
-        self.receipt_url = row[4]
-        self.value = row[5]
-        self.approved_by_id = row[6]
-        self.approved_by = row[7]
-        self.secondary_approved_by_id = row[8]
-        self.secondary_approved_by = row[9]
-        self.status = row[10]
-        self.rejected_reason = row[11]
+        self.expense_id = row[0]
+        self.expense_submit_date = datetime.datetime.strptime(row[1], "%d/%m/%Y").date()
+        self.receipt_date = datetime.datetime.strptime(row[2], "%d/%m/%Y").date()
+        self.volunteer_id = row[3]
+        self.volunteer_name = row[4]
+        self.paypal_email = row[5]
+        self.receipt_url = row[6]
+        self.value = row[7]
+        self.approved_by_id = row[8]
+        self.approved_by = row[9]
+        self.secondary_approved_by_id = row[10]
+        self.secondary_approved_by = row[11]
+        self.status = row[12]
+        self.rejected_reason = row[13]
 
 
 def get_transaction_table(offset=3):
