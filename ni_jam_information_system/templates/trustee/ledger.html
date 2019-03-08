@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h1>Ledger</h1>
+<p>The Jam ledger can be found below.</p>
+<br>
+    <form method=post>
+                <dl>
+<table>
+    <tr>
+        <th>Bank date</th>
+        <th>Bank text</th>
+        <th>Description</th>
+        <th>Receipt</th>
+        <th>Paid out</th>
+        <th>Paid in</th>
+        <th>Running total</th>
+        <th>Paid by</th>
+        <th>Secondary approved</th>
+        <th>Verified by</th>
+        <th>Category</th>
+        <th>Notes</th>
+    </tr>
+    {% for t in transactions %}
+        <tr>
+            {% if t.editing %}
+                <td>{{ t.bank_date }}</td>
+                <td>{{ t.bank_text }}</td>
+                <td>{{ render_field(form.description, class = "form-control") }}</td>
+                <td></td>
+                <td>{{ t.paid_out_symbol }}</td>
+                <td>{{ t.paid_in_symbol }}</td>
+                <td></td>
+                <td>{{ render_field(form.payment_by, class="selectpicker", **{'data-live-search':'true'}) }}</td>
+                <td>{{ render_field(form.secondary_approved_by, class="selectpicker", **{'data-live-search':'true'}) }}</td>
+                <td>{{ render_field(form.verified_by, class="selectpicker", **{'data-live-search':'true'}) }}</td>
+                <td>{{ render_field(form.category, class="selectpicker", **{'data-live-search':'true'}) }}</td>
+                <td>{{ t.treasurer_notes }}</td>
+            {% else %}
+                <td>{{ t.bank_date }}</td>
+                <td>{{ t.bank_text }}</td>
+                <td>{{ t.description }}</td>
+                {% if t.receipt_url %}
+                    <td><a href="{{ t.receipt_url }}" target="_blank" class="btn btn-info" role="button">Receipt</a><br></td>
+                {% else %}
+                    <td><a href="" target="_blank" class="btn btn-info" disabled="true" role="button">Receipt</a><br></td>
+                {% endif %}
+                <td>{{ t.paid_out_symbol }}</td>
+                <td>{{ t.paid_in_symbol }}</td>
+                <td></td>
+                <td>{{ t.payment_by }}</td>
+                <td>{{ t.secondary_approved_by }}</td>
+                <td>{{ t.verified_by }}</td>
+                <td>{{ t.category }}</td>
+                <td>{{ t.treasurer_notes }}</td>
+            {% endif %}
+        </tr>
+    {% endfor %}
+</table>
+                </dl>
+    <p><input class="btn btn-primary" type=submit value="Update">
+{% endblock %}

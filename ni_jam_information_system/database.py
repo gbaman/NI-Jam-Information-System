@@ -951,3 +951,8 @@ def remove_room(room_id):
     room = db_session.query(WorkshopRoom).filter(WorkshopRoom.room_id == int(room_id)).first()
     db_session.delete(room)
     db_session.commit()
+    
+    
+def get_all_trustees():
+    trustees = db_session.query(LoginUser).filter(LoginUser.group_id >= 4).all()
+    return trustees

@@ -20,6 +20,7 @@ from routes.public_routes import public_routes
 from routes.attendee_routes import attendee_routes
 from routes.admin_routes import admin_routes
 from routes.misc_routes import misc_routes
+from routes.trustee_routes import trustee_routes
 
 
 
@@ -40,6 +41,7 @@ app.register_blueprint(public_routes)
 app.register_blueprint(attendee_routes)
 app.register_blueprint(admin_routes)
 app.register_blueprint(misc_routes)
+app.register_blueprint(trustee_routes, url_prefix="/trustee")
 
 configuration.output_modules_enabled()
 
