@@ -4,8 +4,6 @@
 <h1>Ledger</h1>
 <p>The Jam ledger can be found below.</p>
 <br>
-    <form method=post>
-                <dl>
 <table>
     <tr>
         <th>Bank date</th>
@@ -23,40 +21,23 @@
     </tr>
     {% for t in transactions %}
         <tr>
-            {% if t.editing %}
-                <td>{{ t.bank_date }}</td>
-                <td>{{ t.bank_text }}</td>
-                <td>{{ render_field(form.description, class = "form-control") }}</td>
-                <td></td>
-                <td>{{ t.paid_out_symbol }}</td>
-                <td>{{ t.paid_in_symbol }}</td>
-                <td></td>
-                <td>{{ render_field(form.payment_by, class="selectpicker", **{'data-live-search':'true'}) }}</td>
-                <td>{{ render_field(form.secondary_approved_by, class="selectpicker", **{'data-live-search':'true'}) }}</td>
-                <td>{{ render_field(form.verified_by, class="selectpicker", **{'data-live-search':'true'}) }}</td>
-                <td>{{ render_field(form.category, class="selectpicker", **{'data-live-search':'true'}) }}</td>
-                <td>{{ t.treasurer_notes }}</td>
+            <td>{{ t.bank_date }}</td>
+            <td>{{ t.bank_text }}</td>
+            <td onclick='editLedgerDescription("{{ t.transaction_id }}", this.textContent, this)'>{{ t.description }}</td>
+            {% if t.receipt_url %}
+                <td><a href="{{ t.receipt_url }}" target="_blank" class="btn btn-info" role="button">Receipt</a><br></td>
             {% else %}
-                <td>{{ t.bank_date }}</td>
-                <td>{{ t.bank_text }}</td>
-                <td>{{ t.description }}</td>
-                {% if t.receipt_url %}
-                    <td><a href="{{ t.receipt_url }}" target="_blank" class="btn btn-info" role="button">Receipt</a><br></td>
-                {% else %}
-                    <td><a href="" target="_blank" class="btn btn-info" disabled="true" role="button">Receipt</a><br></td>
-                {% endif %}
-                <td>{{ t.paid_out_symbol }}</td>
-                <td>{{ t.paid_in_symbol }}</td>
-                <td></td>
-                <td>{{ t.payment_by }}</td>
-                <td>{{ t.secondary_approved_by }}</td>
-                <td>{{ t.verified_by }}</td>
-                <td>{{ t.category }}</td>
-                <td>{{ t.treasurer_notes }}</td>
+                <td><a href="" target="_blank" class="btn btn-info" disabled="true" role="button">Receipt</a><br></td>
             {% endif %}
+            <td>{{ t.paid_out_symbol }}</td>
+            <td>{{ t.paid_in_symbol }}</td>
+            <td></td>
+            <td>{% if t.payment_by %}{{ t.payment_by }}{% else %}<a href="{{ t.receipt_url }}" class="btn btn-info" role="button">Claim</a>{% endif %}</td>
+            <td>{{ t.secondary_approved_by }}</td>
+            <td>{{ t.verified_by }}</td>
+            <td>{{ t.category }}</td>
+            <td>{{ t.treasurer_notes }}</td>
         </tr>
     {% endfor %}
 </table>
-                </dl>
-    <p><input class="btn btn-primary" type=submit value="Update">
 {% endblock %}

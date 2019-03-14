@@ -116,21 +116,3 @@ class EquipmentAddToWorkshopForm(FlaskForm):
     def __init__(self, *args, **kwargs):
         super(EquipmentAddToWorkshopForm, self).__init__(*args, **kwargs)
         self.equipment_name.choices = [(str(equipment.equipment_id), equipment.equipment_name) for equipment in get_all_equipment()]
-
-
-class LedgerEditForm(FlaskForm):
-    description = StringField("")
-    receipt_url = StringField("Receipt URL")
-    payment_by = SelectField("Payment by")
-    secondary_approved_by = SelectField("Secondary approved by")
-    verified_by = SelectField("Verified by")
-    category = SelectField("Category")
-    notes = StringField("Notes")
-    
-    def __init__(self, *args, **kwargs):
-        super(LedgerEditForm, self).__init__(*args, **kwargs)
-        trustees = get_all_trustees()
-        self.payment_by.choices = [(trustee.user_id, "{} {}".format(trustee.first_name, trustee.surname)) for trustee in trustees]
-        self.secondary_approved_by.choices = [(trustee.user_id, "{} {}".format(trustee.first_name, trustee.surname)) for trustee in trustees]
-        self.verified_by.choices = [(trustee.user_id, "{} {}".format(trustee.first_name, trustee.surname)) for trustee in trustees]
-        self.category.choices = [(trustee.user_id, "{} {}".format(trustee.first_name, trustee.surname)) for trustee in trustees]

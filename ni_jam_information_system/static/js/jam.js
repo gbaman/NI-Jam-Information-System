@@ -361,3 +361,30 @@ function selectInventory(inventory_id) {
         }
     });
 }
+
+function editLedgerDescription(transaction_id, description, item) {
+    alertify.prompt( 'Edit description', '', description
+               , function(evt, value){ updateLedgerDescription(transaction_id, value); item.textContent = value}, function() {});
+    
+    
+}
+
+function updateLedgerDescription(transaction_id, description){
+    $.ajax({
+        type: "POST",
+        url: "/trustee/finance/ledger/update_description_ajax",
+        data: {
+            transaction_id: transaction_id,
+            description: description
+        },
+        success: function (result) {
+            //window.location.reload();
+        },
+        error: function (result) {
+            alertify.alert("Unable to update description.",
+                function(){
+                    window.location.reload();
+                });
+        }
+    });
+}

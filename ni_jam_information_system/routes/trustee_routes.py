@@ -39,3 +39,14 @@ def ledger(transaction_id=None):
     trustees = database.get_all_trustees()
     return render_template("trustee/ledger.html", transactions=transactions, trustees=trustees, form=form)
 
+
+
+# -------------- AJAX routes -------------
+
+@trustee_routes.route("/finance/ledger/update_description_ajax", methods=['GET', 'POST'])
+@trustee_required
+def ledger_update_description():
+    transaction_id = request.form['transaction_id']
+    description = request.form['description']
+    a = google_sheets.update_transaction_cell(transaction_id, google_sheets.T.DESCRIPTION, description)
+    return ""

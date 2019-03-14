@@ -12,6 +12,9 @@ creds = ServiceAccountCredentials.from_json_keyfile_name('secrets/client_secret.
 client = gspread.authorize(creds)
 sheet = client.open_by_key(finance_google_sheet_id)
 
+class T():
+    DESCRIPTION = 7
+
 
 class Transaction():
     def __init__(self, raw_row, offset=1, bank=False):
@@ -176,6 +179,15 @@ def get_volunteer_expenses_table(offset=3):
     return expense_data
 
 
-#get_volunteer_expenses_table()
-#get_transaction_table()
-#import_bank_csv("transactions.csv",)
+def update_transaction_cell(transaction_id, cell_id, new_string):
+    worksheet = sheet.worksheet("Main")
+    id_column_data = worksheet.range("B4:B{}".format(worksheet.row_count))
+    for cell in id_column_data:
+        if cell.value == str(transaction_id):
+            transaction_row_id = cell.row
+            break
+    else:
+        print("Unable to find transaction with ID {}".format(transaction_id))
+        return None
+    worksheet.update_cell(transaction_row_id, cell_id, new_string)
+    
