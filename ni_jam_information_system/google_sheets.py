@@ -14,6 +14,7 @@ sheet = client.open_by_key(finance_google_sheet_id)
 
 class T():
     DESCRIPTION = 7
+    SUPPLIER = 5
 
 
 class Transaction():

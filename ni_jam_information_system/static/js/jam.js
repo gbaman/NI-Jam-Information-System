@@ -365,8 +365,11 @@ function selectInventory(inventory_id) {
 function editLedgerDescription(transaction_id, description, item) {
     alertify.prompt( 'Edit description', '', description
                , function(evt, value){ updateLedgerDescription(transaction_id, value); item.textContent = value}, function() {});
-    
-    
+}
+
+function editLedgerSupplier(transaction_id, supplier, item) {
+    alertify.prompt( 'Edit supplier', '', supplier
+               , function(evt, value){ updateSupplierDescription(transaction_id, value); item.textContent = value}, function() {});
 }
 
 function updateLedgerDescription(transaction_id, description){
@@ -378,10 +381,28 @@ function updateLedgerDescription(transaction_id, description){
             description: description
         },
         success: function (result) {
-            //window.location.reload();
         },
         error: function (result) {
             alertify.alert("Unable to update description.",
+                function(){
+                    window.location.reload();
+                });
+        }
+    });
+}
+
+function updateSupplierDescription(transaction_id, supplier){
+    $.ajax({
+        type: "POST",
+        url: "/trustee/finance/ledger/update_supplier_ajax",
+        data: {
+            transaction_id: transaction_id,
+            supplier: supplier
+        },
+        success: function (result) {
+        },
+        error: function (result) {
+            alertify.alert("Unable to update supplier.",
                 function(){
                     window.location.reload();
                 });

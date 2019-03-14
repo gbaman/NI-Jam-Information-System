@@ -8,6 +8,7 @@
     <tr>
         <th>Bank date</th>
         <th>Bank text</th>
+        <th>Supplier</th>
         <th>Description</th>
         <th>Receipt</th>
         <th>Paid out</th>
@@ -23,6 +24,7 @@
         <tr>
             <td>{{ t.bank_date }}</td>
             <td>{{ t.bank_text }}</td>
+            <td onclick='editLedgerSupplier("{{ t.transaction_id }}", this.textContent, this)'>{{ t.supplier }}</td>
             <td onclick='editLedgerDescription("{{ t.transaction_id }}", this.textContent, this)'>{{ t.description }}</td>
             {% if t.receipt_url %}
                 <td><a href="{{ t.receipt_url }}" target="_blank" class="btn btn-info" role="button">Receipt</a><br></td>
