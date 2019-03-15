@@ -5,11 +5,11 @@
 <p>The Jam ledger can be found below.</p>
 <br>
 <table>
-    <tr>
+    <tr bgcolor="#b7b7b7">
         <th>Bank date</th>
         <th>Bank text</th>
-        <th>Supplier</th>
-        <th>Description</th>
+        <th>Supplier (editable)</th>
+        <th>Description (editable)</th>
         <th>Receipt</th>
         <th>Paid out</th>
         <th>Paid in</th>
@@ -17,28 +17,54 @@
         <th>Paid by</th>
         <th>Secondary approved</th>
         <th>Verified by</th>
-        <th>Category</th>
-        <th>Notes</th>
+        <th width="15%">Category</th>
+        <th>Notes (editable)</th>
     </tr>
     {% for t in transactions %}
         <tr>
-            <td>{{ t.bank_date }}</td>
-            <td>{{ t.bank_text }}</td>
+            <td bgcolor="#e0e0e0">{{ t.bank_date }}</td>
+            <td bgcolor="#e0e0e0">{{ t.bank_text }}</td>
             <td onclick='editLedgerSupplier("{{ t.transaction_id }}", this.textContent, this)'>{{ t.supplier }}</td>
             <td onclick='editLedgerDescription("{{ t.transaction_id }}", this.textContent, this)'>{{ t.description }}</td>
             {% if t.receipt_url %}
                 <td><a href="{{ t.receipt_url }}" target="_blank" class="btn btn-info" role="button">Receipt</a><br></td>
             {% else %}
-                <td><a href="" target="_blank" class="btn btn-info" disabled="true" role="button">Receipt</a><br></td>
+                <td><a href="" target="_blank" class="btn btn-warning" role="button">Upload</a><br></td>
             {% endif %}
-            <td>{{ t.paid_out_symbol }}</td>
-            <td>{{ t.paid_in_symbol }}</td>
-            <td></td>
-            <td>{% if t.payment_by %}{{ t.payment_by }}{% else %}<a href="{{ t.receipt_url }}" class="btn btn-info" role="button">Claim</a>{% endif %}</td>
-            <td>{{ t.secondary_approved_by }}</td>
-            <td>{{ t.verified_by }}</td>
-            <td>{{ t.category }}</td>
-            <td>{{ t.treasurer_notes }}</td>
+            <td bgcolor="#e0e0e0">{{ t.paid_out_symbol }}</td>
+            <td bgcolor="#e0e0e0">{{ t.paid_in_symbol }}</td>
+            <td bgcolor="#e0e0e0"></td>
+            {% if t.payment_by %}
+                <td bgcolor="#e0e0e0">
+                {{ t.payment_by }}
+            {% else %}
+                <td><a href="ledger/payment_by/{{ t.transaction_id }}" class="btn btn-info" {{ t.button_disabled }} role="button">Claim</a>
+            {% endif %}</td>
+        
+            {% if t.paid_out and t.paid_out | int >= 50 %}
+                {% if t.secondary_approved_by %}
+                    <td bgcolor="#e0e0e0">{{ t.secondary_approved_by }}
+                {% else %}
+                    <td><a href="ledger/secondary_approved_by/{{ t.transaction_id }}" class="btn btn-info" {{ t.button_disabled }} role="button">Approve</a>
+                {% endif %}
+            {% else %}
+                <td bgcolor="#e0e0e0">N/A
+            {% endif %} </td>
+        
+            {% if t.verified_by %}
+                <td bgcolor="#e0e0e0">{{ t.verified_by }}
+            {% else %}
+                <td><a href="ledger/verified_by/{{ t.transaction_id }}" class="btn btn-info" {{ t.button_disabled }} role="button">Approve</a>
+            {% endif %} </td>
+        
+            <td>
+                <label for="content-picker"></label><select  data-transaction="{{ t.transaction_id }}" data-width="100%" class="selectpicker transaction-category-picker selectcontent" id="content-picker">
+                {% for category in t.categories %}
+                    <option value="{{ category }}">{{ category }}</option>
+                {% endfor %}
+                </select>
+            </td>
+            <td onclick='editLedgerNotes("{{ t.transaction_id }}", this.textContent, this)'>{{ t.treasurer_notes }}</td>
         </tr>
     {% endfor %}
 </table>

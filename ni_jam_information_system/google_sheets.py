@@ -1,4 +1,5 @@
 import datetime
+import time
 
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -12,12 +13,25 @@ creds = ServiceAccountCredentials.from_json_keyfile_name('secrets/client_secret.
 client = gspread.authorize(creds)
 sheet = client.open_by_key(finance_google_sheet_id)
 
+MAIN_SHEET = sheet.worksheet("Main")
+
 class T():
-    DESCRIPTION = 7
     SUPPLIER = 5
+    DESCRIPTION = 7
+    PAYMENT_BY_ID = 11
+    PAYMENT_BY = 12
+    SECONDARY_APPROVED_ID = 13
+    SECONDARY_APPROVED = 14
+    VERIFIED_BY_ID = 15
+    VERIFIED_BY = 16
+    CATEGORY = 17
+    NOTES = 18
+    
 
 
 class Transaction():
+    user_id = None
+    
     def __init__(self, raw_row, offset=1, bank=False):
         row = raw_row[offset:]
         self.transaction_id = row[0]
@@ -40,6 +54,7 @@ class Transaction():
         
         self.offset = offset
         self.editing = False
+        self.categories = ["Hello", "world", "stuff"]
 
     @property
     def paid_out_symbol(self):
@@ -51,6 +66,13 @@ class Transaction():
     def paid_in_symbol(self):
         if self.paid_in:
             return f"£{self.paid_in}"
+        return ""
+    
+    @property
+    def button_disabled(self):
+        self.user_id = int(self.user_id)
+        if (self.payment_by_id and int(self.payment_by_id) == int(self.user_id)) or (self.verified_by_id and int(self.verified_by_id) == self.user_id) or (self.secondary_approved_by_id and int(self.secondary_approved_by_id) == self.user_id):
+            return 'disabled="true"'
         return ""
     
     def update_trustees(self, trustees):
@@ -124,10 +146,16 @@ def _clean_money_value(value):
     return None
 
 
+def _check_oauth_token():
+    if creds.access_token_expired:
+        client.login()
+
+
 def import_bank_csv(csv_path):
     import csv
     
     transactions = []
+    _check_oauth_token()
     with open(csv_path) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         for line in list(csv_reader)[1:]:
@@ -157,21 +185,20 @@ def import_bank_csv(csv_path):
         worksheet.append_row(new_transaction.get_row(), value_input_option='USER_ENTERED')
 
 
-def get_transaction_table(offset=3):
-    trustees = database.get_all_trustees()
+def get_transaction_table(trustees, offset=3):
+    _check_oauth_token()
     transaction_data = []
-    worksheet = sheet.worksheet("Main")
-    data = worksheet.get_all_values()[offset:]
+    data = MAIN_SHEET.get_all_values()[offset:]
     for line in data:
         t = Transaction(line)
         t.update_trustees(trustees)
         transaction_data.append(t)
-
     return transaction_data
 
 
 def get_volunteer_expenses_table(offset=3):
     expense_data = []
+    _check_oauth_token()
     worksheet = sheet.worksheet("Volunteer expenses")
     data = worksheet.get_all_values()[offset:]
     for line in data:
@@ -181,8 +208,8 @@ def get_volunteer_expenses_table(offset=3):
 
 
 def update_transaction_cell(transaction_id, cell_id, new_string):
-    worksheet = sheet.worksheet("Main")
-    id_column_data = worksheet.range("B4:B{}".format(worksheet.row_count))
+    _check_oauth_token()
+    id_column_data = MAIN_SHEET.range("B4:B{}".format(MAIN_SHEET.row_count))
     for cell in id_column_data:
         if cell.value == str(transaction_id):
             transaction_row_id = cell.row
@@ -190,5 +217,5 @@ def update_transaction_cell(transaction_id, cell_id, new_string):
     else:
         print("Unable to find transaction with ID {}".format(transaction_id))
         return None
-    worksheet.update_cell(transaction_row_id, cell_id, new_string)
+    MAIN_SHEET.update_cell(transaction_row_id, cell_id, new_string)
     
