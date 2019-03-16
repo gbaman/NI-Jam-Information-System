@@ -54,18 +54,17 @@ class Transaction():
         
         self.offset = offset
         self.editing = False
-        self.categories = ["Hello", "world", "stuff"]
 
     @property
     def paid_out_symbol(self):
         if self.paid_out:
-            return f"£{self.paid_out}"
+            return f"-£{self.paid_out}"
         return ""
 
     @property
     def paid_in_symbol(self):
         if self.paid_in:
-            return f"£{self.paid_in}"
+            return f"+£{self.paid_in}"
         return ""
     
     @property
@@ -189,8 +188,13 @@ def get_transaction_table(trustees, offset=3):
     _check_oauth_token()
     transaction_data = []
     data = MAIN_SHEET.get_all_values()[offset:]
+    categories = []
+    for line in data:
+        if line[21]:
+            categories.append(line[21])
     for line in data:
         t = Transaction(line)
+        t.categories = categories
         t.update_trustees(trustees)
         transaction_data.append(t)
     return transaction_data

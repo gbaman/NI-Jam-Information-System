@@ -4,21 +4,21 @@
 <h1>Ledger</h1>
 <p>The Jam ledger can be found below.</p>
 <br>
-<table>
+<table class="ledger-table" style="table-layout: fixed; width: 100%">
     <tr bgcolor="#b7b7b7">
-        <th>Bank date</th>
-        <th>Bank text</th>
-        <th>Supplier (editable)</th>
-        <th>Description (editable)</th>
-        <th>Receipt</th>
-        <th>Paid out</th>
-        <th>Paid in</th>
-        <th>Running total</th>
-        <th>Paid by</th>
-        <th>Secondary approved</th>
-        <th>Verified by</th>
-        <th width="15%">Category</th>
-        <th>Notes (editable)</th>
+        <th width="7%">Bank date</th>
+        <th width="8%">Bank text</th>
+        <th width="7%">Supplier (editable)</th>
+        <th width="12%">Description (editable)</th>
+        <th width="7%">Receipt</th>
+        <th width="6%">Paid out</th>
+        <th width="6%">Paid in</th>
+        <th width="6%">Running total</th>
+        <th width="8%">Paid by</th>
+        <th width="8%">Secondary approved</th>
+        <th width="8%">Verified by</th>
+        <th width="8%">Category</th>
+        <th width="9%">Notes (editable)</th>
     </tr>
     {% for t in transactions %}
         <tr>
@@ -58,9 +58,19 @@
             {% endif %} </td>
         
             <td>
-                <label for="content-picker"></label><select  data-transaction="{{ t.transaction_id }}" data-width="100%" class="selectpicker transaction-category-picker selectcontent" id="content-picker">
+                <label for="content-picker"></label><select data-live-search="true" data-transaction="{{ t.transaction_id }}" data-width="100%" class="selectpicker transaction-category-picker selectcontent" id="content-picker">
+                category is {{ t.category }}
+                {% if not t.category %}
+                    <option selected value="">None</option>
+                {% else %}
+                    <option value="">None</option>
+                {% endif %}
                 {% for category in t.categories %}
-                    <option value="{{ category }}">{{ category }}</option>
+                    {% if t.category == category %}
+                        <option selected value="{{ category }}">{{ category }}</option>
+                    {% else %}
+                        <option value="{{ category }}">{{ category }}</option>
+                    {% endif %}
                 {% endfor %}
                 </select>
             </td>

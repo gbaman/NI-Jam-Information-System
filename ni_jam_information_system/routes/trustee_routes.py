@@ -35,7 +35,7 @@ def ledger():
         transaction.user_id = cookie.user.user_id
         #transaction.update_trustees(trustees)
     print(time.time() - s)
-    return render_template("trustee/ledger.html", transactions=transactions, trustees=trustees)
+    return render_template("trustee/ledger.html", transactions=transactions, trustees=trustees, container_name="container-wide")
 
 
 @trustee_routes.route("/finance/ledger/payment_by/<transaction_id>")
