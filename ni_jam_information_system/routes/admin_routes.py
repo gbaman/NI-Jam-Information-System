@@ -9,6 +9,7 @@ import forms as forms
 import eventbrite_interactions
 from ast import literal_eval
 
+import google_sheets
 from decorators import *
 
 admin_routes = Blueprint('admin_routes', __name__, template_folder='templates')
@@ -374,6 +375,23 @@ def remote_workshop_room(room_id):
     database.remove_room(room_id)
     flash("Room removed.", "success")
     return redirect(('admin/jam_setup'))
+
+
+
+@admin_routes.route("/admin/expenses_claim", methods=['GET', 'POST'])
+@volunteer_required
+@module_equipment_required
+def expenses_claim():
+    form = forms.ExpensesClaimForm(request.form)
+    if request.method == 'POST' and form.validate():
+        pass
+        return redirect(url_for("admin_routes.expenses_claim"))
+    expenses = google_sheets.get_volunteer_expenses_table()
+    user_expenses = []
+    for expense in expenses:
+        if int(expense.volunteer_id) == logins.get_current_user().user_id:
+            user_expenses.append(expense)
+    return render_template("admin/expenses_claims.html", form=form, expenses=user_expenses)
 
 
 ####################################### AJAX Routes #######################################

@@ -116,3 +116,12 @@ class EquipmentAddToWorkshopForm(FlaskForm):
     def __init__(self, *args, **kwargs):
         super(EquipmentAddToWorkshopForm, self).__init__(*args, **kwargs)
         self.equipment_name.choices = [(str(equipment.equipment_id), equipment.equipment_name) for equipment in get_all_equipment()]
+
+
+class ExpensesClaimForm(FlaskForm):
+    paypal_email_address = StringField("PayPal email address", [validators.Email(), validators.DataRequired()])
+    requested_value = IntegerField("Total cost being claimed for", [validators.DataRequired(), validators.NumberRange(min=0.01, max=20, message="Expense claims can only be up to £20")])
+    receipt = FileField('Receipt', validators=[
+        FileRequired(),
+        FileAllowed(("pdf", "png", "jpg", "jpeg"), 'Should be a PDF, png, jpg or jpeg.')
+    ])
