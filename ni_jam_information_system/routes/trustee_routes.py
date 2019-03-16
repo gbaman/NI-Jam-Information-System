@@ -24,17 +24,11 @@ def finance_home():
 @trustee_routes.route("/finance/ledger")
 @trustee_required
 def ledger():
-    s = time.time()
     status, cookie = logins.validate_cookie(request.cookies.get('jam_login'))
-    #print(time.time() - s)
-    #print(time.time() - s)
     trustees = database.get_all_trustees()
     transactions = google_sheets.get_transaction_table(trustees=trustees)
-    #print(time.time() - s)
     for transaction in transactions:
         transaction.user_id = cookie.user.user_id
-        #transaction.update_trustees(trustees)
-    print(time.time() - s)
     return render_template("trustee/ledger.html", transactions=transactions, trustees=trustees, container_name="container-wide")
 
 
@@ -63,6 +57,16 @@ def ledger_verified_by_transaction(transaction_id):
     google_sheets.update_transaction_cell(transaction_id, google_sheets.T.VERIFIED_BY_ID, cookie.user.user_id)
     google_sheets.update_transaction_cell(transaction_id, google_sheets.T.VERIFIED_BY, f"{cookie.user.first_name} {cookie.user.surname}")
     return redirect(url_for("trustee_routes.ledger"))
+
+
+@trustee_routes.route("/finance/expenses_list")
+@trustee_required
+def expenses_list():
+    expenses = google_sheets.get_volunteer_expenses_table()
+    user = logins.get_current_user()
+    for expense in expenses:
+        expense.user_id = user.user_id
+    return render_template("trustee/expenses_list.html", expenses=expenses)
 
 
 # -------------- AJAX routes -------------
@@ -101,4 +105,13 @@ def ledger_update_category():
     transaction_id = request.form['transaction_id']
     notes = request.form['category']
     google_sheets.update_transaction_cell(transaction_id, google_sheets.T.CATEGORY, notes)
+    return ""
+
+
+@trustee_routes.route("/finance/expenses_list/rejection_reason", methods=['GET', 'POST'])
+@trustee_required
+def expenses_list_rejection_reason():
+    expense_id = request.form['expense_id']
+    rejection_reason = request.form['rejection_reason']
+    google_sheets.update_expense_cell(expense_id, google_sheets.E.REJECTION_REASON, rejection_reason)
     return ""

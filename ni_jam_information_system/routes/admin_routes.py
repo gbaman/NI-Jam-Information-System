@@ -391,6 +391,10 @@ def expenses_claim():
     for expense in expenses:
         if int(expense.volunteer_id) == logins.get_current_user().user_id:
             user_expenses.append(expense)
+    if user_expenses:
+        form.paypal_email_address.default = user_expenses[-1].paypal_email
+        form.process()
+    
     return render_template("admin/expenses_claims.html", form=form, expenses=user_expenses)
 
 

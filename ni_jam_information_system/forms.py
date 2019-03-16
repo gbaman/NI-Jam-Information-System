@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from flask_wtf.file import FileRequired, FileAllowed
 from wtforms import Form, BooleanField, StringField, PasswordField, IntegerField, TextAreaField, RadioField, \
     SelectField, validators, HiddenField, FileField, DateTimeField
+from wtforms.fields.html5 import DateField
 from wtforms_components import TimeField
 from flask import g, Flask, current_app
 import datetime
@@ -121,6 +122,7 @@ class EquipmentAddToWorkshopForm(FlaskForm):
 class ExpensesClaimForm(FlaskForm):
     paypal_email_address = StringField("PayPal email address", [validators.Email(), validators.DataRequired()])
     requested_value = IntegerField("Total cost being claimed for", [validators.DataRequired(), validators.NumberRange(min=0.01, max=20, message="Expense claims can only be up to £20")])
+    receipt_date = DateField("Date on receipt", [validators.DataRequired])
     receipt = FileField('Receipt', validators=[
         FileRequired(),
         FileAllowed(("pdf", "png", "jpg", "jpeg"), 'Should be a PDF, png, jpg or jpeg.')

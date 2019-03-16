@@ -14,6 +14,7 @@ client = gspread.authorize(creds)
 sheet = client.open_by_key(finance_google_sheet_id)
 
 MAIN_SHEET = sheet.worksheet("Main")
+EXPENSE_SHEET = sheet.worksheet("Volunteer expenses")
 
 class T():
     SUPPLIER = 5
@@ -26,7 +27,10 @@ class T():
     VERIFIED_BY = 16
     CATEGORY = 17
     NOTES = 18
-    
+
+
+class E():
+    REJECTION_REASON = 16
 
 
 class Transaction():
@@ -71,7 +75,7 @@ class Transaction():
     def button_disabled(self):
         self.user_id = int(self.user_id)
         if (self.payment_by_id and int(self.payment_by_id) == int(self.user_id)) or (self.verified_by_id and int(self.verified_by_id) == self.user_id) or (self.secondary_approved_by_id and int(self.secondary_approved_by_id) == self.user_id):
-            return 'disabled="true"'
+            return 'disabled'
         return ""
     
     def update_trustees(self, trustees):
@@ -106,6 +110,8 @@ class Transaction():
                 self.secondary_approved_by, self.verified_by_id, self.verified_by, self.category, self.treasurer_notes]
 
 class Expense():
+    user_id = None
+
     def __init__(self, raw_row, offset=1):
         row = raw_row[offset:]
         self.expense_id = row[0]
@@ -120,8 +126,56 @@ class Expense():
         self.approved_by = row[9]
         self.secondary_approved_by_id = row[10]
         self.secondary_approved_by = row[11]
-        self.status = row[12]
-        self.rejected_reason = row[13]
+        self.paid_by_id = row[12]
+        self.paid_by = row[13]
+        self.rejected_reason = row[14]
+        self.payment_made_date = row[15]
+
+    @property
+    def value_symbol(self):
+        if self.value:
+            return f"£{self.value}"
+        return ""
+
+    @property
+    def button_disabled(self):
+        self.user_id = int(self.user_id)
+        if (self.approved_by_id and int(self.approved_by_id) == int(self.user_id)) or (self.secondary_approved_by_id and int(self.secondary_approved_by_id) == self.user_id) or (self.volunteer_id and int(self.volunteer_id) == self.user_id):
+            return 'disabled'
+        return ""
+    
+    @property
+    def status(self):
+        if self.rejected_reason:
+            return f"Rejected : {self.rejected_reason}"
+        elif self.paid_by_id:
+            return f"Payment made on {self.payment_made_date}"
+        elif self.secondary_approved_by_id:
+            return "Approved - Awaiting payment"
+        elif self.approved_by_id:
+            return "1/2 approvals complete"
+        else:
+            return "Awaiting approvals"
+    
+    @property
+    def status_colour(self):
+        if self.rejected_reason:
+            return "#ff9e9e"
+        elif self.paid_by_id:
+            return "#9effbb"
+        else:
+            return ""
+
+    def update_users(self, login_users):
+        for user in login_users:
+            if self.volunteer_id and int(self.volunteer_id) == user.user_id:
+                self.volunteer_name = f"{user.first_name} {user.surname}"
+
+            if self.approved_by_id and int(self.approved_by_id) == user.user_id:
+                self.approved_by = f"{user.first_name} {user.surname}"
+
+            if self.secondary_approved_by_id and int(self.secondary_approved_by_id) == user.user_id:
+                self.secondary_approved_by = f"{user.first_name} {user.surname}"
 
 
 def _convert_date(date_string, bank):
@@ -203,10 +257,12 @@ def get_transaction_table(trustees, offset=3):
 def get_volunteer_expenses_table(offset=3):
     expense_data = []
     _check_oauth_token()
-    worksheet = sheet.worksheet("Volunteer expenses")
-    data = worksheet.get_all_values()[offset:]
+    data = EXPENSE_SHEET.get_all_values()[offset:]
+    login_users = database.get_users(include_inactive=True)
     for line in data:
-        expense_data.append(Expense(line))
+        expense = Expense(line)
+        expense.update_users(login_users)
+        expense_data.append(expense)
 
     return expense_data
 
@@ -222,4 +278,17 @@ def update_transaction_cell(transaction_id, cell_id, new_string):
         print("Unable to find transaction with ID {}".format(transaction_id))
         return None
     MAIN_SHEET.update_cell(transaction_row_id, cell_id, new_string)
+
+
+def update_expense_cell(expense_id, cell_id, new_string):
+    _check_oauth_token()
+    id_column_data = EXPENSE_SHEET.range("B4:B{}".format(EXPENSE_SHEET.row_count))
+    for cell in id_column_data:
+        if cell.value == str(expense_id):
+            expense_row_id = cell.row
+            break
+    else:
+        print("Unable to find expense with ID {}".format(expense_id))
+        return None
+    EXPENSE_SHEET.update_cell(expense_row_id, cell_id, new_string)
     

@@ -467,3 +467,29 @@ function updateLedgerCategory(transaction_id, category){
         }
     });
 }
+
+function rejectExpense(expense_id, item) {
+    alertify.prompt( 'Rejection reason', '', ""
+               , function(evt, value){ rejectExpenseReason(expense_id, value);}, function() {});
+}
+
+
+function rejectExpenseReason(expense_id, rejection_reason){
+    $.ajax({
+        type: "POST",
+        url: "/trustee/finance/expenses_list/rejection_reason",
+        data: {
+            expense_id: expense_id,
+            rejection_reason: rejection_reason
+        },
+        success: function (result) {
+            window.location.reload();
+        },
+        error: function (result) {
+            alertify.alert("Unable to reject expense",
+                function(){
+                    window.location.reload();
+                });
+        }
+    });
+}
