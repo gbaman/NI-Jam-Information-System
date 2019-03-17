@@ -129,7 +129,10 @@ class Expense():
         self.paid_by_id = row[12]
         self.paid_by = row[13]
         self.rejected_reason = row[14]
-        self.payment_made_date = row[15]
+        self.payment_made_date = None
+        
+        if row[15]:
+            self.payment_made_date = datetime.datetime.strptime(row[15], "%d/%m/%Y").date()
 
     @property
     def value_symbol(self):

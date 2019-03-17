@@ -26,9 +26,12 @@ def finance_home():
 def ledger():
     status, cookie = logins.validate_cookie(request.cookies.get('jam_login'))
     trustees = database.get_all_trustees()
-    transactions = google_sheets.get_transaction_table(trustees=trustees)
-    for transaction in transactions:
-        transaction.user_id = cookie.user.user_id
+    base_transactions = google_sheets.get_transaction_table(trustees=trustees)
+    transactions = []
+    for transaction in base_transactions:
+        if transaction.bank_date:
+            transaction.user_id = cookie.user.user_id
+            transactions.append(transaction)
     return render_template("trustee/ledger.html", transactions=transactions, trustees=trustees, container_name="container-wide")
 
 
@@ -67,6 +70,34 @@ def expenses_list():
     for expense in expenses:
         expense.user_id = user.user_id
     return render_template("trustee/expenses_list.html", expenses=expenses)
+
+
+@trustee_routes.route("/finance/ledger_upload_link/<transaction_id>")
+@trustee_required
+def ledger_upload_link(transaction_id):
+    form = forms.AddTransactionReceiptForm(request.form)
+    
+    trustees = database.get_all_trustees()
+    transactions = google_sheets.get_transaction_table(trustees)
+    for transaction in transactions:
+        if int(transaction.transaction_id) == int(transaction_id):
+            t = transaction
+            break
+    else:
+        return "Transaction not found..."
+    
+    nearby_expenses = []
+    if "PAYPAL" in t.bank_text:
+        expenses = google_sheets.get_volunteer_expenses_table()
+        nearby_expenses = []
+        for expense in expenses:
+            if not expense.payment_made_date:
+                continue
+            
+            if abs((t.bank_date - expense.payment_made_date).days) < 3 and transaction.paid_out == expense.value:
+                nearby_expenses.append(expense)
+
+    return render_template("trustee/ledger_upload_link.html", transaction=t, expenses=nearby_expenses, form=form)
 
 
 # -------------- AJAX routes -------------

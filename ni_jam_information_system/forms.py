@@ -127,3 +127,11 @@ class ExpensesClaimForm(FlaskForm):
         FileRequired(),
         FileAllowed(("pdf", "png", "jpg", "jpeg"), 'Should be a PDF, png, jpg or jpeg.')
     ])
+
+
+class AddTransactionReceiptForm(FlaskForm):
+    receipt_date = DateField("Date on receipt", [validators.DataRequired])
+    receipt = FileField('Receipt', validators=[
+        FileRequired(),
+        FileAllowed(("pdf", "png", "jpg", "jpeg"), 'Should be a PDF, png, jpg or jpeg.')
+    ])
