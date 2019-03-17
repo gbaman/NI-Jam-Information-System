@@ -72,10 +72,12 @@ def expenses_list():
     return render_template("trustee/expenses_list.html", expenses=expenses)
 
 
-@trustee_routes.route("/finance/ledger_upload_link/<transaction_id>")
+@trustee_routes.route("/finance/ledger_upload_link/<transaction_id>", methods=['GET', 'POST'])
 @trustee_required
 def ledger_upload_link(transaction_id):
     form = forms.AddTransactionReceiptForm(request.form)
+    if request.method == 'POST' and form.validate():
+        pass
     
     trustees = database.get_all_trustees()
     transactions = google_sheets.get_transaction_table(trustees)

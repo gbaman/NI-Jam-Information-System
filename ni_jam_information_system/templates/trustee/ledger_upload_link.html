@@ -40,6 +40,13 @@
     </table>
 {% endif %}
      
-
+<h3>Upload receipt</h3>
+    <form method=post style="max-width: 220px">
+  <dl>
+      {{ render_field(form.receipt_date, class="form-control") }}
+      {{ render_field(form.receipt) }}
+  </dl>
+  <p><input class="btn btn-primary" type=submit value="Upload">
+</form>
     
 {% endblock %}

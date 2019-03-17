@@ -1,5 +1,6 @@
 import datetime
 import time
+import threading
 
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -12,10 +13,24 @@ scope = ['https://spreadsheets.google.com/feeds']
 creds = ServiceAccountCredentials.from_json_keyfile_name('secrets/client_secret.json', scope)
 client = gspread.authorize(creds)
 sheet = client.open_by_key(finance_google_sheet_id)
+a = time.time()
+MAIN_SHEET = None
+EXPENSE_SHEET = None
 
-MAIN_SHEET = sheet.worksheet("Main")
-EXPENSE_SHEET = sheet.worksheet("Volunteer expenses")
 
+# Used to allow main Flask app to start for development, without waiting ~2 seconds extra for sheets to be setup.
+def setup_worksheets_in_background():
+    global MAIN_SHEET, EXPENSE_SHEET
+    MAIN_SHEET = sheet.worksheet("Main")
+    EXPENSE_SHEET = sheet.worksheet("Volunteer expenses")
+    print("Finance worksheets setup")
+
+
+thread = threading.Thread(target=setup_worksheets_in_background)
+thread.start()
+
+
+print(time.time() - a)
 class T():
     SUPPLIER = 5
     DESCRIPTION = 7
