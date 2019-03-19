@@ -139,3 +139,12 @@ class AddTransactionReceiptForm(FlaskForm):
         FileRequired(),
         FileAllowed(("pdf", "png", "jpg", "jpeg"), 'Should be a PDF, png, jpg or jpeg.')
     ])
+
+
+class UploadLedgerCSVForm(FlaskForm):
+    class Meta:
+        csrf = False
+    csv_file = FileField('Bank CSV file', validators=[
+        FileRequired(),
+        FileAllowed(("csv",), 'Should be a CSV file from the bank.')
+    ])

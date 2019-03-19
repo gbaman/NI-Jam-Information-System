@@ -16,13 +16,15 @@ sheet = client.open_by_key(finance_google_sheet_id)
 a = time.time()
 MAIN_SHEET = None
 EXPENSE_SHEET = None
+CATEGORIES_SHEET = None
 
 
 # Used to allow main Flask app to start for development, without waiting ~2 seconds extra for sheets to be setup.
 def setup_worksheets_in_background():
-    global MAIN_SHEET, EXPENSE_SHEET
+    global MAIN_SHEET, EXPENSE_SHEET, CATEGORIES_SHEET
     MAIN_SHEET = sheet.worksheet("Main")
     EXPENSE_SHEET = sheet.worksheet("Volunteer expenses")
+    CATEGORIES_SHEET = sheet.worksheet("Categories")
     print("Finance worksheets setup")
 
 
@@ -98,9 +100,18 @@ class Transaction():
     @property
     def button_disabled(self):
         self.user_id = int(self.user_id)
-        if (self.payment_by_id and int(self.payment_by_id) == int(self.user_id)) or (self.verified_by_id and int(self.verified_by_id) == self.user_id) or (self.secondary_approved_by_id and int(self.secondary_approved_by_id) == self.user_id):
+        if (self.payment_by_id and int(self.payment_by_id) == int(self.user_id)) \
+                or (self.verified_by_id and int(self.verified_by_id) == self.user_id) \
+                or (self.secondary_approved_by_id and int(self.secondary_approved_by_id) == self.user_id):
             return 'disabled'
         return ""
+    
+    @property
+    def verified_by_button_disabled(self):
+        if self.button_disabled == "disabled" or not self.receipt_url:
+            return "disabled"
+        return ""
+    
     
     def update_names(self, trustees):
         for trustee in trustees:
@@ -247,7 +258,8 @@ def import_bank_csv(csv_path):
         csv_reader = csv.reader(csv_file, delimiter=',')
         for line in list(csv_reader)[1:]:
             transactions.append(Transaction((None, line[0], None, None, line[2], None, None, line[3], line[4], None, None, None, None, None, None, None, None, None),offset=0, bank=True))
-    current_transactions = get_transaction_table()
+    logins = database.get_users(include_inactive=True)
+    current_transactions = get_transaction_table(logins)
     new_transactions = []
     for new_transaction in transactions:
         duplicate = False
@@ -264,22 +276,22 @@ def import_bank_csv(csv_path):
         if duplicate:
             continue
         new_transactions.append(new_transaction)
-    worksheet = sheet.worksheet("Main")
     transaction_id = current_transactions[-1].transaction_id
     for new_transaction in new_transactions:
         transaction_id = int(transaction_id) + 1
         new_transaction.transaction_id = transaction_id
-        worksheet.append_row(new_transaction.get_row(), value_input_option='USER_ENTERED')
+        MAIN_SHEET.append_row(new_transaction.get_row(), value_input_option='USER_ENTERED')
 
 
 def get_transaction_table(logins, offset=3):
     _check_oauth_token()
     transaction_data = []
     data = MAIN_SHEET.get_all_values()[offset:]
+    categories_data = CATEGORIES_SHEET.get_all_values()[2:]
     categories = []
-    for line in data:
-        if line[21]:
-            categories.append(line[21])
+    for line in categories_data:
+        if line[1]:
+            categories.append(line[1])
     for line in data:
         t = Transaction(line)
         t.categories = categories

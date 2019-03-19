@@ -2,6 +2,15 @@
 
 {% block content %}
 <h1>Ledger</h1>
+<h3>Upload CSV files from the bank</h3>
+<form method="POST" enctype="multipart/form-data" style="max-width: 220px">
+<dl>
+  {{ render_field(form.csv_file) }}
+</dl>
+<p><input class="btn btn-primary" type=submit value="Upload">
+</form>
+
+<h3>Main Ledger</h3>
 <p>The Jam ledger can be found below.</p>
 {%include '_message_flash_helper.html'%}
 <br>
@@ -55,7 +64,7 @@
             {% if t.verified_by %}
                 <td bgcolor="#e0e0e0">{{ t.verified_by }}
             {% else %}
-                <td><a href="ledger/verified_by/{{ t.transaction_id }}" class="btn btn-info {{ t.button_disabled }}" role="button">Approve</a>
+                <td><a href="ledger/verified_by/{{ t.transaction_id }}" class="btn btn-info {{ t.verified_by_button_disabled }}" role="button">Approve</a>
             {% endif %} </td>
         
             <td>
