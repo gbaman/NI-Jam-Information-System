@@ -3,6 +3,7 @@
 {% block content %}
 <h1>Expenses list</h1>
 <p>See below for the list of expenses</p>
+{%include '_message_flash_helper.html'%}
     
 <table>
     <tr bgcolor="#d3d3d3">
@@ -45,7 +46,7 @@
             {% if expense.paid_by or expense.rejected_reason %}
                 <td>{{ expense.paid_by }}</td>
             {% else %}
-                <td><a href="expenses_list/paid_by/{{ expense.expense_id }}" class="btn btn-info {{ expense.button_disabled }}" role="button">Paid</a>
+                <td><a href="expenses_list/paid_by/{{ expense.expense_id }}" class="btn btn-info {{ expense.paid_button_disabled }}" role="button">Paid</a>
             {% endif %}
             {% if expense.rejected_reason %}
                 <td>{{ expense.rejected_reason }}</td>

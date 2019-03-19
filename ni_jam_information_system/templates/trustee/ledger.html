@@ -3,6 +3,7 @@
 {% block content %}
 <h1>Ledger</h1>
 <p>The Jam ledger can be found below.</p>
+{%include '_message_flash_helper.html'%}
 <br>
 <table class="ledger-table" style="table-layout: fixed; width: 100%">
     <tr bgcolor="#b7b7b7">
@@ -29,7 +30,7 @@
             {% if t.receipt_url %}
                 <td><a href="{{ t.receipt_url }}" target="_blank" class="btn btn-info" role="button">Receipt</a><br></td>
             {% else %}
-                <td><a href="ledger_upload_link/{{ t.transaction_id }}" target="_blank" class="btn btn-warning" role="button">Link/Upload</a><br></td>
+                <td><a href="ledger_upload_link/{{ t.transaction_id }}" class="btn btn-warning" role="button">Link/Upload</a><br></td>
             {% endif %}
             <td bgcolor="#e0e0e0">{{ t.paid_out_symbol }}</td>
             <td bgcolor="#e0e0e0">{{ t.paid_in_symbol }}</td>

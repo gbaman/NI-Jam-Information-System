@@ -34,14 +34,14 @@
                 <td>{{ expense.paypal_email }}</td>
                 <td><a href="{{ expense.receipt_url }}" class="btn btn-info" role="button">Receipt</a></td>
                 <td>{{ expense.value_symbol }}</td>
-                <td><a href="" class="btn btn-info" role="button">Link</a></td>
+                <td><a href="{{ transaction.transaction_id }}/link/{{ expense.expense_id }}" class="btn btn-info" role="button">Link</a></td>
             </tr>
         {% endfor %}
     </table>
 {% endif %}
      
 <h3>Upload receipt</h3>
-    <form method=post style="max-width: 220px">
+    <form method="POST" enctype="multipart/form-data" style="max-width: 220px">
   <dl>
       {{ render_field(form.receipt_date, class="form-control") }}
       {{ render_field(form.receipt) }}

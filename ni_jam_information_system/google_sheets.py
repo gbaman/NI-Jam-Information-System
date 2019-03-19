@@ -30,10 +30,12 @@ thread = threading.Thread(target=setup_worksheets_in_background)
 thread.start()
 
 
-print(time.time() - a)
 class T():
+    RECEIPT_DATE = 4
     SUPPLIER = 5
     DESCRIPTION = 7
+    RECEIPT_URL = 8
+    PAID_OUT = 9
     PAYMENT_BY_ID = 11
     PAYMENT_BY = 12
     SECONDARY_APPROVED_ID = 13
@@ -45,7 +47,14 @@ class T():
 
 
 class E():
+    APPROVED_BY_ID = 10
+    APPROVED_BY = 11
+    SECONDARY_APPROVED_BY_ID = 12
+    SECONDARY_APPROVED_BY = 13
+    PAID_BY_ID = 14
+    PAID_BY = 15
     REJECTION_REASON = 16
+    PAYMENT_DATE = 17
 
 
 class Transaction():
@@ -93,7 +102,7 @@ class Transaction():
             return 'disabled'
         return ""
     
-    def update_trustees(self, trustees):
+    def update_names(self, trustees):
         for trustee in trustees:
             if self.payment_by_id and int(self.payment_by_id) == int(trustee.user_id):
                 self.payment_by = f"{trustee.first_name} {trustee.surname}"
@@ -161,6 +170,13 @@ class Expense():
         if (self.approved_by_id and int(self.approved_by_id) == int(self.user_id)) or (self.secondary_approved_by_id and int(self.secondary_approved_by_id) == self.user_id) or (self.volunteer_id and int(self.volunteer_id) == self.user_id):
             return 'disabled'
         return ""
+    
+    @property
+    def paid_button_disabled(self):
+        self.user_id = int(self.user_id)
+        if self.approved_by_id and self.secondary_approved_by_id:
+            return ""
+        return "disabled"
     
     @property
     def status(self):
@@ -256,7 +272,7 @@ def import_bank_csv(csv_path):
         worksheet.append_row(new_transaction.get_row(), value_input_option='USER_ENTERED')
 
 
-def get_transaction_table(trustees, offset=3):
+def get_transaction_table(logins, offset=3):
     _check_oauth_token()
     transaction_data = []
     data = MAIN_SHEET.get_all_values()[offset:]
@@ -267,7 +283,7 @@ def get_transaction_table(trustees, offset=3):
     for line in data:
         t = Transaction(line)
         t.categories = categories
-        t.update_trustees(trustees)
+        t.update_names(logins)
         transaction_data.append(t)
     return transaction_data
 
@@ -285,9 +301,10 @@ def get_volunteer_expenses_table(offset=3):
     return expense_data
 
 
-def update_transaction_cell(transaction_id, cell_id, new_string):
+def update_transaction_cell(transaction_id, cell_id, new_string, id_column_data=None):
     _check_oauth_token()
-    id_column_data = MAIN_SHEET.range("B4:B{}".format(MAIN_SHEET.row_count))
+    if not id_column_data:
+        id_column_data = MAIN_SHEET.range("B4:B{}".format(MAIN_SHEET.row_count))
     for cell in id_column_data:
         if cell.value == str(transaction_id):
             transaction_row_id = cell.row
@@ -296,11 +313,13 @@ def update_transaction_cell(transaction_id, cell_id, new_string):
         print("Unable to find transaction with ID {}".format(transaction_id))
         return None
     MAIN_SHEET.update_cell(transaction_row_id, cell_id, new_string)
+    return id_column_data
 
 
-def update_expense_cell(expense_id, cell_id, new_string):
+def update_expense_cell(expense_id, cell_id, new_string, id_column_data=None):
     _check_oauth_token()
-    id_column_data = EXPENSE_SHEET.range("B4:B{}".format(EXPENSE_SHEET.row_count))
+    if not id_column_data:
+        id_column_data = EXPENSE_SHEET.range("B4:B{}".format(EXPENSE_SHEET.row_count))
     for cell in id_column_data:
         if cell.value == str(expense_id):
             expense_row_id = cell.row
@@ -309,4 +328,15 @@ def update_expense_cell(expense_id, cell_id, new_string):
         print("Unable to find expense with ID {}".format(expense_id))
         return None
     EXPENSE_SHEET.update_cell(expense_row_id, cell_id, new_string)
+    return id_column_data
+
+
+def create_expense_row(e: Expense):
+    _check_oauth_token()
+    expenses = get_volunteer_expenses_table()
+    if expenses:
+        e.expense_id = int(expenses[-1].expense_id) + 1
+    else:
+        e.expense_id = 0
+    EXPENSE_SHEET.append_row([e.expense_id, e.expense_submit_date.strftime("%d/%m/%Y"), e.receipt_date.strftime("%d/%m/%Y"), e.volunteer_id, e.volunteer_name, e.paypal_email, e.receipt_url, e.value], value_input_option='USER_ENTERED')
     
