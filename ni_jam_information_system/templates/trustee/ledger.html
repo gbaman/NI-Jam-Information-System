@@ -53,7 +53,7 @@
             {% if t.paid_out %}
                 {% set balance.total = balance.total - t.paid_out|float %}
             {% endif %}
-            <td bgcolor="#e0e0e0">£{{ balance.total|round(2) }}</td>
+            <td bgcolor="#e0e0e0">£{{ "%.2f"|format(balance.total) }}</td>
             {% if t.payment_by %}
                 <td bgcolor="#e0e0e0">
                 {{ t.payment_by }}
