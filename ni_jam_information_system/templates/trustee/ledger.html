@@ -2,6 +2,7 @@
 
 {% block content %}
 <h1>Ledger</h1>
+<hr>
 <h3>Upload CSV files from the bank</h3>
 <form method="POST" enctype="multipart/form-data" style="max-width: 220px">
 <dl>
@@ -9,6 +10,7 @@
 </dl>
 <p><input class="btn btn-primary" type=submit value="Upload">
 </form>
+<hr>
 
 <h3>Main Ledger</h3>
 <p>The Jam ledger can be found below.</p>
@@ -30,6 +32,7 @@
         <th width="8%">Category</th>
         <th width="9%">Notes (editable)</th>
     </tr>
+    {% set balance = namespace(total=0.0) %}
     {% for t in transactions %}
         <tr>
             <td bgcolor="#e0e0e0">{{ t.bank_date }}</td>
@@ -43,7 +46,14 @@
             {% endif %}
             <td bgcolor="#e0e0e0">{{ t.paid_out_symbol }}</td>
             <td bgcolor="#e0e0e0">{{ t.paid_in_symbol }}</td>
-            <td bgcolor="#e0e0e0"></td>
+            {% if t.paid_in %}
+                {% set balance.total = balance.total + t.paid_in|float %}
+            {% endif %}
+        
+            {% if t.paid_out %}
+                {% set balance.total = balance.total - t.paid_out|float %}
+            {% endif %}
+            <td bgcolor="#e0e0e0">£{{ balance.total|round(2) }}</td>
             {% if t.payment_by %}
                 <td bgcolor="#e0e0e0">
                 {{ t.payment_by }}
