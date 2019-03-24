@@ -1,12 +1,14 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileRequired, FileAllowed
 from wtforms import Form, BooleanField, StringField, PasswordField, IntegerField, TextAreaField, RadioField, \
-    SelectField, validators, HiddenField, FileField, DateTimeField
+    SelectField, validators, HiddenField, FileField, DateTimeField, FloatField
+from wtforms.fields.html5 import DateField
 from wtforms_components import TimeField
 from flask import g, Flask, current_app
 import datetime
 
 from database import get_volunteers_to_select, get_workshops_to_select, get_individual_time_slots_to_select, get_workshop_rooms, get_equipment_groups, get_all_equipment, get_all_badges, get_badge, get_workshop_from_workshop_id
+
 
 
 class CreateWorkshopForm(Form):
@@ -106,13 +108,13 @@ class SlotForm(Form):
     slot_id = HiddenField("Workshop ID", default="")
     slot_time_start = TimeField("Slot time start", [validators.DataRequired()])
     slot_time_end = TimeField("Slot time finish", [validators.DataRequired()])
-    
-    
+
+
 class EquipmentAddToWorkshopForm(FlaskForm):
     equipment_name = SelectField("Equipment name")
     equipment_quantity_needed = IntegerField("Equipment quantity", [validators.DataRequired()])
     per_attendee = RadioField("Allocation", choices=[("True", "Per attendee"), ("False", "Shared equipment")])
-    
+
     def __init__(self, *args, **kwargs):
         super(EquipmentAddToWorkshopForm, self).__init__(*args, **kwargs)
         self.equipment_name.choices = [(str(equipment.equipment_id), equipment.equipment_name) for equipment in get_all_equipment()]
@@ -149,3 +151,35 @@ class AddBadgeWorkshopForm(FlaskForm):
             if not any(b.badge_id == badge.badge_id for b in workshop.badges):
                 badge_choices.append([badge.badge_id, badge.badge_name])
         self.badge_id.choices = badge_choices
+
+
+class ExpensesClaimForm(FlaskForm):
+    class Meta:
+        csrf = False
+    paypal_email_address = StringField("PayPal email address", [validators.Email(), validators.DataRequired()])
+    requested_value = FloatField("Total cost being claimed for", [validators.DataRequired(), validators.NumberRange(min=0.01, max=20, message="Expense claims can only be up to £20")])
+    receipt_date = DateField("Date on receipt", [validators.DataRequired()])
+    receipt = FileField('Receipt', validators=[
+        FileRequired(),
+        FileAllowed(("pdf", "png", "jpg", "jpeg"), 'Should be a PDF, png, jpg or jpeg.')
+    ])
+
+
+class AddTransactionReceiptForm(FlaskForm):
+    class Meta:
+        csrf = False
+    receipt_date = DateField("Date on receipt", [validators.DataRequired()])
+    receipt = FileField('Receipt', validators=[
+        FileRequired(),
+        FileAllowed(("pdf", "png", "jpg", "jpeg"), 'Should be a PDF, png, jpg or jpeg.')
+    ])
+
+
+class UploadLedgerCSVForm(FlaskForm):
+    class Meta:
+        csrf = False
+    csv_file = FileField('Bank CSV file', validators=[
+        FileRequired(),
+        FileAllowed(("csv",), 'Should be a CSV file from the bank.')
+    ])
+

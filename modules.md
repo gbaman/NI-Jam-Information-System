@@ -60,3 +60,11 @@ Depends on Core and Volunteer Attendance being enabled.
 Depends on Core and Workshops being enabled.
  - Equipment
  - Inventories
+ 
+ 
+ ## Finance
+ #### module_finance   
+ Depends on Core being enabled.  
+ Note this module is not recommended for use outside of the NI Raspberry Jam, as it is heavily customised to the working processes we use.   
+ - Volunteer expenses
+ - Organisation ledger

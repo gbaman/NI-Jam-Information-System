@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h1>Claim expenses</h1>
+<p>You are able to claim travel expenses for any Raspberry Jam related event under the expenses policy.</p>
+{%include '_message_flash_helper.html'%}
+    
+<h2>New expense claim</h2>
+<form method="POST" enctype="multipart/form-data" style="max-width: 220px">
+<dl>
+    {{ render_field(form.paypal_email_address, class = "form-control") }}
+    {{ render_field(form.requested_value, class = "form-control") }}
+    {{ render_field(form.receipt_date, class = "form-control") }}
+    {{ render_field(form.receipt) }}
+</dl>
+<p><input class="btn btn-primary" type=submit value="Submit expense claim">
+</form>
+    
+<br>
+<h2>Previous expense claims</h2>
+<div>
+    <table class="table table-hover, table-bordered">
+        <tr bgcolor="#d3d3d3">
+            <th>Submitted date</th>
+            <th>Receipt date</th>
+            <th>Paypal address</th>
+            <th>Value</th>
+            <th>Receipt</th>
+            <th>Status</th>
+        </tr>
+        {% for claim in expenses %}
+            <tr bgcolor="{{ claim.status_colour }}">
+                <td>{{ claim.expense_submit_date }}</td>
+                <td>{{ claim.receipt_date }}</td>
+                <td>{{ claim.paypal_email }}</td>
+                <td>{{ claim.value_symbol }}</td>
+                <td><a href="{{ claim.receipt_url }}" target="_blank" class="btn btn-info" role="button">Receipt</a></td>
+                <td>{{ claim.status }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

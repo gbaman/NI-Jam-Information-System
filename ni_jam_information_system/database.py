@@ -36,7 +36,8 @@ def first_time_setup():
         db_session.add(Group(group_id=1, group_name="Guest"))
         db_session.add(Group(group_id=2, group_name="Attendee"))
         db_session.add(Group(group_id=3, group_name="Volunteer"))
-        db_session.add(Group(group_id=4, group_name="SuperAdmin"))
+        db_session.add(Group(group_id=4, group_name="Trustee"))
+        db_session.add(Group(group_id=5, group_name="SuperAdmin"))
         db_session.add(EquipmentGroup(equipment_group_id=0, equipment_group_name="Default equipment group"))
         db_session.commit()
         return True
@@ -950,7 +951,7 @@ def remove_room(room_id):
     room = db_session.query(WorkshopRoom).filter(WorkshopRoom.room_id == int(room_id)).first()
     db_session.delete(room)
     db_session.commit()
-    
+
 
 def get_all_badges(include_hidden=False):
     badges = db_session.query(BadgeLibrary)
@@ -1009,3 +1010,8 @@ def remove_badge_dependency(badge_id, dependency_badge_id):
     badge_dependency = db_session.query(BadgeDependencies).filter(BadgeDependencies.parent_badge_id == badge_id, BadgeDependencies.dependency_badge_id == dependency_badge_id).first()
     db_session.delete(badge_dependency)
     db_session.commit()
+
+
+def get_all_trustees():
+    trustees = db_session.query(LoginUser).filter(LoginUser.group_id >= 4).all()
+    return trustees

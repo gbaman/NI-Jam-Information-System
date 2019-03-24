@@ -1,0 +1,101 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h1>Ledger</h1>
+<hr>
+<h3>Upload CSV files from the bank</h3>
+<form method="POST" enctype="multipart/form-data" style="max-width: 220px">
+<dl>
+  {{ render_field(form.csv_file) }}
+</dl>
+<p><input class="btn btn-primary" type=submit value="Upload">
+</form>
+<hr>
+
+<h3>Main Ledger</h3>
+<p>The Jam ledger can be found below.</p>
+{%include '_message_flash_helper.html'%}
+<br>
+<table class="ledger-table" style="table-layout: fixed; width: 100%">
+    <tr bgcolor="#b7b7b7">
+        <th width="7%">Bank date</th>
+        <th width="8%">Bank text</th>
+        <th width="7%">Supplier (editable)</th>
+        <th width="12%">Description (editable)</th>
+        <th width="7%">Receipt</th>
+        <th width="6%">Paid out</th>
+        <th width="6%">Paid in</th>
+        <th width="6%">Running total</th>
+        <th width="8%">Paid by</th>
+        <th width="8%">Secondary approved</th>
+        <th width="8%">Verified by</th>
+        <th width="8%">Category</th>
+        <th width="9%">Notes (editable)</th>
+    </tr>
+    {% set balance = namespace(total=0.0) %}
+    {% for t in transactions %}
+        <tr>
+            <td bgcolor="#e0e0e0">{{ t.bank_date }}</td>
+            <td bgcolor="#e0e0e0">{{ t.bank_text }}</td>
+            <td onclick='editLedgerSupplier("{{ t.transaction_id }}", this.textContent, this)'>{{ t.supplier }}</td>
+            <td onclick='editLedgerDescription("{{ t.transaction_id }}", this.textContent, this)'>{{ t.description }}</td>
+            {% if t.receipt_url %}
+                <td><a href="{{ t.receipt_url }}" target="_blank" class="btn btn-info" role="button">Receipt</a><br></td>
+            {% else %}
+                <td><a href="ledger_upload_link/{{ t.transaction_id }}" class="btn btn-warning" role="button">Link/Upload</a><br></td>
+            {% endif %}
+            <td bgcolor="#e0e0e0">{{ t.paid_out_symbol }}</td>
+            <td bgcolor="#e0e0e0">{{ t.paid_in_symbol }}</td>
+            {% if t.paid_in %}
+                {% set balance.total = balance.total + t.paid_in|float %}
+            {% endif %}
+        
+            {% if t.paid_out %}
+                {% set balance.total = balance.total - t.paid_out|float %}
+            {% endif %}
+            <td bgcolor="#e0e0e0">£{{ "%.2f"|format(balance.total) }}</td>
+            {% if t.payment_by %}
+                <td bgcolor="#e0e0e0">
+                {{ t.payment_by }}
+            {% else %}
+                <td><a href="ledger/payment_by/{{ t.transaction_id }}" class="btn btn-info {{ t.button_disabled }}" role="button">Claim</a>
+            {% endif %}</td>
+        
+            {% if t.paid_out and t.paid_out | int >= 50 %}
+                {% if t.secondary_approved_by %}
+                    <td bgcolor="#e0e0e0">{{ t.secondary_approved_by }}
+                {% else %}
+                    <td><a href="ledger/secondary_approved_by/{{ t.transaction_id }}" class="btn btn-info {{ t.button_disabled }} " role="button">Approve</a>
+                {% endif %}
+            {% else %}
+                <td bgcolor="#e0e0e0">N/A
+            {% endif %} </td>
+        
+            {% if t.verified_by %}
+                <td bgcolor="#e0e0e0">{{ t.verified_by }}
+            {% else %}
+                <td><a href="ledger/verified_by/{{ t.transaction_id }}" class="btn btn-info {{ t.verified_by_button_disabled }}" role="button">Approve</a>
+            {% endif %} </td>
+        
+            <td>
+                <label for="content-picker"></label><select data-live-search="true" data-transaction="{{ t.transaction_id }}" data-width="100%" class="selectpicker transaction-category-picker selectcontent" id="content-picker">
+                category is {{ t.category }}
+                {% if not t.category %}
+                    <option selected value="">None</option>
+                {% else %}
+                    <option value="">None</option>
+                {% endif %}
+                {% for category in t.categories %}
+                    {% if t.category == category %}
+                        <option selected value="{{ category }}">{{ category }}</option>
+                    {% else %}
+                        <option value="{{ category }}">{{ category }}</option>
+                    {% endif %}
+                {% endfor %}
+                </select>
+            </td>
+            <td onclick='editLedgerNotes("{{ t.transaction_id }}", this.textContent, this)'>{{ t.treasurer_notes }}</td>
+        </tr>
+    {% endfor %}
+</table>
+{% endblock %}

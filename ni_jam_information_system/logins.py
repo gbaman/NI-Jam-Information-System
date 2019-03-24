@@ -1,10 +1,14 @@
 import datetime
 import string
+from typing import Optional
+
 import database
 import flask_bcrypt
 import random
 from urllib.parse import urlparse, urljoin
 from flask import request, url_for, redirect, flash
+
+import models
 
 
 def validate_login(username, password):
@@ -84,3 +88,9 @@ def redirect_back(endpoint, **values):
     if not target or not is_safe_url(target):
         target = url_for(endpoint, **values)
     return redirect(target)
+
+
+def get_current_user() -> Optional[models.LoginUser]:
+    if request.cookies.get('jam_login'):
+        return database.get_user_from_cookie(request.cookies.get('jam_login'))
+    return None 

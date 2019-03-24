@@ -1,5 +1,8 @@
 NI Jam Information System Spec
 ==============================
+This is the initial spec put together by the Northern Ireland Raspberry Jam team in June 2017.   
+The system has since expanded significantly beyond this initial spec and this document is no longer maintained.   
+
 
 # Required Features
 - [x] Secure login system for volunteer team

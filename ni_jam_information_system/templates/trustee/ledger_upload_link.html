@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h1>Upload / Link</h1>
+<h3>Selected transaction</h3>
+<table>
+    <tr>
+        <th>Bank date</th>
+        <th>Bank text</th>
+        <th>Paid out</th>
+    </tr>
+    <tr>
+        <td>{{ transaction.bank_date }}</td>
+        <td>{{ transaction.bank_text }}</td>
+        <td>{{ transaction.paid_out_symbol }}</td>
+    </tr>
+</table>
+
+{% if expenses %}
+    <h3>Potential expenses to link</h3>
+    <table>
+        <tr>
+            <th>Paid made date</th>
+            <th>Volunteer name</th>
+            <th>Paypal email address</th>
+            <th>Receipt</th>
+            <th>Value</th>
+            <th>Link</th>
+        </tr>
+        {% for expense in expenses %}
+            <tr>
+                <td>{{ expense.payment_made_date }}</td>
+                <td>{{ expense.volunteer_name }}</td>
+                <td>{{ expense.paypal_email }}</td>
+                <td><a href="{{ expense.receipt_url }}" class="btn btn-info" role="button">Receipt</a></td>
+                <td>{{ expense.value_symbol }}</td>
+                <td><a href="{{ transaction.transaction_id }}/link/{{ expense.expense_id }}" class="btn btn-info" role="button">Link</a></td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endif %}
+     
+<h3>Upload receipt</h3>
+    <form method="POST" enctype="multipart/form-data" style="max-width: 220px">
+  <dl>
+      {{ render_field(form.receipt_date, class="form-control") }}
+      {{ render_field(form.receipt) }}
+  </dl>
+  <p><input class="btn btn-primary" type=submit value="Upload">
+</form>
+    
+{% endblock %}
