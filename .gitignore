@@ -157,6 +157,7 @@ Custom stuff
 ############
 
 ni_jam_information_system/secrets/config.py
+ni_jam_information_system/secrets/client_secret.json
 database/NIJIS_DB_model.mwb.bak
 jam_venv/
 slackbot_venv/

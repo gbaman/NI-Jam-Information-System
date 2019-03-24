@@ -1,6 +1,9 @@
+import datetime
 import json
 import os
-from flask import Blueprint, render_template, request, make_response, redirect, flash
+import uuid
+
+from flask import Blueprint, render_template, request, make_response, redirect, flash, send_file
 from werkzeug.datastructures import CombinedMultiDict
 from werkzeug.utils import secure_filename
 
@@ -374,6 +377,53 @@ def remote_workshop_room(room_id):
     database.remove_room(room_id)
     flash("Room removed.", "success")
     return redirect(('admin/jam_setup'))
+
+
+
+@admin_routes.route("/admin/expenses_claim", methods=['GET', 'POST'])
+@volunteer_required
+@module_equipment_required
+def expenses_claim():
+    import google_sheets
+    form = forms.ExpensesClaimForm(CombinedMultiDict((request.files, request.form)))
+    if form.validate_on_submit():
+        f = form.receipt.data
+        month_year = form.receipt_date.data.strftime("%B-%Y").lower()
+        file_type = f.filename.split(".")[-1]
+        file_uuid = str(uuid.uuid4())[0:8]
+        filename = f"{file_uuid}.{file_type}"
+        user = logins.get_current_user()
+        base_dir = f"static/files/expenses/{month_year}-{user.username}"
+        if not os.path.exists(base_dir):
+            os.makedirs(base_dir)
+        file_path = f"{base_dir}/{filename}"
+        if not os.path.isfile(file_path):
+            f.save(file_path)
+            flash("File upload successful.", "success")
+            expense = google_sheets.Expense(["", datetime.datetime.today().strftime("%d/%m/%Y"), form.receipt_date.data.strftime("%d/%m/%Y"), user.user_id, f"{user.first_name} {user.surname}", form.paypal_email_address.data, f"/{file_path}", form.requested_value.data, None, None, None, None, None, None, None, None], offset=0)
+            google_sheets.create_expense_row(expense)
+        else:
+            flash("Failed to upload - File of same name already exists.", "danger")
+            
+        
+        return redirect(url_for("admin_routes.expenses_claim"))
+    expenses = google_sheets.get_volunteer_expenses_table()
+    user_expenses = []
+    for expense in expenses:
+        if int(expense.volunteer_id) == logins.get_current_user().user_id:
+            user_expenses.append(expense)
+    if user_expenses:
+        form.paypal_email_address.default = user_expenses[-1].paypal_email
+        form.process()
+    
+    return render_template("admin/expenses_claims.html", form=form, expenses=user_expenses)
+
+
+@admin_routes.route("/static/files/expenses/<folder>/<filename>")
+@volunteer_required
+@module_finance_required
+def files_download(folder, filename):
+    return send_file(f"static/files/expenses/{folder}/{filename}")
 
 
 ####################################### AJAX Routes #######################################

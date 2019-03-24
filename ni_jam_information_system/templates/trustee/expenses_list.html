@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h1>Expenses list</h1>
+<p>See below for the list of expenses</p>
+{%include '_message_flash_helper.html'%}
+    
+<table>
+    <tr bgcolor="#d3d3d3">
+        <th>Expense submitted date</th>
+        <th>Receipt date</th>
+        <th>Volunteer name</th>
+        <th>Paypal email address</th>
+        <th>Receipt</th>
+        <th>Value</th>
+        <th>Approved by</th>
+        <th>Secondary approved by</th>
+        <th>Paid by</th>
+        <th>Rejection reason</th>
+    </tr>
+    {% for expense in expenses %}
+        {% if expense.rejected_reason %}
+            <tr bgcolor="#ff9e9e">
+        {% elif expense.approved_by and expense.secondary_approved_by %}
+            <tr bgcolor="#9effbb">
+        {% else %}
+            <tr>
+        {% endif %}
+            <td>{{ expense.expense_submit_date }}</td>
+            <td>{{ expense.receipt_date }}</td>
+            <td>{{ expense.volunteer_name }}</td>
+            <td>{{ expense.paypal_email }}</td>
+            <td><a href="{{ expense.receipt_url }}" target="_blank" class="btn btn-info" role="button">Receipt</a></td>
+            <td>{{ expense.value_symbol }}</td>
+            {% if expense.approved_by or expense.rejected_reason %}
+                <td>{{ expense.approved_by }}</td>
+            {% else %}
+                <td><a href="expenses_list/approved_by/{{ expense.expense_id }}" class="btn btn-info {{ expense.button_disabled }}" role="button">Approve</a>
+            {% endif %}
+        
+            {% if expense.secondary_approved_by or expense.rejected_reason %}
+                <td>{{ expense.secondary_approved_by }}</td>
+            {% else %}
+                <td><a href="expenses_list/secondary_approved_by/{{ expense.expense_id }}" class="btn btn-info {{ expense.button_disabled }}" role="button">Approve</a>
+            {% endif %}
+            {% if expense.paid_by or expense.rejected_reason %}
+                <td>{{ expense.paid_by }}</td>
+            {% else %}
+                <td><a href="expenses_list/paid_by/{{ expense.expense_id }}" class="btn btn-info {{ expense.paid_button_disabled }}" role="button">Paid</a>
+            {% endif %}
+            {% if expense.rejected_reason %}
+                <td>{{ expense.rejected_reason }}</td>
+            {% else %}
+                <td><button onclick="rejectExpense({{ expense.expense_id }})" type="button" class="btn btn-danger">Reject</button></td>
+            {% endif %}
+        
+        </tr>
+    {% endfor %}
+</table>
+{% endblock %}

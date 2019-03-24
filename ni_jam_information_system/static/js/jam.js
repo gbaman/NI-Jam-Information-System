@@ -361,3 +361,135 @@ function selectInventory(inventory_id) {
         }
     });
 }
+
+function editLedgerDescription(transaction_id, description, item) {
+    alertify.prompt( 'Edit description', '', description
+               , function(evt, value){ updateLedgerDescription(transaction_id, value); item.textContent = value}, function() {});
+}
+
+function editLedgerSupplier(transaction_id, supplier, item) {
+    alertify.prompt( 'Edit supplier', '', supplier
+               , function(evt, value){ updateLedgerSupplier(transaction_id, value); item.textContent = value}, function() {});
+}
+
+function editLedgerNotes(transaction_id, notes, item) {
+    alertify.prompt( 'Edit notes', '', notes
+               , function(evt, value){ updateLedgerNotes(transaction_id, value); item.textContent = value}, function() {});
+}
+
+function updateLedgerDescription(transaction_id, description){
+    $.ajax({
+        type: "POST",
+        url: "/trustee/finance/ledger/update_description_ajax",
+        data: {
+            transaction_id: transaction_id,
+            description: description
+        },
+        success: function (result) {
+            alertify.success('Updated description saved');
+        },
+        error: function (result) {
+            alertify.alert("Unable to update description.",
+                function(){
+                    window.location.reload();
+                });
+        }
+    });
+}
+
+function updateLedgerSupplier(transaction_id, supplier){
+    $.ajax({
+        type: "POST",
+        url: "/trustee/finance/ledger/update_supplier_ajax",
+        data: {
+            transaction_id: transaction_id,
+            supplier: supplier
+        },
+        success: function (result) {
+            alertify.success('Updated supplier saved');
+        },
+        error: function (result) {
+            alertify.alert("Unable to update supplier.",
+                function(){
+                    window.location.reload();
+                });
+        }
+    });
+}
+
+function updateLedgerNotes(transaction_id, notes){
+    $.ajax({
+        type: "POST",
+        url: "/trustee/finance/ledger/update_notes_ajax",
+        data: {
+            transaction_id: transaction_id,
+            notes: notes
+        },
+        success: function (result) {
+            alertify.success('Updated note saved');
+        },
+        error: function (result) {
+            alertify.alert("Unable to update notes.",
+                function(){
+                    window.location.reload();
+                });
+        }
+    });
+}
+
+
+$(function() {
+
+  $(".transaction-category-picker").on("changed.bs.select", function(e, clickedIndex, newValue, oldValue) {
+
+      updateLedgerCategory(this.attributes["data-transaction"].value, this.value);
+      console.log(this.value, clickedIndex, newValue, oldValue)
+  });
+
+});
+
+function updateLedgerCategory(transaction_id, category){
+    $.ajax({
+        type: "POST",
+        url: "/trustee/finance/ledger/update_category_ajax",
+        data: {
+            transaction_id: transaction_id,
+            category: category
+        },
+        success: function (result) {
+            alertify.success('Category updated');
+        },
+        error: function (result) {
+            alertify.alert("Unable to update category.",
+                function(){
+                    window.location.reload();
+                });
+        }
+    });
+}
+
+function rejectExpense(expense_id, item) {
+    alertify.prompt( 'Rejection reason', '', ""
+               , function(evt, value){ rejectExpenseReason(expense_id, value);}, function() {});
+}
+
+
+function rejectExpenseReason(expense_id, rejection_reason){
+    $.ajax({
+        type: "POST",
+        url: "/trustee/finance/expenses_list/rejection_reason",
+        data: {
+            expense_id: expense_id,
+            rejection_reason: rejection_reason
+        },
+        success: function (result) {
+            window.location.reload();
+        },
+        error: function (result) {
+            alertify.alert("Unable to reject expense",
+                function(){
+                    window.location.reload();
+                });
+        }
+    });
+}

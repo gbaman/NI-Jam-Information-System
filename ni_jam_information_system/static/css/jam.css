@@ -36,3 +36,11 @@ li{
 }
 
 .pagebreak { page-break-before: always; } /* page-break-after works, as well */
+
+
+.container-wide {max-width: 100%; display: block;}
+
+.ledger-table td, th {
+    padding: 7px;
+    overflow-wrap: break-word
+}

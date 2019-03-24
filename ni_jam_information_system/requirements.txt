@@ -7,3 +7,5 @@ eventbrite
 SQLAlchemy
 wtforms
 wtforms-components
+gspread
+oauth2client

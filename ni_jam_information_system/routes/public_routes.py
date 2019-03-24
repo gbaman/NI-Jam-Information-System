@@ -106,10 +106,9 @@ def public_schedule(jam_id=None):
     return render_template("public_schedule.html", time_slots=time_slots, workshop_rooms_in_use=workshop_rooms_in_use, total_workshop_rooms=len(workshop_rooms_in_use), container_name = " ", selected_jam=database.get_jam_details(jam_id), jams=jams)
 
 
-@public_routes.route("/static/files/<workshop_id>/<filename>")
+@public_routes.route("/static/files/<int:workshop_id>/<filename>")
 @module_workshops_required
 def files_download(workshop_id, filename):
-    print("Hello world")
     file = database.get_file_for_download(workshop_id, "static/files/{}/{}".format(workshop_id, filename))
     login_status, user = logins.check_allowed(request, 3)
     if file.file_permission == "Public" or (file.file_permission == "Jam team only" and login_status):
