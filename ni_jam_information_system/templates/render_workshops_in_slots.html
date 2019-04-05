@@ -25,9 +25,9 @@
                 {% if workshop.workshop_limit != "0 / 0" %}
                     {% for jam_attendee in jam_attendees %}
                         {%- if jam_attendee.id not in workshop.attendee_ids -%}
-                            <button style="margin: 3px; float: left" onclick="bookWorkshop('{{workshop.workshop_id}}' ,'{{jam_attendee.id}}')" type="button" class="btn btn-danger" id="{{workshop.workshop_id}}-{{jam_attendee.id}}">{{jam_attendee.name}}</button>
+                            <button style="margin: 3px; float: left" onclick="bookWorkshop('{{workshop.workshop_id}}' ,'{{jam_attendee.id}}')" type="button" class="btn btn-danger" id="{{workshop.workshop_id}}-{{jam_attendee.id}}" data-toggle="tooltip" data-placement="top" {{ workshop.attendee_badge_blockers[jam_attendee.id][0] }} title="{{ workshop.attendee_badge_blockers[jam_attendee.id][1] }}">{{jam_attendee.name}}</button>
                         {%- else -%}
-                            <button style="margin: 3px; float: left" onclick="unbookWorkshop('{{workshop.workshop_id}}' ,'{{jam_attendee.id}}')" type="button" class="btn btn-success" id="{{workshop.workshop_id}}-{{jam_attendee.id}}">{{jam_attendee.name}}</button>
+                            <button style="margin: 3px; float: left" onclick="unbookWorkshop('{{workshop.workshop_id}}' ,'{{jam_attendee.id}}')" type="button" class="btn btn-success" id="{{workshop.workshop_id}}-{{jam_attendee.id}}" {{ workshop.attendee_badge_blockers[jam_attendee.id][0] }} title="{{ workshop.attendee_badge_blockers[jam_attendee.id][1] }}">{{jam_attendee.name}}</button>
                         {%- endif -%}
                         &nbsp;
                     {% endfor %}

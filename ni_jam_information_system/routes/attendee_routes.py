@@ -11,7 +11,10 @@ attendee_routes = Blueprint('attendee_routes', __name__,
 @attendee_required
 @module_booking_required
 def display_workshops():
+    database.get_schedule_by_time_slot(database.get_current_jam_id(), request.cookies.get('jam_order_id'))
+    
     if database.verify_attendee_id(request.cookies.get('jam_order_id'), database.get_current_jam_id()):
+        database.get_badges_needed_for_workshop(1)
         workshop_attendees = database.get_attendees_in_order(request.cookies.get("jam_order_id"))
         attendees = []
         if workshop_attendees:
@@ -19,8 +22,10 @@ def display_workshops():
                 if attendee.ticket_type == "General Jam Attendee" or attendee.ticket_type == "First-timer":
                     #attendees.append({"name":"{} {} - {}".format(attendee.first_name, attendee.surname, attendee.ticket_type), "id":attendee.attendee_id})
                     attendees.append({"name":"{} {}".format(attendee.first_name, attendee.surname), "id":attendee.attendee_id})
-            return render_template("workshops.html", workshop_slots=database.get_time_slots_to_select(database.get_current_jam_id(), request.cookies.get('jam_order_id')), jam_attendees=attendees)
-        return render_template("workshops.html", workshop_slots=database.get_time_slots_to_select(database.get_current_jam_id(), request.cookies.get('jam_order_id')))
+                    return render_template("workshops.html", slots=database.get_schedule_by_time_slot(database.get_current_jam_id(), request.cookies.get('jam_order_id')))
+            #return render_template("workshops.html", workshop_slots=database.get_time_slots_to_select(database.get_current_jam_id(), request.cookies.get('jam_order_id')), jam_attendees=attendees)
+        #return render_template("workshops.html", workshop_slots=database.get_time_slots_to_select(database.get_current_jam_id(), request.cookies.get('jam_order_id')))
+        return render_template("workshops.html", slots=database.get_schedule_by_time_slot(database.get_current_jam_id(), request.cookies.get('jam_order_id')))
     else:
         flash("You must enter your Eventbrite Order ID and the day password to access the workshop booking system.", "danger")
         return redirect("/")

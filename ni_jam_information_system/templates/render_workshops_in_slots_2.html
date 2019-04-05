@@ -1,0 +1,39 @@
+<div class="workshop_table">
+    {% for slot in slots %}
+        <h2>{{ slot.title }}</h2>
+        
+        <table class="table table-hover, table-bordered">
+        <tr bgcolor="#d3d3d3">
+            <th width=20%>Workshop title</th>
+            <th width=15%>Room</th>
+            <th width=28%>Description</th>
+            <th width=8%>Capacity</th>
+            <th width=19%>Book into workshop</th>
+        </tr>
+        
+        {% for jam_workshop in slot.jam_workshops_in_slot %}
+            <tr>
+                <td>{% if jam_workshop.workshop.pilot %} <i class="fas fa-flask"></i> {% endif %} {{jam_workshop.workshop.workshop_title}} {% if jam_workshop.workshop.pilot %} <i class="fas fa-flask"></i> {% endif %} </td>
+                <td>{{jam_workshop.workshop_room.room_name}}</td>
+                <td>{{jam_workshop.workshop.workshop_description}}</td>
+                <td><p id="{{jam_workshop.workshop_id}}-max-attendees">{{ jam_workshop.attendees|length }}/{{jam_workshop.max_attendees}}</p></td>
+                
+                <td>
+                    {% if jam_workshop.max_attendees > 0 %}
+                        {% for attendee in jam_workshop.potential_attendees %}
+                            {% if attendee not in jam_workshop.attendees %}
+                                <button style="margin: 3px; float: left" onclick="bookWorkshop('{{jam_workshop.workshop_run_id}}' ,'{{attendee.attendee_id}}')" type="button" class="btn btn-danger" id="{{jam_workshop.workshop_run_id}}-{{attendee.attendee_id}}" data-toggle="tooltip" data-placement="top" >{{attendee.first_name}} {{attendee.surname}}</button>
+
+                            {% else %}
+                                <button style="margin: 3px; float: left" onclick="bookWorkshop('{{jam_workshop.workshop_run_id}}' ,'{{attendee.attendee_id}}')" type="button" class="btn btn-success" id="{{jam_workshop.workshop_run_id}}-{{attendee.attendee_id}}" data-toggle="tooltip" data-placement="top" >{{attendee.first_name}} {{attendee.surname}}</button>
+
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </table>
+            
+    {% endfor %}
+</div>

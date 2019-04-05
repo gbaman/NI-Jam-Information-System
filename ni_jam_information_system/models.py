@@ -33,6 +33,8 @@ class Attendee(Base):
     jam_id = Column(ForeignKey('raspberry_jam.jam_id'), primary_key=True, nullable=False, index=True)
     checked_in = Column(Integer)
     current_location = Column(String(15))
+    attendee_login_id = Column(ForeignKey('attendee_login.attendee_login_id'), primary_key=True, nullable=False, index=True)
+    attendee_login = relationship('AttendeeLogin')
 
     jam = relationship('RaspberryJam')
 
@@ -129,6 +131,13 @@ class RaspberryJamWorkshop(Base):
     workshop_room = relationship('WorkshopRoom')
     users = relationship('LoginUser', secondary='workshop_volunteers')
     attendees = relationship('Attendee', secondary='workshop_attendee')
+    
+    @property
+    def max_attendees(self):
+        if int(self.workshop_room.room_capacity) < int(self.workshop.workshop_limit):
+            return int(self.workshop_room.room_capacity)
+        else:
+            return int(self.workshop.workshop_limit)
 
 
 class VolunteerAttendance(Base):
@@ -195,6 +204,10 @@ class WorkshopSlot(Base):
     slot_time_start = Column(Time, nullable=False)
     slot_time_end = Column(Time, nullable=False)
     workshops_in_slot = relationship("RaspberryJamWorkshop")
+    
+    @property
+    def title(self):
+        return f"{self.slot_time_start} - {self.slot_time_end}"
 
 
 class WorkshopFile(Base):
@@ -267,6 +280,7 @@ class AttendeeLogin(Base):
     __tablename__ = 'attendee_login'
     attendee_login_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
     attendee_login_name = Column(String(45), nullable=False)
+    attendee_badges = relationship("BadgeLibrary", secondary='attendee_login_badges')
     
 
 class AttendeeLoginBadges(Base):

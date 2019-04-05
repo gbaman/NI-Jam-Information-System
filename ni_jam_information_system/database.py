@@ -5,6 +5,7 @@ import uuid
 import os
 
 import math
+from typing import List
 
 from models import *
 from eventbrite_interactions import get_eventbrite_attendees_for_event
@@ -165,6 +166,10 @@ def update_attendees_from_eventbrite(event_id):
         new_attendee.ticket_type = attendee["ticket_class_name"]
         new_attendee.jam_id = int(event_id)
         new_attendee.checked_in = attendee["checked_in"]
+        if attendee["pinet_username"]:
+            attendee_login = get_attendee_login(attendee["pinet_username"])
+            if attendee_login:
+                new_attendee.attendee_id = attendee_login.attendee_id
 
         # 4 available states for current_location, Checked in, Checked out, Not arrived and None.
         if new_attendee.current_location is None: # If current_location has not been set
@@ -179,6 +184,12 @@ def update_attendees_from_eventbrite(event_id):
             db_session.add(new_attendee)
 
     db_session.commit()
+
+
+def get_attendee_login(pinet_username):
+    pinet_username = pinet_username.lower()
+    attendee_login = db_session.query(AttendeeLogin).filter(AttendeeLogin.attendee_login_name).first()
+    return attendee_login
 
 
 def get_attendees_in_order(order_id):
@@ -234,7 +245,27 @@ def get_workshop_rooms_objects():
     rooms = db_session.query(WorkshopRoom)
     return rooms
 
-def get_time_slots_to_select(jam_id, user_id, admin_mode=False):
+
+def get_schedule_by_time_slot(jam_id, order_id, admin=False) -> List[WorkshopSlot]:
+    
+    attendees = get_attendees_in_order(order_id).all()
+    
+    workshop_slots = db_session.query(WorkshopSlot).all()
+    for slot in workshop_slots:
+        jam_workshops_in_slot = []
+        for workshop in slot.workshops_in_slot:
+            if workshop.jam_id == jam_id and (admin or workshop.workshop.workshop_hidden != 1):
+                jam_workshops_in_slot.append(workshop)
+                
+            workshop.potential_attendees = attendees
+            
+        slot.jam_workshops_in_slot = jam_workshops_in_slot
+
+    print()
+    return workshop_slots
+
+
+def get_time_slots_to_select(jam_id, order_id, admin_mode=False):
     workshop_slots = []
     for workshop_slot in db_session.query(WorkshopSlot).filter():
         workshop_slots.append({"title":str("{} - {}".format(workshop_slot.slot_time_start, workshop_slot.slot_time_end)), "slot_id":workshop_slot.slot_id, "workshops":[]})
@@ -254,7 +285,7 @@ def get_time_slots_to_select(jam_id, user_id, admin_mode=False):
         names = ""
         attendee_ids = []
         for name in get_attendees_in_workshop(workshop.workshop_run_id):
-            if str(name.order_id) == user_id or admin_mode:
+            if str(name.order_id) == order_id or admin_mode:
                 names = "{} {}, ".format(names, name.first_name.capitalize())
                 attendee_ids.append(name.attendee_id)
 
@@ -262,13 +293,21 @@ def get_time_slots_to_select(jam_id, user_id, admin_mode=False):
             volunteer = workshop.users[0].first_name
         else:
             volunteer = "None"
-
+        
+        attendees = get_attendees_in_order(order_id).all()
+        attendees_badges_blockers = {}
+        for attendee in attendees:
+            badges_fulfilled, fulfilled_message = get_workshop_badge_requirements_fulfilled(workshop.workshop, attendee.attendee_login)
+            attendees_badges_blockers[attendee.attendee_id] = (badges_fulfilled, fulfilled_message)
+        
+        # TODO : Finish checking if attendee actually has the badges needed 
         new_workshop = {"workshop_room":workshop.workshop_room.room_name,
                         "workshop_title":workshop.workshop.workshop_title,
                         "workshop_description":workshop.workshop.workshop_description,
                         "workshop_limit":"{} / {}".format(len(get_attendees_in_workshop(workshop.workshop_run_id)), max_attendees),
                         "attendee_names":names,
                         "attendee_ids":attendee_ids,
+                        "attendee_badge_blockers": attendees_badges_blockers,
                         "workshop_id":workshop.workshop_run_id,
                         "volunteer": volunteer,
                         "pilot": workshop.pilot,
@@ -1015,3 +1054,34 @@ def remove_badge_dependency(badge_id, dependency_badge_id):
 def get_all_trustees():
     trustees = db_session.query(LoginUser).filter(LoginUser.group_id >= 4).all()
     return trustees
+
+
+def _get_child_badges(badge:BadgeLibrary, total_badges):
+    if badge and badge.dependent_badges:
+        for b in badge.dependent_badges:
+            total_badges.append(b.dependency_badge)
+            total_badges = total_badges + _get_child_badges(b.dependency_badge, [])
+    return total_badges
+
+
+def get_badges_needed_for_workshop(workshop_id):
+    workshop = db_session.query(Workshop).filter(Workshop.workshop_id == workshop_id).first()
+    badges = set()
+    for badge in workshop.badges:
+        badges.add(badge)
+        badges = badges.union(set(_get_child_badges(badge, [])))
+    print(badges)
+    
+    
+def get_workshop_badge_requirements_fulfilled(workshop:Workshop, attendee:AttendeeLogin):
+    if not attendee and workshop.badges:
+        return "Disabled", "No PiNet username attached"
+    for b in workshop.badges:
+        if b not in attendee.attendee_badges:
+            return "Disabled", f"Missing badge {b.badge_name}"
+    return "", ""
+
+
+def get_attendee_from_attendee_id(attendee_id):
+    attendee = db_session.query(AttendeeLogin).filter(AttendeeLogin.attendee_login_id == attendee_id).first()
+    return attendee
