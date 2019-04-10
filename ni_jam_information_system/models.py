@@ -320,6 +320,16 @@ class WorkshopBadge(Base):
     badge = relationship('BadgeLibrary')
 
 
+class AlertConfig(Base):
+    __tablename__ = 'alert_config'
+    alert_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
+    alert_message = Column(String(300), nullable=False)
+    jam_id = Column(ForeignKey('raspberry_jam.jam_id'), primary_key=True, nullable=True, index=True)
+    workshop_id = Column(ForeignKey('workshop.workshop_id'), primary_key=True, nullable=True, index=True)
+    ticket_type = Column(String(45), nullable=True)
+    slot_id = Column(ForeignKey('workshop_slots.workshop_id'), primary_key=True, nullable=True, index=True)
+
+
 t_workshop_volunteers = Table(
     'workshop_volunteers', metadata,
     Column('user_id', ForeignKey('login_users.user_id'), primary_key=True, nullable=False, index=True),

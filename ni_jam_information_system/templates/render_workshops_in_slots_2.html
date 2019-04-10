@@ -24,10 +24,13 @@
                             {% for attendee in jam_workshop.potential_attendees %}
                                 {% if attendee.ticket_type == "General Jam Attendee" or attendee.ticket_type == "First-timer" %}
                                     {% if attendee not in jam_workshop.attendees %}
-                                        <button style="margin: 3px; float: left" onclick="bookWorkshop('{{jam_workshop.workshop_run_id}}' ,'{{attendee.attendee_id}}')" type="button" class="btn btn-danger" id="{{jam_workshop.workshop_run_id}}-{{attendee.attendee_id}}" data-toggle="tooltip" data-placement="top" >{{attendee.first_name}} {{attendee.surname}}</button>
-        
+                                        {% if attendee.alert and attendee.alert.workshop_id and not attendee.alert.workshop_id == jam_workshop.workshop.workshop_id %}
+                                            <button style="margin: 3px; float: left" onclick="bookWorkshopAlert('{{jam_workshop.workshop_run_id}}' ,'{{attendee.attendee_id}}', '{{ attendee.alert.alert_message }}')" type="button" class="btn btn-danger" id="{{jam_workshop.workshop_run_id}}-{{attendee.attendee_id}}" data-toggle="tooltip" data-placement="top" >{{attendee.first_name}} {{attendee.surname}}</button>
+                                        {% else %}
+                                            <button style="margin: 3px; float: left" onclick="bookWorkshop('{{jam_workshop.workshop_run_id}}' ,'{{attendee.attendee_id}}')" type="button" class="btn btn-danger" id="{{jam_workshop.workshop_run_id}}-{{attendee.attendee_id}}" data-toggle="tooltip" data-placement="top" >{{attendee.first_name}} {{attendee.surname}}</button>
+                                        {% endif %}
                                     {% else %}
-                                        <button style="margin: 3px; float: left" onclick="bookWorkshop('{{jam_workshop.workshop_run_id}}' ,'{{attendee.attendee_id}}')" type="button" class="btn btn-success" id="{{jam_workshop.workshop_run_id}}-{{attendee.attendee_id}}" data-toggle="tooltip" data-placement="top" >{{attendee.first_name}} {{attendee.surname}}</button>
+                                        <button style="margin: 3px; float: left" onclick="unbookWorkshop('{{jam_workshop.workshop_run_id}}' ,'{{attendee.attendee_id}}')" type="button" class="btn btn-success" id="{{jam_workshop.workshop_run_id}}-{{attendee.attendee_id}}" data-toggle="tooltip" data-placement="top" >{{attendee.first_name}} {{attendee.surname}}</button>
         
                                     {% endif %}
                                {% endif %} 

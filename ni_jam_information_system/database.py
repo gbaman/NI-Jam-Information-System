@@ -249,6 +249,7 @@ def get_workshop_rooms_objects():
 def get_schedule_by_time_slot(jam_id, order_id, admin=False) -> List[WorkshopSlot]:
     
     attendees = get_attendees_in_order(order_id).all()
+    alerts = get_all_alerts_for_jam(jam_id)
     
     workshop_slots = db_session.query(WorkshopSlot).all()
     for slot in workshop_slots:
@@ -257,8 +258,15 @@ def get_schedule_by_time_slot(jam_id, order_id, admin=False) -> List[WorkshopSlo
             if workshop.jam_id == jam_id and (admin or workshop.workshop.workshop_hidden != 1):
                 jam_workshops_in_slot.append(workshop)
                 
-            workshop.potential_attendees = attendees
-            
+            workshop.potential_attendees = deepcopy(attendees)
+            #workshop.alerts = []
+            for alert in alerts: # TODO : Add all the additional alerts rules
+                if alert.slot_id and alert.slot_id == workshop.slot_id:
+                    for attendee in workshop.potential_attendees:
+                        if alert.ticket_type and alert.ticket_type == attendee.ticket_type:
+                            attendee.alert = alert
+                    
+                    
         slot.jam_workshops_in_slot = jam_workshops_in_slot
 
     print()
@@ -568,10 +576,6 @@ def get_workshop_timetable_data(jam_id): # Similar to get_volunteer_data(), but 
             for room in time_slot.rooms:
                 if room.room_id == workshop.workshop_room_id and time_slot.slot_id == workshop.slot_id:
                     room.workshop = workshop
-                    if int(workshop.workshop_room.room_capacity) < int(workshop.workshop.workshop_limit):
-                        room.workshop.max_attendees = workshop.workshop_room.room_capacity
-                    else:
-                        room.workshop.max_attendees = workshop.workshop.workshop_limit
 
 
                     if not room.workshop.workshop_room:
@@ -1085,3 +1089,8 @@ def get_workshop_badge_requirements_fulfilled(workshop:Workshop, attendee:Attend
 def get_attendee_from_attendee_id(attendee_id):
     attendee = db_session.query(AttendeeLogin).filter(AttendeeLogin.attendee_login_id == attendee_id).first()
     return attendee
+
+
+def get_all_alerts_for_jam(jam_id) -> List[AlertConfig]:
+    alerts = db_session.query(AlertConfig).filter(or_(AlertConfig.jam_id == None, AlertConfig.jam_id == jam_id)).all()
+    return alerts

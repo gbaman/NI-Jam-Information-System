@@ -276,6 +276,12 @@ function updateAttendeeInfo() {
 }
 
 
+function bookWorkshopAlert(workshop_id, attendee_id, alert_message) {
+    alertify.confirm('Warning', alert_message
+        , function(){ bookWorkshop(workshop_id, attendee_id) }, function(){}).set('labels', {ok:'Confirm', cancel:'Cancel'})
+}
+
+
 function bookWorkshop(workshop_id, attendee_id) {
     $.ajax({
         type: "POST",
