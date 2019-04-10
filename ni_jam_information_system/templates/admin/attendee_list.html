@@ -7,12 +7,14 @@
         <tr bgcolor="#d3d3d3">
             <th>First name</th>
             <th>Surname</th>
+            <th>Ticket type</th>
             <th>Order ID</th>
         </tr>
         {% for attendee in attendees %}
             <tr>
                 <td>{{attendee.first_name}}</td>
                 <td>{{attendee.surname}}</td>
+                <td>{{ attendee.ticket_type }}</td>
                 <td>{{attendee.order_id}}</td>
             </tr>
         {% endfor %}
