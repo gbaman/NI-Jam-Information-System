@@ -192,11 +192,13 @@ def get_attendee_login(pinet_username):
     return attendee_login
 
 
-def get_attendees_in_order(order_id):
+def get_attendees_in_order(order_id, current_jam=False):
     found_attendees = db_session.query(Attendee).filter(Attendee.order_id == order_id)
     if not found_attendees:
         return None
     else:
+        if current_jam:
+            found_attendees = found_attendees.filter(Attendee.jam_id == get_current_jam_id())
         return found_attendees
 
 
@@ -273,7 +275,8 @@ def get_schedule_by_time_slot(jam_id, order_id, admin=False) -> List[WorkshopSlo
     return workshop_slots
 
 
-def get_time_slots_to_select(jam_id, order_id, admin_mode=False):
+def get_time_slots_to_select(jam_id, order_id, admin_mode=False): 
+    # TODO : To be retired and replaced with get_schedule_by_time_slot()
     workshop_slots = []
     for workshop_slot in db_session.query(WorkshopSlot).filter():
         workshop_slots.append({"title":str("{} - {}".format(workshop_slot.slot_time_start, workshop_slot.slot_time_end)), "slot_id":workshop_slot.slot_id, "workshops":[]})
@@ -576,7 +579,6 @@ def get_workshop_timetable_data(jam_id): # Similar to get_volunteer_data(), but 
             for room in time_slot.rooms:
                 if room.room_id == workshop.workshop_room_id and time_slot.slot_id == workshop.slot_id:
                     room.workshop = workshop
-
 
                     if not room.workshop.workshop_room:
                         room.workshop.bg_colour = grey
@@ -1094,3 +1096,15 @@ def get_attendee_from_attendee_id(attendee_id):
 def get_all_alerts_for_jam(jam_id) -> List[AlertConfig]:
     alerts = db_session.query(AlertConfig).filter(or_(AlertConfig.jam_id == None, AlertConfig.jam_id == jam_id)).all()
     return alerts
+
+
+def update_pinet_username_from_attendee_id(attendee_id, pinet_username):
+    attendee = db_session.query(Attendee).filter(Attendee.attendee_id == int(attendee_id)).first()
+    if attendee:
+        if attendee.attendee_login_id:
+            attendee.attendee_login.attendee_login_name = pinet_username.lower()
+        else:
+            attendee.attendee_login = AttendeeLogin(attendee_login_id=attendee.attendee_id, attendee_login_name=pinet_username.lower())
+        db_session.commit()
+        return attendee.attendee_login
+    return False

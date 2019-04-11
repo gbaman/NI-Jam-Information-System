@@ -104,7 +104,7 @@ def add_workshop_to_jam():
     if request.method == 'POST':# and form.validate():
         database.add_workshop_to_jam_from_catalog(database.get_current_jam_id(), form.workshop.data, form.volunteer.data, form.slot.data, form.room.data, int(literal_eval(form.pilot.data)), int(literal_eval(form.pair.data)))
         return redirect("/admin/add_workshop_to_jam", code=302)
-    return render_template('admin/add_workshop_to_jam_form.html', form=form, workshop_slots=database.get_time_slots_to_select(database.get_current_jam_id(), 0, admin_mode=True))
+    return render_template('admin/add_workshop_to_jam_form.html', form=form, workshop_slots=database.get_schedule_by_time_slot(database.get_current_jam_id(), 0, admin=True))
 
 
 @admin_routes.route('/admin/delete_workshop/<workshop_id>')
@@ -475,6 +475,14 @@ def files_download(folder, filename):
     return send_file(f"static/files/expenses/{folder}/{filename}")
 
 
+@admin_routes.route("/admin/workshop_run/<workshop_run_id>")
+@volunteer_required
+@module_badge_required
+def workshop_run_details(workshop_run_id):
+    jam_workshop = database.get_workshop_run(int(workshop_run_id))
+    return render_template("admin/workshop_run_details.html", jam_workshop=jam_workshop)
+
+
 ####################################### AJAX Routes #######################################
 
 
@@ -624,3 +632,6 @@ def remove_inventory_equipment_entry():
     equipment_entry_id = int(request.form['equipment_entry_id'])
     database.remove_equipment_entry_to_inventory(int(inventory_id), int(equipment_entry_id))
     return ""
+
+
+#@admin_routes.route("/admin/award_badge/<attendee_id")

@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h2>{{ jam_workshop.workshop.workshop_title }} details</h2>
+<table>
+    <tr bgcolor="#d3d3d3">
+        <th width=20%>Workshop title</th>
+        <th width=15%>Room</th>
+        <th width=28%>Description</th>
+        <th width=8%>Capacity</th>
+    </tr>
+    <tr>
+        <td>{% if jam_workshop.workshop.pilot %} <i class="fas fa-flask"></i> {% endif %} {{jam_workshop.workshop.workshop_title}} {% if jam_workshop.workshop.pilot %} <i class="fas fa-flask"></i> {% endif %} </td>
+        <td>{{jam_workshop.workshop_room.room_name}}</td>
+        <td>{{jam_workshop.workshop.workshop_description}}</td>
+        <td><p id="{{jam_workshop.workshop_id}}-max-attendees">{{ jam_workshop.attendees|length }}/{{jam_workshop.max_attendees}}</p></td>
+    </tr>
+    
+</table>
+    <br>
+    <h3>Badge awarding</h3>
+    <br>
+<table>
+    <tr bgcolor="#d3d3d3">
+        <th>Attendee ID</th>
+        <th>Attendee name</th>
+        <th>Badge</th>
+        <th>PiNet Username (click to edit)</th>
+    </tr>
+    {% for attendee in jam_workshop.attendees %}
+        <tr>
+            <td>{{ attendee.attendee_id }}</td>
+            <td>{{ attendee.first_name }} {{ attendee.surname }}</td>
+            <td><button id="award_badge_button_{{ attendee.attendee_id }}" data-id="{{jam_workshop.workshop_id}}" class="btn btn-info {% if not attendee.attendee_login_id %} disabled {% endif %}"
+                        onclick="" value="val_1" name="but1">Award
+                </button></td>
+            <td onclick="editPiNetUsername({{ attendee.attendee_id }}, this.textContent, this)">{{ attendee.attendee_login.attendee_login_name }}</td>
+        </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

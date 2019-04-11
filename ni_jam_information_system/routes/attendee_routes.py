@@ -59,3 +59,24 @@ def update_booked_in_count_ajax():
         else:
             max_attendees = workshop_run.workshop.workshop_limit
         return "{}/{}".format(len(workshop_run.attendees), max_attendees)
+
+
+@attendee_routes.route("/update_pinet_username", methods=['GET', 'POST'])
+@attendee_required
+@module_attendees_required
+def update_pinet_username():
+    # This section can be called by either the attendee, or a volunteer so requires checking both permissions.
+    attendee_id = request.form['attendee_id']
+    username = request.form['username']
+    order_id = request.cookies.get('jam_order_id')
+
+    if logins.check_allowed(request, 3):
+        database.update_pinet_username_from_attendee_id(attendee_id, username)
+        return ""
+    else:
+
+        attendees = database.get_attendees_in_order(order_id, current_jam=True)
+        for attendee in attendees:
+            if attendee.attendee_id == int(attendee_id):
+                database.update_pinet_username_from_attendee_id(attendee_id, username)
+                return ""

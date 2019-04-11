@@ -5,6 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 from secrets.config import db_user, db_pass, db_name, db_host
+from sqlalchemy.ext.hybrid import hybrid_property
 
 
 engine = create_engine('mysql+pymysql://{}:{}@{}/{}?charset=utf8'.format(db_user, db_pass, db_host, db_name))
@@ -131,13 +132,28 @@ class RaspberryJamWorkshop(Base):
     workshop_room = relationship('WorkshopRoom')
     users = relationship('LoginUser', secondary='workshop_volunteers')
     attendees = relationship('Attendee', secondary='workshop_attendee')
-    
-    @property
+
+    @hybrid_property
     def max_attendees(self):
         if int(self.workshop_room.room_capacity) < int(self.workshop.workshop_limit):
             return int(self.workshop_room.room_capacity)
         else:
             return int(self.workshop.workshop_limit)
+
+    @hybrid_property
+    def leading_volunteer(self):
+        if self.users:
+            return f"{self.users[0].first_name} {self.users[0].surname}"
+        return ""
+
+    @hybrid_property
+    def attendee_first_names(self):
+        to_return = ""
+        for attendee in self.attendees:
+            to_return = f"{to_return} {attendee.first_name},"
+        if to_return:
+            return to_return[:-1]
+        return to_return
 
 
 class VolunteerAttendance(Base):
