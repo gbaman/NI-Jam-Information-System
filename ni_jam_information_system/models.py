@@ -34,7 +34,7 @@ class Attendee(Base):
     jam_id = Column(ForeignKey('raspberry_jam.jam_id'), primary_key=True, nullable=False, index=True)
     checked_in = Column(Integer)
     current_location = Column(String(15))
-    attendee_login_id = Column(ForeignKey('attendee_login.attendee_login_id'), primary_key=True, nullable=False, index=True)
+    attendee_login_id = Column(ForeignKey('attendee_login.attendee_login_id'), primary_key=False, nullable=True, index=True, unique=True)
     attendee_login = relationship('AttendeeLogin')
 
     jam = relationship('RaspberryJam')
