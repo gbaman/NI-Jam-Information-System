@@ -26,8 +26,8 @@
     
     <form method=post style="max-width: 220px">
     <dl>
-        {{ render_field(form.badge_id, class = "form-control") }}
-        {{ render_field(form.badge_awarded_core, class = "form-control") }}
+        {{ render_field(form.badge_id, class="selectpicker", **{'data-live-search':'true'}) }}
+        {{ render_field(form.badge_awarded_core, class = "selectpicker") }}
     </dl>
     <p><input class="btn btn-primary" type=submit value="Add badge dependency">
 </form>
