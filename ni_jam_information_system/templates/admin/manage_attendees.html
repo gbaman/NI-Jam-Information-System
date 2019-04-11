@@ -18,6 +18,7 @@
         <tr bgcolor="#d3d3d3">
             <th>First name</th>
             <th>Surname</th>
+            <th>PiNet username</th>
             <th>Age</th>
             <th>Order ID</th>
             <th>Current status</th>
@@ -28,6 +29,7 @@
             <tr id=tr-{{attendee.attendee_id}} bgcolor="{{ attendee.bg_colour }}">
                 <td>{{attendee.first_name}}</td>
                 <td>{{attendee.surname}}</td>
+                <td>{{attendee.attendee_login.attendee_login_name }}</td>
                 <td>{{attendee.age}}</td>
                 <td>{{attendee.order_id}}</td>
                 <td id="loc-{{attendee.attendee_id}}">{{attendee.current_location}}</td>

@@ -184,6 +184,7 @@ def manage_attendees():
         volunteer_attendee.current_location = volunteer_attendee.current_jam.current_location
         volunteer_attendee.attendee_id = volunteer_attendee.user_id
         volunteer_attendee.order_id = "Volunteer"
+        volunteer_attendee.attendee_login = ""
         jam_attendees.append(volunteer_attendee)
     for attendee in jam_attendees:
         if attendee.current_location == "Checked in":
