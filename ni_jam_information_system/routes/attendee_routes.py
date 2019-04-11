@@ -71,12 +71,12 @@ def update_pinet_username():
     order_id = request.cookies.get('jam_order_id')
 
     if logins.check_allowed(request, 3):
-        database.update_pinet_username_from_attendee_id(attendee_id, username)
-        return ""
+        if database.update_pinet_username_from_attendee_id(attendee_id, username):
+            return ""
     else:
 
         attendees = database.get_attendees_in_order(order_id, current_jam=True)
         for attendee in attendees:
             if attendee.attendee_id == int(attendee_id):
-                database.update_pinet_username_from_attendee_id(attendee_id, username)
-                return ""
+                if database.update_pinet_username_from_attendee_id(attendee_id, username):
+                    return ""

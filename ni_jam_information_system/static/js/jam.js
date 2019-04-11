@@ -525,7 +525,7 @@ function updatePiNetUsername(attendee_id, username){
             alertify.success('Username update successful');
         },
         error: function (result) {
-            alertify.alert("Unable to update username",
+            alertify.alert("Unable to update username. This may be because the username was blank.",
                 function(){
                     window.location.reload();
                 });

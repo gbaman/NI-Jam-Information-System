@@ -1114,6 +1114,8 @@ def update_pinet_username_from_attendee_id(attendee_id, pinet_username):
     attendee = db_session.query(Attendee).filter(Attendee.attendee_id == int(attendee_id)).first()
     if attendee:
         if attendee.attendee_login_id:
+            if not pinet_username.strip():
+                return False
             attendee.attendee_login.attendee_login_name = pinet_username.lower()
         else:
             attendee.attendee_login = AttendeeLogin(attendee_login_id=attendee.attendee_id, attendee_login_name=pinet_username.lower())
