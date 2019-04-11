@@ -121,9 +121,9 @@ class EquipmentAddToWorkshopForm(FlaskForm):
 
 
 class AddBadgeForm(FlaskForm):
-    badge_id = HiddenField("Badge ID")
-    badge_name = StringField("Badge name")
-    badge_description = StringField("Badge description")
+    badge_id = HiddenField("Badge ID", [validators.DataRequired()])
+    badge_name = StringField("Badge name", [validators.DataRequired()])
+    badge_description = StringField("Badge description", [validators.DataRequired()])
 
 
 class AddBadgeDependencyForm(FlaskForm):

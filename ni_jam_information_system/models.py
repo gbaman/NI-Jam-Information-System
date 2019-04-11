@@ -296,7 +296,7 @@ class Inventory(Base):
 class AttendeeLogin(Base):
     __tablename__ = 'attendee_login'
     attendee_login_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
-    attendee_login_name = Column(String(45), nullable=False)
+    attendee_login_name = Column(String(45), nullable=False, unique=True)
     attendee_badges = relationship("BadgeLibrary", secondary='attendee_login_badges')
     
 
@@ -320,7 +320,7 @@ class BadgeDependencies(Base):
 class BadgeLibrary(Base):
     __tablename__ = 'badge_library'
     badge_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
-    badge_name = Column(String(55), nullable=False)
+    badge_name = Column(String(55), nullable=False, unique=True)
     badge_description = Column(String(200), nullable=False)
     badge_hidden = Column(Boolean, nullable=False)
     badge_children_required_count = Column(Integer, nullable=False)
