@@ -191,6 +191,7 @@ class Workshop(Base):
     #workshop_equipment = relationship("Equipment", secondary="workshop_equipment")
     workshop_equipment = relationship('WorkshopEquipment')
     badges = relationship('BadgeLibrary', secondary='workshop_badge')
+    workshop_badge = relationship('BadgeLibrary', uselist=False)
 
 
 class WorkshopAttendee(Base):
@@ -319,11 +320,11 @@ class BadgeDependencies(Base):
 class BadgeLibrary(Base):
     __tablename__ = 'badge_library'
     badge_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
-    badge_name = Column(String(45), nullable=False)
+    badge_name = Column(String(55), nullable=False)
     badge_description = Column(String(200), nullable=False)
     badge_hidden = Column(Boolean, nullable=False)
     badge_children_required_count = Column(Integer, nullable=False)
-    workshop_id = Column(ForeignKey('workshop.workshop_id'), primary_key=False, nullable=True, index=True)
+    workshop_id = Column(ForeignKey('workshop.workshop_id'), primary_key=False, nullable=True, index=True, unique=True)
     badge_icon_path = Column(String(150), nullable=True)
     dependent_badges = relationship('BadgeDependencies', foreign_keys=BadgeDependencies.parent_badge_id)
 

@@ -32,9 +32,15 @@
         <tr>
             <td>{{ attendee.attendee_id }}</td>
             <td>{{ attendee.first_name }} {{ attendee.surname }}</td>
-            <td><button id="award_badge_button_{{ attendee.attendee_id }}" data-id="{{jam_workshop.workshop_id}}" class="btn btn-info {% if not attendee.attendee_login_id %} disabled {% endif %}"
-                        onclick="" value="val_1" name="but1">Award
+        {% if attendee.attendee_login and jam_workshop.workshop.workshop_badge in attendee.attendee_login.attendee_badges %}
+            <td><button id="award_badge_button_{{ attendee.attendee_id }}" data-id="{{jam_workshop.workshop_id}}" class="btn btn-danger {% if not attendee.attendee_login_id %} disabled {% endif %}"
+                        onclick="updateWorkshopBadgeAward({{ attendee.attendee_id }}, {{ jam_workshop.workshop.workshop_badge.badge_id }}, this)" value="val_2" name="but2">Remove
                 </button></td>
+        {% else %}
+            <td><button id="award_badge_button_{{ attendee.attendee_id }}" data-id="{{jam_workshop.workshop_id}}" class="btn btn-info {% if not attendee.attendee_login_id %} disabled {% endif %}"
+                        onclick="updateWorkshopBadgeAward({{ attendee.attendee_id }}, {{ jam_workshop.workshop.workshop_badge.badge_id }}, this)" value="val_2" name="but2">Award
+                </button></td>
+        {% endif %}
             <td onclick="editPiNetUsername({{ attendee.attendee_id }}, this.textContent, this)">{{ attendee.attendee_login.attendee_login_name }}</td>
         </tr>
     {% endfor %}

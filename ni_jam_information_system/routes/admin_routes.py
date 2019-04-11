@@ -634,4 +634,11 @@ def remove_inventory_equipment_entry():
     return ""
 
 
-#@admin_routes.route("/admin/award_badge/<attendee_id")
+@admin_routes.route("/admin/update_workshop_badge_award", methods=['GET', 'POST'])
+@volunteer_required
+@module_badge_required
+def update_workshop_badge_award():
+    attendee_id = request.form['attendee_id']
+    badge_id = request.form['badge_id']
+    if database.update_workshop_badge_award(attendee_id, badge_id):
+        return ""

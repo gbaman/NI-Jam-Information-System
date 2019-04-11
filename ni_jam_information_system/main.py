@@ -48,6 +48,8 @@ configuration.output_modules_enabled()
 if configuration.verify_modules_enabled().module_finance:
     import google_sheets
 
+if configuration.verify_modules_enabled().module_badge:
+    database.verify_all_workshop_badges_exist()
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):

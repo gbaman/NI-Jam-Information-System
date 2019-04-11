@@ -1088,8 +1088,13 @@ def get_workshop_badge_requirements_fulfilled(workshop:Workshop, attendee:Attend
     return "", ""
 
 
-def get_attendee_from_attendee_id(attendee_id):
+def get_attendee_login_from_attendee_id(attendee_id):
     attendee = db_session.query(AttendeeLogin).filter(AttendeeLogin.attendee_login_id == attendee_id).first()
+    return attendee
+
+
+def get_attendee_from_attendee_id(attendee_id):
+    attendee = db_session.query(Attendee).filter(Attendee.attendee_id == attendee_id).first()
     return attendee
 
 
@@ -1108,3 +1113,26 @@ def update_pinet_username_from_attendee_id(attendee_id, pinet_username):
         db_session.commit()
         return attendee.attendee_login
     return False
+
+
+def verify_all_workshop_badges_exist():
+    workshops = db_session.query(Workshop).filter(Workshop.workshop_badge == None).all()
+    for workshop in workshops:
+        badge = BadgeLibrary(badge_name=f"workshop_{workshop.workshop_title.replace(' ', '_')}", badge_description=f"Automatically created badge for {workshop.workshop_title} workshop.", badge_hidden=True, badge_children_required_count=0, workshop_id=workshop.workshop_id)
+        print(f"Adding badge for workshop {workshop.workshop_title}.")
+        db_session.add(badge)
+    db_session.commit()
+    print()
+
+
+def update_workshop_badge_award(attendee_id, badge_id):
+    attendee = get_attendee_from_attendee_id(int(attendee_id))
+    if attendee.attendee_login:
+        badge = db_session.query(AttendeeLoginBadges).filter(AttendeeLoginBadges.attendee_login_id == attendee.attendee_login.attendee_login_id, AttendeeLoginBadges.badge_id == int(badge_id)).first()
+        if badge:
+            db_session.delete(badge) # If badge is already in the system, remove it
+        else:
+            db_session.add(AttendeeLoginBadges(attendee_login_id=attendee.attendee_login_id, badge_id=int(badge_id), badge_award_date=datetime.datetime.now()))
+        db_session.commit()
+        return True
+    

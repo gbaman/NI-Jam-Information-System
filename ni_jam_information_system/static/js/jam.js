@@ -532,3 +532,32 @@ function updatePiNetUsername(attendee_id, username){
         }
     });
 }
+
+
+function updateWorkshopBadgeAward(attendee_id, badge_id, item){
+    if (item.textContent.includes('Award')) {
+        item.textContent = 'Remove';
+        item.classList.replace("btn-info", "btn-danger");
+    } else {
+        item.textContent = 'Award';
+        item.classList.replace("btn-danger", "btn-info");
+    }
+    
+    $.ajax({
+        type: "POST",
+        url: "/admin/update_workshop_badge_award",
+        data: {
+            attendee_id: attendee_id,
+            badge_id: badge_id
+        },
+        success: function (result) {
+            alertify.success('Badge updated');
+        },
+        error: function (result) {
+            alertify.alert("Unable to update badge",
+                function(){
+                    window.location.reload();
+                });
+        }
+    });
+}
