@@ -92,7 +92,7 @@ def add_workshop_to_catalog(workshop_id = None):
         form.process()
     if request.method == 'POST' and form.validate():
         database.add_workshop(form.workshop_id.data, form.workshop_title.data, form.workshop_description.data, form.workshop_limit.data, form.workshop_level.data, form.workshop_url.data, form.workshop_volunteer_requirements.data)
-        return redirect(('admin/manage_workshop_catalog'))
+        return redirect(url_for('admin_routes.add_workshop_to_catalog'))
     return render_template('admin/manage_workshop_catalog.html', form=form, workshops=database.get_workshops_to_select())
 
 

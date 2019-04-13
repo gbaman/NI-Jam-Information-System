@@ -25,8 +25,8 @@
             <td>{{workshop.leading_volunteer}}</td>
             <td><a href="/admin/workshop_run/{{ workshop.workshop_run_id }}" class="btn btn-success {% if not workshop.max_attendees %} disabled {% endif %}" role="button">Details</a></td>
             <td>
-                <button id="delete_button" data-id="{{workshop.workshop_id}}" class="btn btn-danger"
-                        onclick="deleteJamWorkshop({{workshop.workshop_id}})" value="val_1" name="but1">Delete
+                <button id="delete_button" data-id="{{workshop.workshop_run_id}}" class="btn btn-danger"
+                        onclick="deleteJamWorkshop({{workshop.workshop_run_id}})" value="val_1" name="but1">Delete
                 </button>
             </td>
         </tr>
