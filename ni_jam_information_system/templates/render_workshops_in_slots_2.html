@@ -17,14 +17,14 @@
                     <td>{% if jam_workshop.workshop.pilot %} <i class="fas fa-flask"></i> {% endif %} {{jam_workshop.workshop.workshop_title}} {% if jam_workshop.workshop.pilot %} <i class="fas fa-flask"></i> {% endif %} </td>
                     <td>{{jam_workshop.workshop_room.room_name}}</td>
                     <td>{{jam_workshop.workshop.workshop_description}}</td>
-                    <td><p id="{{jam_workshop.workshop_id}}-max-attendees">{{ jam_workshop.attendees|length }}/{{jam_workshop.max_attendees}}</p></td>
+                    <td><p id="{{jam_workshop.workshop_run_id}}-max-attendees">{{ jam_workshop.attendees|length }}/{{jam_workshop.max_attendees}}</p></td>
                     
                     <td>
                         {% if jam_workshop.max_attendees > 0 %}
                             {% for attendee in jam_workshop.potential_attendees %}
                                 {% if attendee.ticket_type == "General Jam Attendee" or attendee.ticket_type == "First-timer" %}
                                     {% if attendee not in jam_workshop.attendees %}
-                                        {% if attendee.alert and attendee.alert.workshop_id and not attendee.alert.workshop_id == jam_workshop.workshop.workshop_id %}
+                                        {% if attendee.alert and attendee.alert.workshop_id and not attendee.alert.workshop_id == jam_workshop.workshop.workshop_id and attendee.alert.slot_id == slot.slot_id %}
                                             <button style="margin: 3px; float: left" onclick="bookWorkshopAlert('{{jam_workshop.workshop_run_id}}' ,'{{attendee.attendee_id}}', '{{ attendee.alert.alert_message }}')" type="button" class="btn btn-danger" id="{{jam_workshop.workshop_run_id}}-{{attendee.attendee_id}}" data-toggle="tooltip" data-placement="top" >{{attendee.first_name}} {{attendee.surname}}</button>
                                         {% else %}
                                             <button style="margin: 3px; float: left" onclick="bookWorkshop('{{jam_workshop.workshop_run_id}}' ,'{{attendee.attendee_id}}')" type="button" class="btn btn-danger" id="{{jam_workshop.workshop_run_id}}-{{attendee.attendee_id}}" data-toggle="tooltip" data-placement="top" >{{attendee.first_name}} {{attendee.surname}}</button>

@@ -33,8 +33,8 @@ def display_workshops():
 def add_workshop_bookings_ajax():
     workshop_id = request.form['workshop_id']
     attendee_id = request.form['attendee_id']
-    if database.add_attendee_to_workshop(database.get_current_jam_id(), attendee_id, workshop_id):
-        return("")
+    status, message = database.add_attendee_to_workshop(database.get_current_jam_id(), attendee_id, workshop_id)
+    return message
 
 
 @attendee_routes.route("/remove_workshop_bookings_ajax", methods=['GET', 'POST'])

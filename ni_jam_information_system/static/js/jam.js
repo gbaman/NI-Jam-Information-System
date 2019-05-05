@@ -291,10 +291,18 @@ function bookWorkshop(workshop_id, attendee_id) {
             attendee_id: attendee_id
         },
         success: function (result) {
-            var button = $("#" + workshop_id + "-" + attendee_id);
-            button.toggleClass('btn-danger btn-success');
-            button.attr("onclick","unbookWorkshop('" + workshop_id + "', '" + attendee_id +" ')");
-            updateBookedInCount(workshop_id);
+            if (result === "Success"){
+                var button = $("#" + workshop_id + "-" + attendee_id);
+                button.toggleClass('btn-danger btn-success');
+                button.attr("onclick","unbookWorkshop('" + workshop_id + "', '" + attendee_id +" ')");
+                updateBookedInCount(workshop_id);
+                alertify.success('Workshop booked');
+            } else {
+                alertify.alert("Workshop booking error",  result,
+                function(){
+                    window.location.reload();
+                });
+            }
         },
         error: function (result) {
 
@@ -321,6 +329,7 @@ function unbookWorkshop(workshop_id, attendee_id) {
             button.toggleClass('btn-success btn-danger');
             button.attr("onclick","bookWorkshop('" + workshop_id + "', '" + attendee_id +" ')");
             updateBookedInCount(workshop_id);
+            alertify.error('Workshop unbooked');
         },
         error: function (result) {
             alertify.alert("Workshop update error", "Workshop failed to update.",
