@@ -167,14 +167,22 @@ def ledger_upload_link(transaction_id):
 
     nearby_expenses = []
     if "PAYPAL" in t.bank_text:
+        already_matched_expenses = []
+        for checking_transaction in transactions:
+            if checking_transaction.description and "Expense ID = " in checking_transaction.description:
+                try:
+                    already_matched_expenses.append(int(checking_transaction.description.split("Expense ID = ")[1]))
+                except:
+                    continue
         expenses = google_sheets.get_volunteer_expenses_table()
         nearby_expenses = []
         for expense in expenses:
             if not expense.payment_made_date:
                 continue
 
-            if abs((t.bank_date - expense.payment_made_date).days) < 3 and transaction.paid_out == expense.value and expense.paid_by_id:
-                nearby_expenses.append(expense)
+            if abs((t.bank_date - expense.payment_made_date).days) < 6 and transaction.paid_out == expense.value and expense.paid_by_id:
+                if int(expense.expense_id) not in already_matched_expenses:
+                    nearby_expenses.append(expense)
 
     return render_template("trustee/ledger_upload_link.html", transaction=t, expenses=nearby_expenses, form=form)
 
@@ -198,6 +206,7 @@ def ledger_upload_link_expense(transaction_id, expense_id):
     google_sheets.update_transaction_cell(transaction_id, google_sheets.T.DESCRIPTION, f"Expense ID = {expense.expense_id}", id_column_data=id_column_data)
     google_sheets.update_transaction_cell(transaction_id, google_sheets.T.PAYMENT_BY_ID, expense.volunteer_id, id_column_data=id_column_data)
     google_sheets.update_transaction_cell(transaction_id, google_sheets.T.PAYMENT_BY, expense.volunteer_name, id_column_data=id_column_data)
+    google_sheets.update_transaction_cell(transaction_id, google_sheets.T.CATEGORY, "Travel expenses", id_column_data=id_column_data)
     flash("Transactions successfully linked", "success")
     return redirect(url_for("trustee_routes.ledger"))
 
