@@ -411,13 +411,19 @@ def get_if_attendee_booked_in_slot_for_workshop(attendee_id, workshop_run_id):
 
 def add_attendee_to_workshop(jam_id, attendee_id, workshop_run_id):
     attendee = db_session.query(Attendee).filter(Attendee.attendee_id == attendee_id).first()
-    if get_if_workshop_has_space(jam_id, workshop_run_id) and not str(attendee.ticket_type).startswith("Parent") and not get_if_attendee_booked_in_slot_for_workshop(attendee_id, workshop_run_id):
-        workshop_attendee = WorkshopAttendee(attendee_id=attendee_id, workshop_run_id=workshop_run_id)
-        db_session.add(workshop_attendee)
-        db_session.commit()
-        return True
+    if get_if_workshop_has_space(jam_id, workshop_run_id):
+        if not str(attendee.ticket_type).startswith("Parent"):
+            if not get_if_attendee_booked_in_slot_for_workshop(attendee_id, workshop_run_id):
+                workshop_attendee = WorkshopAttendee(attendee_id=attendee_id, workshop_run_id=workshop_run_id)
+                db_session.add(workshop_attendee)
+                db_session.commit()
+                return True, "Success"
+            else:
+                return False, "{} {} is already booked into another workshop in this slot.".format(attendee.first_name, attendee.surname)
+        else:
+            return False, "Attempted booking workshop with a Parent ticket, only attendee tickets can be used for booking workshops."
     else:
-        return False
+        return False, "This workshop is already at full capacity, please pick a different workshop."
 
 
 def remove_attendee_to_workshop(jam_id, attendee_id, workshop_run_id):
