@@ -1,3 +1,4 @@
+import collections
 import random
 import string
 import uuid
@@ -256,29 +257,45 @@ def get_workshop_rooms_objects():
 
 
 def get_schedule_by_time_slot(jam_id, order_id, admin=False) -> List[WorkshopSlot]:
-    
+    attendee_data = collections.namedtuple('attendee_data', 'attendee bookable message')
+
     attendees = get_attendees_in_order(order_id).all()
     alerts = get_all_alerts_for_jam(jam_id)
-    
+
     workshop_slots = db_session.query(WorkshopSlot).all()
     for slot in workshop_slots:
         jam_workshops_in_slot = []
         for workshop in slot.workshops_in_slot:
             if workshop.jam_id == jam_id and (admin or workshop.workshop.workshop_hidden != 1):
                 jam_workshops_in_slot.append(workshop)
-                
-            workshop.potential_attendees = deepcopy(attendees)
-            #workshop.alerts = []
+
+            # Handle badges
+            workshop.potential_attendees = []
+            for attendee in attendees:
+                bookable = True
+                message = ""
+                if workshop.workshop.badges:
+                    if attendee.attendee_login:
+                        for badge in workshop.workshop.badges:
+                            if not badge in attendee.attendee_login.attendee_badges:
+                                bookable = False
+                                message = f"This workshop requires the \"{badge.badge_name}\" badge which you don't have yet. You must have this badge to sign up to this workshop."
+                                break
+                    else:
+                        bookable = False
+                        message = "This workshop requires a digital badge and you are not currently logged in with your PiNet username. If you have one, please add it above."
+                attendee_data_to_add = attendee_data(attendee=attendee, bookable=bookable, message=message)
+                workshop.potential_attendees.append(attendee_data_to_add)
+
+            # Handle alerts
             for alert in alerts: # TODO : Add all the additional alerts rules
                 if alert.slot_id and alert.slot_id == workshop.slot_id:
                     for attendee in workshop.potential_attendees:
-                        if alert.ticket_type and alert.ticket_type == attendee.ticket_type:
-                            attendee.alert = alert
-                    
-                    
+                        if alert.ticket_type and alert.ticket_type == attendee.attendee.ticket_type:
+                            attendee.attendee.alert = alert
+
         slot.jam_workshops_in_slot = jam_workshops_in_slot
 
-    print()
     return workshop_slots
 
 
