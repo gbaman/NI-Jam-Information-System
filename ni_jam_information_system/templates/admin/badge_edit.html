@@ -43,7 +43,7 @@
 
     </tr>
 
-    {% for dependent_badge in badge.dependent_badges %}
+    {% for dependent_badge in badge.badge_dependencies %}
         <tr>
             <td>{{dependent_badge.dependency_badge.badge_name}}</td>
             <td>{{dependent_badge.dependency_badge.badge_description}}</td>

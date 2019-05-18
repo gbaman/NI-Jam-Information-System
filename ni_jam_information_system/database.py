@@ -1092,9 +1092,9 @@ def get_all_trustees():
     return trustees
 
 
-def _get_child_badges(badge:BadgeLibrary, total_badges):
+def _get_child_badges(badge:BadgeLibrary, total_badges): 
     if badge and badge.dependent_badges:
-        for b in badge.dependent_badges:
+        for b in badge.badge_dependencies:
             total_badges.append(b.dependency_badge)
             total_badges = total_badges + _get_child_badges(b.dependency_badge, [])
     return total_badges
@@ -1166,5 +1166,40 @@ def update_workshop_badge_award(attendee_id, badge_id):
         else:
             db_session.add(AttendeeLoginBadges(attendee_login_id=attendee.attendee_login_id, badge_id=int(badge_id), badge_award_date=datetime.datetime.now()))
         db_session.commit()
+        update_badges_for_attendee(attendee_id)
         return True
-    
+
+
+def update_badges_for_attendee(attendee_id): # TODO : This function needs completed and run on each badge awarding (or new badges added).
+    # Iterate through all possible badges and verify if the user is due to be awarded them.
+    attendee = db_session.query(Attendee).filter(Attendee.attendee_id == attendee_id).first()
+    if attendee.attendee_login:
+        if attendee.attendee_login:
+            potential_badges_to_award = True
+            while potential_badges_to_award:
+                attendee_badges = attendee.attendee_login.attendee_badges
+                badges: List[BadgeLibrary] = db_session.query(BadgeLibrary).filter(BadgeLibrary.badge_hidden == False).all()
+                potential_badges_to_award = False
+                for badge in badges:
+                    if badge in attendee_badges: # If attendee already has the badge
+                        continue
+                    if not badge.dependent_badges: # If badge has no dependencies
+                        continue
+                    #badge.dependent_badges : List[BadgeDependencies] = badge.dependent_badges # Added to help with auto type detection
+                    has_deps = True
+                    non_core_deps = 0
+                    for badge_dependency in badge.badge_dependencies:
+                        if badge_dependency.badge_awarded_core:
+                            if badge_dependency.dependency_badge not in attendee_badges:
+                                has_deps = False
+                                break # Don't award badge as they are missing a core badge
+                        else:
+                            if badge_dependency.dependency_badge in attendee_badges:
+                                non_core_deps = non_core_deps + 1
+                    if has_deps and non_core_deps >= badge.badge_children_required_count:
+                        potential_badges_to_award = True
+                        print(f"Awarding {badge.badge_name} to {attendee.attendee_login.attendee_login_name}.")
+                        db_session.add(AttendeeLoginBadges(attendee_login_id=attendee.attendee_login_id, badge_id=int(badge.badge_id), badge_award_date=datetime.datetime.now()))
+                        db_session.commit()
+                        
+                        
