@@ -11,8 +11,6 @@ attendee_routes = Blueprint('attendee_routes', __name__,
 @attendee_required
 @module_booking_required
 def display_workshops():
-    database.get_schedule_by_time_slot(database.get_current_jam_id(), request.cookies.get('jam_order_id'))
-    
     if database.verify_attendee_id(request.cookies.get('jam_order_id'), database.get_current_jam_id()):
         database.get_badges_needed_for_workshop(1)
         return render_template("workshops.html", slots=database.get_schedule_by_time_slot(database.get_current_jam_id(), request.cookies.get('jam_order_id')))
