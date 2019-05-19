@@ -28,6 +28,7 @@
         <th>Badge ID</th>
         <th>Badge name</th>
         <th>Badge description</th>
+        <th>Required non core badges</th>
         <th>Edit badge</th>
         <th>Configure badge</th>
     </tr>
@@ -37,6 +38,7 @@
             <td>{{badge.badge_id}}</td>
             <td>{{badge.badge_name}}</td>
             <td>{{badge.badge_description}}</td>
+            <td>{{badge.badge_children_required_count}}</td>
             <td><a href="/admin/badge/{{badge.badge_id}}" class="btn btn-success" role="button">Edit</a></td>
             <td><a href="/admin/badge/edit/{{badge.badge_id}}" class="btn btn-success" role="button">Configure</a></td>
         </tr>
