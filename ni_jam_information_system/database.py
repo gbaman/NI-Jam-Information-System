@@ -138,7 +138,7 @@ def update_attendees_from_eventbrite(event_id):
     attendees = get_eventbrite_attendees_for_event(event_id)
     for attendee in attendees["attendees"]:
 
-        found_attendee = db_session.query(Attendee).filter(Attendee.attendee_id == attendee["id"]).first()
+        found_attendee = db_session.query(Attendee).filter(Attendee.attendee_id == int(attendee["id"])).first()
 
         if attendee["refunded"] == True:
             if found_attendee:
@@ -169,15 +169,20 @@ def update_attendees_from_eventbrite(event_id):
         new_attendee.checked_in = attendee["checked_in"]
         for question in attendee["answers"]:
             if "pinet" in question["question"].lower() and "answer" in question:
-                pinet_username = question["answer"]
-                attendee_login = get_attendee_login(pinet_username)
-                if attendee_login:
-                    new_attendee.attendee_id = attendee_login.attendee_id
-                else:
-                    login = AttendeeLogin(attendee_login_name=pinet_username)
-                    db_session.add(login)
-                    db_session.flush()
-                    new_attendee.attendee_login_id = login.attendee_login_id
+                pinet_username = question["answer"].lower()
+                if len(pinet_username) >= 3:
+                    attendee_login = get_attendee_login(pinet_username)
+                    if attendee_login:
+                        new_attendee.attendee_login = attendee_login
+                    else:
+                        login = AttendeeLogin(attendee_login_name=pinet_username)
+                        
+                         
+                        new_attendee.attendee_login = login
+                        db_session.add(login)
+                        #db_session.flush()
+                         #new_attendee.attendee_login_id = login.attendee_login_id
+             
 
         # 4 available states for current_location, Checked in, Checked out, Not arrived and None.
         if new_attendee.current_location is None: # If current_location has not been set
@@ -194,9 +199,9 @@ def update_attendees_from_eventbrite(event_id):
     db_session.commit()
 
 
-def get_attendee_login(pinet_username):
+def get_attendee_login(pinet_username): # TODO : Issue in this code as pinet_username isn't touched
     pinet_username = pinet_username.lower()
-    attendee_login = db_session.query(AttendeeLogin).filter(AttendeeLogin.attendee_login_name).first()
+    attendee_login = db_session.query(AttendeeLogin).filter(AttendeeLogin.attendee_login_name == pinet_username).first()
     return attendee_login
 
 
