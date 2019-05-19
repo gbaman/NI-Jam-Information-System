@@ -180,9 +180,13 @@ def update_attendees_from_eventbrite(event_id):
                          
                         new_attendee.attendee_login = login
                         db_session.add(login)
-                        #db_session.flush()
-                         #new_attendee.attendee_login_id = login.attendee_login_id
-             
+
+            if "age" in question["question"].lower() and "answer" in question: 
+                age = question["answer"]
+                try:
+                    new_attendee.age = int(age)
+                except ValueError:
+                    print(f"Unable to get age for {new_attendee.first_name} {new_attendee.surname} with id of {new_attendee.first_name} and {age}.")
 
         # 4 available states for current_location, Checked in, Checked out, Not arrived and None.
         if new_attendee.current_location is None: # If current_location has not been set
