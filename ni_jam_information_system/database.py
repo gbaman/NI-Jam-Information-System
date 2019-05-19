@@ -286,7 +286,7 @@ def get_schedule_by_time_slot(jam_id, order_id, admin=False) -> List[WorkshopSlo
                         for badge in workshop.workshop.badges:
                             if not badge in attendee.attendee_login.attendee_badges:
                                 bookable = False
-                                message = f"This workshop requires the \"{badge.badge_name}\" badge which you don't have yet. You must have this badge to sign up to this workshop."
+                                message = f"This workshop requires the \"{badge.badge_name}\" badge which you do not have yet. You must have this badge to sign up to this workshop."
                                 break
                     else:
                         bookable = False

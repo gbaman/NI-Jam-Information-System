@@ -23,7 +23,7 @@
                         {% if jam_workshop.max_attendees > 0 %}
                             {% for attendee in jam_workshop.potential_attendees %}
                                 {% if attendee.attendee.ticket_type == "General Jam Attendee" or attendee.attendee.ticket_type == "First-timer" %}
-                                    {% if attendee.bookable or attendee.attendee not in jam_workshop.attendees %}
+                                    {% if attendee.bookable or attendee.attendee in jam_workshop.attendees %}
                                     
                                         {% if attendee.attendee not in jam_workshop.attendees %}
                                             {% if attendee.alert and attendee.attendee.alert.workshop_id and not attendee.attendee.alert.workshop_id == jam_workshop.workshop.workshop_id and attendee.attendee.alert.slot_id == slot.slot_id %}
@@ -35,7 +35,7 @@
                                             <button style="margin: 3px; float: left" onclick="unbookWorkshop('{{jam_workshop.workshop_run_id}}' ,'{{attendee.attendee.attendee_id}}')" type="button" class="btn btn-success" id="{{jam_workshop.workshop_run_id}}-{{attendee.attendee.attendee_id}}" data-toggle="tooltip" data-placement="top" >{{attendee.attendee.first_name}} {{attendee.attendee.surname}}</button>
                                         {% endif %}
                                     {% else %}
-                                        <p>Unable to book - {{ attendee.message }}</p>
+                                        <button style="margin: 3px; float: left" type="button" class="btn btn-warning" onclick="unableToBookMessage('{{ attendee.message }}')">{{attendee.attendee.first_name}} {{attendee.attendee.surname}}</button>
                                     {% endif %}
                                {% endif %} 
                             {% endfor %}

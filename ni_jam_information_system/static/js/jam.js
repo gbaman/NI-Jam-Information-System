@@ -596,3 +596,7 @@ function recalculateBadges() {
         }
     });
 }
+
+function unableToBookMessage(message) {
+    alertify.alert('Unable to book workshop', message, function(){});
+}

@@ -12,7 +12,8 @@ attendee_routes = Blueprint('attendee_routes', __name__,
 @module_booking_required
 def display_workshops():
     if database.verify_attendee_id(request.cookies.get('jam_order_id'), database.get_current_jam_id()):
-        return render_template("workshops.html", slots=database.get_schedule_by_time_slot(database.get_current_jam_id(), request.cookies.get('jam_order_id')))
+        slots = database.get_schedule_by_time_slot(database.get_current_jam_id(), request.cookies.get('jam_order_id'))
+        return render_template("workshops.html", slots=slots)
     else:
         flash("You must enter your Eventbrite Order ID and the day password to access the workshop booking system.", "danger")
         return redirect("/")
