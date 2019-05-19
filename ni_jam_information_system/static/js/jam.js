@@ -570,3 +570,17 @@ function updateWorkshopBadgeAward(attendee_id, badge_id, item){
         }
     });
 }
+
+
+function recalculateBadges() {
+    $.ajax({
+        type: "POST",
+        url: "/admin/ajax_recalculate_badges",
+        success: function (result) {
+            alertify.success('Badge awardees updated');
+        },
+        error: function (result) {
+            alertify.error('Badge awardees failed to update');
+        }
+    });
+}

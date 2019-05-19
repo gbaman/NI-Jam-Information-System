@@ -1135,11 +1135,14 @@ def get_all_alerts_for_jam(jam_id) -> List[AlertConfig]:
 
 def update_pinet_username_from_attendee_id(attendee_id, pinet_username):
     attendee = db_session.query(Attendee).filter(Attendee.attendee_id == int(attendee_id)).first()
+    attendee_login = db_session.query(AttendeeLogin).filter(AttendeeLogin.attendee_login_name == pinet_username.lower()).first()
     if attendee:
         if attendee.attendee_login_id:
-            if not pinet_username.strip():
+            if not pinet_username.strip(): # If a blank username is submitted
                 return False
             attendee.attendee_login.attendee_login_name = pinet_username.lower()
+        elif attendee_login:
+            attendee.attendee_login = attendee_login
         else:
             attendee.attendee_login = AttendeeLogin(attendee_login_id=attendee.attendee_id, attendee_login_name=pinet_username.lower())
         db_session.commit()
@@ -1201,5 +1204,14 @@ def update_badges_for_attendee(attendee_id): # TODO : This function needs comple
                         print(f"Awarding {badge.badge_name} to {attendee.attendee_login.attendee_login_name}.")
                         db_session.add(AttendeeLoginBadges(attendee_login_id=attendee.attendee_login_id, badge_id=int(badge.badge_id), badge_award_date=datetime.datetime.now()))
                         db_session.commit()
-                        
-                        
+
+
+def update_badges_for_all_attendees():
+    completed_attendee_logins = []
+    attendees = db_session.query(Attendee)
+    for attendee in attendees:
+        if attendee.attendee_login:
+            if attendee.attendee_login not in completed_attendee_logins:
+                update_badges_for_attendee(None, attendee)
+                completed_attendee_logins.append(attendee.attendee_login)
+    return True

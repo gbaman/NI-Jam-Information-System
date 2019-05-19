@@ -644,3 +644,11 @@ def update_workshop_badge_award():
     badge_id = request.form['badge_id']
     if database.update_workshop_badge_award(attendee_id, badge_id):
         return ""
+
+
+@admin_routes.route("/admin/ajax_recalculate_badges", methods=['GET', 'POST'])
+@volunteer_required
+@module_badge_required
+def recalculate_badges():
+    if database.update_badges_for_all_attendees():
+        return ""
