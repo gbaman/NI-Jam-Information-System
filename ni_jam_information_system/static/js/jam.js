@@ -514,15 +514,21 @@ function editPiNetUsername(attendee_id, username, item) {
     alertify.prompt('Edit PiNet username', '', username
         , function (evt, value) {
             updatePiNetUsername(attendee_id, value);
-            item.textContent = value;
-            var element = document.getElementById("award_badge_button_{0}".format(attendee_id));
-            element.className = element.className.replace(/\bdisabled\b/g, "");
+            if (item){
+                updatePiNetUsername(attendee_id, value);
+                item.textContent = value;
+                var element = document.getElementById("award_badge_button_{0}".format(attendee_id));
+                element.className = element.className.replace(/\bdisabled\b/g, "")
+            } else{
+                updatePiNetUsername(attendee_id, value, true);
+                
+            }
         }, function () {
         });
 }
 
     
-function updatePiNetUsername(attendee_id, username){
+function updatePiNetUsername(attendee_id, username, reload){
     $.ajax({
         type: "POST",
         url: "/update_pinet_username",
@@ -531,7 +537,13 @@ function updatePiNetUsername(attendee_id, username){
             username: username
         },
         success: function (result) {
-            alertify.success('Username update successful');
+            
+            if (reload){
+                window.location.reload();
+            } else{
+               alertify.success('Username update successful'); 
+            }
+            
         },
         error: function (result) {
             alertify.alert("Unable to update username. This may be because the username was blank.",

@@ -12,13 +12,34 @@ attendee_routes = Blueprint('attendee_routes', __name__,
 @module_booking_required
 def display_workshops():
     if database.verify_attendee_id(request.cookies.get('jam_order_id'), database.get_current_jam_id()):
-        database.get_badges_needed_for_workshop(1)
         return render_template("workshops.html", slots=database.get_schedule_by_time_slot(database.get_current_jam_id(), request.cookies.get('jam_order_id')))
     else:
         flash("You must enter your Eventbrite Order ID and the day password to access the workshop booking system.", "danger")
         return redirect("/")
 
 
+@attendee_routes.route("/badges")
+@attendee_routes.route("/badges/<int:attendee_id>")
+@attendee_required
+@module_badge_required
+def attendee_badges(attendee_id=None):
+    if database.verify_attendee_id(request.cookies.get('jam_order_id'), database.get_current_jam_id()):
+        attendees = database.get_attendees_in_order(request.cookies.get('jam_order_id'), current_jam=True, ignore_parent_tickets=True)
+        if len(attendees) == 1 and not attendee_id:
+            return redirect(f"/badges/{attendees[0].attendee_id}")
+        selected_attendee = None
+        if attendee_id:
+            for attendee in attendees:
+                if attendee.attendee_id == int(attendee_id):
+                    selected_attendee = attendee
+                    break
+            else:
+                return render_template("errors/permission.html")
+        badges = database.get_all_badges(include_hidden=False)
+        return render_template("attendee_badges.html", badges=badges, attendees=attendees, selected_attendee=selected_attendee)
+    else:
+        flash("You must enter your Eventbrite Order ID and the day password to access the workshop booking system.", "danger")
+        return redirect("/")
 
 
 ####################################### AJAX Routes #######################################

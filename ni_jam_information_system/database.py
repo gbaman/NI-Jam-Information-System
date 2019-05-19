@@ -200,13 +200,20 @@ def get_attendee_login(pinet_username):
     return attendee_login
 
 
-def get_attendees_in_order(order_id, current_jam=False):
+def get_attendees_in_order(order_id, current_jam=False, ignore_parent_tickets=False):
     found_attendees = db_session.query(Attendee).filter(Attendee.order_id == order_id)
     if not found_attendees:
         return None
     else:
         if current_jam:
             found_attendees = found_attendees.filter(Attendee.jam_id == get_current_jam_id())
+        
+        if ignore_parent_tickets:
+            found_attendees_without_parents = []
+            for attendee in found_attendees:
+                if not attendee.ticket_type.startswith("Parent"):
+                    found_attendees_without_parents.append(attendee)
+            return found_attendees_without_parents
         return found_attendees
 
 

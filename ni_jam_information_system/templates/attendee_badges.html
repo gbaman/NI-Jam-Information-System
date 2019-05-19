@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    
+        <p align="center">Select an attendee - 
+        <label>
+            <select title="Select an attedee" data-width="auto" onchange="location = this.value;" class="selectpicker" data-live-search="true">
+            {% for attendee in attendees %}
+                {% if attendee.attendee_id == selected_attendee.attendee_id %}
+                    <option selected="selected" value="/badges/{{ attendee.attendee_id }}">{{ attendee.first_name }} {{ attendee.surname }}</option>
+                {% else %}
+                    <option value="/badges/{{ attendee.attendee_id }}">{{ attendee.first_name }} {{ attendee.surname }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+        </label></p>
+    
+    <h2>Badges</h2>
+    <p>Below are the available digital badges that you can be awarded. Badges you have already been awarded are shown in green.</p>
+    <br>
+    {% if selected_attendee and selected_attendee.attendee_login %}
+        <button id="submit_button" class="btn btn-info"
+                        onclick="editPiNetUsername({{ selected_attendee.attendee_id }}, '{{ selected_attendee.attendee_login.attendee_login_name }}', '')" value="val_1" name="but1">Edit PiNet account name
+                </button>
+        <br>
+        <br>
+    <table class="table table-hover, table-bordered">
+    <tr bgcolor="#d3d3d3">
+        <th>Badge ID</th>
+        <th>Badge name</th>
+        <th>Badge description</th>
+        <th>Badge awarded</th>
+    </tr>
+
+    {% for badge in badges %}
+        <tr {% if badge in selected_attendee.attendee_login.attendee_badges %} bgcolor="#c4fc9f" {% endif %}>
+            <td>{{badge.badge_id}}</td>
+            <td>{{badge.badge_name}}</td>
+            <td>{{badge.badge_description}}</td>
+            {% if badge in selected_attendee.attendee_login.attendee_badges %}
+                <td>Awarded</td>
+            {% else %}
+                <td></td>
+            {% endif %}
+            
+        </tr>
+    {% endfor %}
+    
+    {% elif selected_attendee %}
+        <p>No PiNet login found attached to this account. You must link your PiNet username with NIJIS to access your current awarded badges. To do so, hit the bottom below.</p>
+        <button id="submit_button" class="btn btn-info"
+                        onclick="editPiNetUsername({{ selected_attendee.attendee_id }}, '', '')" value="val_1" name="but1">Add PiNet account name
+                </button>
+        <br>
+        
+    {% else %}
+        <p>No ticket holder selected. Please select one above.</p>
+    {% endif %}
+
+</table>
+    
+    
+{% endblock %}
