@@ -1036,9 +1036,9 @@ def get_all_badges(include_hidden=False):
         return badges.filter((BadgeLibrary.badge_hidden == 0) | (BadgeLibrary.badge_hidden == None))
     
 
-def add_badge(badge_id, badge_name, badge_description, badge_hidden = False):
+def add_badge(badge_id, badge_name, badge_description, badge_required_non_core_count, badge_hidden = False):
     if badge_id == -1 or not db_session.query(BadgeLibrary).filter(BadgeLibrary.badge_id == badge_id).first(): # New badge
-        badge = BadgeLibrary(badge_name=badge_name, badge_description=badge_description, badge_hidden=badge_hidden, badge_children_required_count=0)
+        badge = BadgeLibrary(badge_name=badge_name, badge_description=badge_description, badge_hidden=badge_hidden, badge_children_required_count=int(badge_required_non_core_count))
         db_session.add(badge)
     else:
         badge = db_session.query(BadgeLibrary).filter(BadgeLibrary.badge_id == badge_id).first()
@@ -1046,11 +1046,12 @@ def add_badge(badge_id, badge_name, badge_description, badge_hidden = False):
         badge.badge_name = badge_name
         badge.badge_description = badge_description
         badge.badge_hidden=badge_hidden
+        badge.badge_children_required_count = int(badge_required_non_core_count)
         
     db_session.commit()
     
 
-def get_badge(badge_id):
+def get_badge(badge_id) -> BadgeLibrary:
     badge = db_session.query(BadgeLibrary).filter(BadgeLibrary.badge_id == badge_id).first()
     return badge
 
@@ -1173,9 +1174,10 @@ def update_workshop_badge_award(attendee_id, badge_id):
         return True
 
 
-def update_badges_for_attendee(attendee_id): # TODO : This function needs completed and run on each badge awarding (or new badges added).
+def update_badges_for_attendee(attendee_id, attendee=None): 
     # Iterate through all possible badges and verify if the user is due to be awarded them.
-    attendee = db_session.query(Attendee).filter(Attendee.attendee_id == attendee_id).first()
+    if not attendee:
+        attendee = db_session.query(Attendee).filter(Attendee.attendee_id == attendee_id).first()
     if attendee.attendee_login:
         if attendee.attendee_login:
             potential_badges_to_award = True

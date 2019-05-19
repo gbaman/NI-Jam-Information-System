@@ -124,6 +124,7 @@ class AddBadgeForm(FlaskForm):
     badge_id = HiddenField("Badge ID", default="")
     badge_name = StringField("Badge name", [validators.DataRequired()])
     badge_description = StringField("Badge description", [validators.DataRequired()])
+    badge_required_non_core_count = IntegerField("Required number of non core dependencies badges", [validators.DataRequired()])
 
 
 class AddBadgeDependencyForm(FlaskForm):

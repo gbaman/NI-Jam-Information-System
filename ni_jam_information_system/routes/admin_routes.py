@@ -387,13 +387,21 @@ def remote_workshop_room(room_id):
 
 
 @admin_routes.route('/admin/badge', methods=['GET', 'POST'])
+@admin_routes.route('/admin/badge/<int:badge_id>', methods=['GET', 'POST'])
 @volunteer_required
 @module_badge_required
-def badge_catalog():
+def badge_catalog(badge_id=None):
     form = forms.AddBadgeForm(request.form)
-    if request.method == 'POST' and form.validate():
-        if not database.add_badge(form.badge_id.data, form.badge_name.data, form.badge_description.data):
-            flash("Unable to add badge.", "danger")
+    if badge_id and request.method == 'GET':
+        badge = database.get_badge(badge_id)
+        form.badge_id.default = badge.badge_id
+        form.badge_name.default = badge.badge_name
+        form.badge_description.default = badge.badge_description
+        form.badge_required_non_core_count.default = badge.badge_children_required_count
+        form.process()
+    elif request.method == 'POST' and form.validate():
+        if not database.add_badge(form.badge_id.data, form.badge_name.data, form.badge_description.data, form.badge_required_non_core_count.data):
+            flash("Unable to add/edit badge.", "danger")
         return redirect(url_for("admin_routes.badge_catalog"))
     form.badge_id.default = -1
     return render_template("admin/badge_catalog.html", form=form, badges=database.get_all_badges())

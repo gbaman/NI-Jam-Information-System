@@ -11,6 +11,7 @@
     <dl>
         {{ render_field(form.badge_name, class = "form-control") }}
         {{ render_field(form.badge_description, class = "form-control") }}
+        {{ render_field(form.badge_required_non_core_count, class = "form-control") }}
         {{ form.badge_id }}
     </dl>
     <p><input class="btn btn-primary" type=submit value="Add badge">
@@ -27,6 +28,7 @@
         <th>Badge ID</th>
         <th>Badge name</th>
         <th>Badge description</th>
+        <th>Edit badge</th>
         <th>Configure badge</th>
     </tr>
 
@@ -35,7 +37,8 @@
             <td>{{badge.badge_id}}</td>
             <td>{{badge.badge_name}}</td>
             <td>{{badge.badge_description}}</td>
-            <td><a href="/admin/badge/edit/{{badge.badge_id}}" class="btn btn-success" role="button">Edit</a></td>
+            <td><a href="/admin/badge/{{badge.badge_id}}" class="btn btn-success" role="button">Edit</a></td>
+            <td><a href="/admin/badge/edit/{{badge.badge_id}}" class="btn btn-success" role="button">Configure</a></td>
         </tr>
     {% endfor %}
 
