@@ -157,12 +157,8 @@ def update_attendees_from_eventbrite(event_id):
         new_attendee.attendee_id = attendee["id"],
         new_attendee.first_name = attendee["profile"]["first_name"],
         new_attendee.surname = attendee["profile"]["last_name"],
-        new_attendee.age = attendee["profile"].get("age"),
         new_attendee.email_address = "Unknown",
         new_attendee.gender = attendee["profile"]["gender"],
-        #new_attendee.town = attendee["answers"][0]["answer"],
-        #new_attendee.experience_level = str(attendee["answers"][1]["answer"]).split()[0],
-        #new_attendee.school = school,
         new_attendee.order_id = attendee["order_id"],
         new_attendee.ticket_type = attendee["ticket_class_name"]
         new_attendee.jam_id = int(event_id)
@@ -176,8 +172,6 @@ def update_attendees_from_eventbrite(event_id):
                         new_attendee.attendee_login = attendee_login
                     else:
                         login = AttendeeLogin(attendee_login_name=pinet_username)
-                        
-                         
                         new_attendee.attendee_login = login
                         db_session.add(login)
 
@@ -187,6 +181,16 @@ def update_attendees_from_eventbrite(event_id):
                     new_attendee.age = int(age)
                 except ValueError:
                     print(f"Unable to get age for {new_attendee.first_name} {new_attendee.surname} with id of {new_attendee.first_name} and {age}.")
+
+            if "what level of experience do you see yourself at with raspberry pi?" in question["question"].lower() and "answer" in question: 
+                answer = question["answer"]
+                if "Beginner" in answer:
+                    new_attendee.experience_level = "Beginner"
+                elif "Intermediate" in answer:
+                    new_attendee.experience_level = "Intermediate"
+                elif "Expert" in answer:
+                    new_attendee.experience_level = "Expert"
+
 
         # 4 available states for current_location, Checked in, Checked out, Not arrived and None.
         if new_attendee.current_location is None: # If current_location has not been set
