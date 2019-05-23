@@ -165,7 +165,7 @@ def update_attendees_from_eventbrite(event_id):
         new_attendee.checked_in = attendee["checked_in"]
         for question in attendee["answers"]:
             if "pinet" in question["question"].lower() and "answer" in question:
-                pinet_username = question["answer"].lower()
+                pinet_username = question["answer"].lower().strip().replace(" ", "")
                 if len(pinet_username) >= 3:
                     attendee_login = get_attendee_login(pinet_username)
                     if attendee_login:
@@ -174,6 +174,7 @@ def update_attendees_from_eventbrite(event_id):
                         login = AttendeeLogin(attendee_login_name=pinet_username)
                         new_attendee.attendee_login = login
                         db_session.add(login)
+                        db_session.commit()
 
             if "age" in question["question"].lower() and "answer" in question: 
                 age = question["answer"]
