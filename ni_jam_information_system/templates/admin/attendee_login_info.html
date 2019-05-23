@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h1>{{ attendee_login.attendee_login_name }}</h1>
+<p></p>
+<br>
+    
+<h3>Jams</h3>
+<table class="table table-hover, table-bordered">
+    <tr bgcolor="#d3d3d3">
+        <th>Attendee name</th>
+        <th>Jam name</th>
+        <th>Status</th>
+    </tr>
+    
+    {% for attendee in attendee_login.attendee_references %}
+        <tr {% if attendee.current_location == "Checked in" or attendee.current_location == "Checked out" %} bgcolor="#c4fc9f" {% endif %}>
+            <td>{{ attendee.first_name }} {{ attendee.surname }}</td>
+            <td>{{ attendee.jam.name }}</td>
+            <td>{{ attendee.current_location }}</td>
+        </tr>
+    {% endfor %}
+</table>
+    
+    <h3>Badges</h3>
+<table class="table table-hover, table-bordered">
+    <tr bgcolor="#d3d3d3">
+        <th>Badge ID</th>
+        <th>Badge name</th>
+        <th>Badge description</th>
+        <th>Badge awarded</th>
+    </tr>
+
+    {% for badge in badges %}
+        <tr {% if badge in attendee_login.attendee_badges %} bgcolor="#c4fc9f" {% endif %}>
+            <td>{{badge.badge_id}}</td>
+            <td>{{badge.badge_name}}</td>
+            <td>{{badge.badge_description}}</td>
+            {% if badge in attendee_login.attendee_badges %}
+            <td><button id="award_badge_button_{{ attendee_login.attendee_login_id }}" data-id="" class="btn btn-danger"
+                        onclick="updateWorkshopBadgeAward(null, {{ badge.badge_id }}, this, {{ attendee_login.attendee_login_id }})" value="val_2" name="but2">Remove
+                </button></td>
+        {% else %}
+            <td><button id="award_badge_button_{{ attendee_login.attendee_login_id }}" data-id="" class="btn btn-info"
+                        onclick="updateWorkshopBadgeAward(null, {{ badge.badge_id }}, this, {{ attendee_login.attendee_login_id }})" value="val_2" name="but2">Award
+                </button></td>
+        {% endif %}
+        </tr>
+    {% endfor %}
+</table>
+    
+{% endblock %}

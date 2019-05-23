@@ -298,6 +298,7 @@ class AttendeeLogin(Base):
     attendee_login_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
     attendee_login_name = Column(String(45), nullable=False, unique=True)
     attendee_badges = relationship("BadgeLibrary", secondary='attendee_login_badges')
+    attendee_references = relationship("Attendee")
     
 
 class AttendeeLoginBadges(Base):

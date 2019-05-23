@@ -555,13 +555,15 @@ function updatePiNetUsername(attendee_id, username, reload){
 }
 
 
-function updateWorkshopBadgeAward(attendee_id, badge_id, item){
+function updateWorkshopBadgeAward(attendee_id, badge_id, item, attendee_login_id){
     if (item.textContent.includes('Award')) {
         item.textContent = 'Remove';
         item.classList.replace("btn-info", "btn-danger");
+        item.parentNode.parentNode.style.backgroundColor = "#c4fc9f";
     } else {
         item.textContent = 'Award';
         item.classList.replace("btn-danger", "btn-info");
+        item.parentNode.parentNode.style.backgroundColor = "#ffffff";
     }
     
     $.ajax({
@@ -569,7 +571,8 @@ function updateWorkshopBadgeAward(attendee_id, badge_id, item){
         url: "/admin/update_workshop_badge_award",
         data: {
             attendee_id: attendee_id,
-            badge_id: badge_id
+            badge_id: badge_id,
+            attendee_login_id: attendee_login_id
         },
         success: function (result) {
             alertify.success('Badge updated');

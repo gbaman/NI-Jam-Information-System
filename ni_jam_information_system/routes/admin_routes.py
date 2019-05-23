@@ -492,6 +492,15 @@ def workshop_run_details(workshop_run_id):
     return render_template("admin/workshop_run_details.html", jam_workshop=jam_workshop)
 
 
+@admin_routes.route("/admin/attendee_login_info/<attendee_login_id>")
+@volunteer_required
+@module_attendees_required
+def attendee_login_info(attendee_login_id):
+    badges = database.get_all_badges(include_hidden=True)
+    attendee_login = database.get_attendee_login_from_attendee_login_id(attendee_login_id)
+    return render_template("admin/attendee_login_info.html", attendee_login=attendee_login, badges=badges)
+
+
 ####################################### AJAX Routes #######################################
 
 
@@ -647,10 +656,17 @@ def remove_inventory_equipment_entry():
 @admin_routes.route("/admin/update_workshop_badge_award", methods=['GET', 'POST'])
 @volunteer_required
 @module_badge_required
-def update_workshop_badge_award():
+def update_workshop_badge_award(): # Handle both if an attendee_id is provided or an attendee_login_id
     attendee_id = request.form['attendee_id']
+    attendee_login_id = request.form['attendee_login_id']
     badge_id = request.form['badge_id']
-    if database.update_workshop_badge_award(attendee_id, badge_id):
+    if attendee_id: # If attendee_id
+        attendee_login = database.get_attendee_login_from_attendee_id(int(attendee_id))
+    elif attendee_login_id: # If attendee_login_id
+        attendee_login = database.get_attendee_login_from_attendee_login_id(int(attendee_login_id))
+    else:
+        attendee_login = None
+    if database.update_workshop_badge_award(attendee_login, badge_id):
         return ""
 
 

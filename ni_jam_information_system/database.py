@@ -1140,8 +1140,8 @@ def get_workshop_badge_requirements_fulfilled(workshop:Workshop, attendee:Attend
 
 
 def get_attendee_login_from_attendee_id(attendee_id):
-    attendee = db_session.query(AttendeeLogin).filter(AttendeeLogin.attendee_login_id == attendee_id).first()
-    return attendee
+    attendee = db_session.query(Attendee).filter(Attendee.attendee_id == attendee_id).first()
+    return attendee.attendee_login
 
 
 def get_attendee_from_attendee_id(attendee_id):
@@ -1181,28 +1181,31 @@ def verify_all_workshop_badges_exist():
     print()
 
 
-def update_workshop_badge_award(attendee_id, badge_id):
-    attendee = get_attendee_from_attendee_id(int(attendee_id))
-    if attendee.attendee_login:
-        badge = db_session.query(AttendeeLoginBadges).filter(AttendeeLoginBadges.attendee_login_id == attendee.attendee_login.attendee_login_id, AttendeeLoginBadges.badge_id == int(badge_id)).first()
+def update_workshop_badge_award(attendee_login: AttendeeLogin, badge_id):
+    if attendee_login:
+        badge = db_session.query(AttendeeLoginBadges).filter(AttendeeLoginBadges.attendee_login_id == attendee_login.attendee_login_id, AttendeeLoginBadges.badge_id == int(badge_id)).first()
         if badge:
             db_session.delete(badge) # If badge is already in the system, remove it
         else:
-            db_session.add(AttendeeLoginBadges(attendee_login_id=attendee.attendee_login_id, badge_id=int(badge_id), badge_award_date=datetime.datetime.now()))
+            db_session.add(AttendeeLoginBadges(attendee_login_id=attendee_login.attendee_login_id, badge_id=int(badge_id), badge_award_date=datetime.datetime.now()))
         db_session.commit()
-        update_badges_for_attendee(attendee_id)
+        update_badges_for_attendee(attendee_login=attendee_login)
         return True
 
 
-def update_badges_for_attendee(attendee_id, attendee=None): 
+def update_badges_for_attendee(attendee_id=None, attendee=None, attendee_login=None): 
     # Iterate through all possible badges and verify if the user is due to be awarded them.
-    if not attendee:
+    
+    if not attendee and not attendee_login:
         attendee = db_session.query(Attendee).filter(Attendee.attendee_id == attendee_id).first()
-    if attendee.attendee_login:
-        if attendee.attendee_login:
+    if attendee:
+        attendee_login = attendee.attendee_login
+    
+    if attendee_login:
+        if attendee_login:
             potential_badges_to_award = True
             while potential_badges_to_award:
-                attendee_badges = attendee.attendee_login.attendee_badges
+                attendee_badges = attendee_login.attendee_badges
                 badges: List[BadgeLibrary] = db_session.query(BadgeLibrary).filter(BadgeLibrary.badge_hidden == False).all()
                 potential_badges_to_award = False
                 for badge in badges:
@@ -1223,8 +1226,8 @@ def update_badges_for_attendee(attendee_id, attendee=None):
                                 non_core_deps = non_core_deps + 1
                     if has_deps and non_core_deps >= badge.badge_children_required_count:
                         potential_badges_to_award = True
-                        print(f"Awarding {badge.badge_name} to {attendee.attendee_login.attendee_login_name}.")
-                        db_session.add(AttendeeLoginBadges(attendee_login_id=attendee.attendee_login_id, badge_id=int(badge.badge_id), badge_award_date=datetime.datetime.now()))
+                        print(f"Awarding {badge.badge_name} to {attendee_login.attendee_login_name}.")
+                        db_session.add(AttendeeLoginBadges(attendee_login_id=attendee_login.attendee_login_id, badge_id=int(badge.badge_id), badge_award_date=datetime.datetime.now()))
                         db_session.commit()
 
 
@@ -1237,3 +1240,8 @@ def update_badges_for_all_attendees():
                 update_badges_for_attendee(None, attendee)
                 completed_attendee_logins.append(attendee.attendee_login)
     return True
+
+
+def get_attendee_login_from_attendee_login_id(attendee_login_id) -> AttendeeLogin:
+    attendee_login = db_session.query(AttendeeLogin).filter(AttendeeLogin.attendee_login_id == attendee_login_id).first()
+    return attendee_login
