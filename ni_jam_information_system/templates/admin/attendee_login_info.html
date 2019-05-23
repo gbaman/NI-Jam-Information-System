@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<h1>{{ attendee_login.attendee_login_name }}</h1>
+<h1>PiNet Username - {{ attendee_login.attendee_login_name }}</h1>
 <p></p>
 <br>
     
@@ -10,6 +10,8 @@
     <tr bgcolor="#d3d3d3">
         <th>Attendee name</th>
         <th>Jam name</th>
+        <th>Attendee ID</th>
+        <th>Order ID</th>
         <th>Status</th>
     </tr>
     
@@ -17,6 +19,8 @@
         <tr {% if attendee.current_location == "Checked in" or attendee.current_location == "Checked out" %} bgcolor="#c4fc9f" {% endif %}>
             <td>{{ attendee.first_name }} {{ attendee.surname }}</td>
             <td>{{ attendee.jam.name }}</td>
+            <td>{{ attendee.attendee_id }}</td>
+            <td>{{ attendee.order_id }}</td>
             <td>{{ attendee.current_location }}</td>
         </tr>
     {% endfor %}

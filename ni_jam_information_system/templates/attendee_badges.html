@@ -4,7 +4,7 @@
     
         <p align="center">Select an attendee - 
         <label>
-            <select title="Select an attedee" data-width="auto" onchange="location = this.value;" class="selectpicker" data-live-search="true">
+            <select title="Select an attendee" data-width="auto" onchange="location = this.value;" class="selectpicker" data-live-search="true">
             {% for attendee in attendees %}
                 {% if attendee.attendee_id == selected_attendee.attendee_id %}
                     <option selected="selected" value="/badges/{{ attendee.attendee_id }}">{{ attendee.first_name }} {{ attendee.surname }}</option>

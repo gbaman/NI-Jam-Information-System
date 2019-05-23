@@ -1245,3 +1245,8 @@ def update_badges_for_all_attendees():
 def get_attendee_login_from_attendee_login_id(attendee_login_id) -> AttendeeLogin:
     attendee_login = db_session.query(AttendeeLogin).filter(AttendeeLogin.attendee_login_id == attendee_login_id).first()
     return attendee_login
+
+
+def get_attendee_logins():
+    attendee_logins = db_session.query(AttendeeLogin).all()
+    return attendee_logins

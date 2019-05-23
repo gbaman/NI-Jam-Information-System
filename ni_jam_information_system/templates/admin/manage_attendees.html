@@ -5,6 +5,19 @@
 
 <p>This page is designed for front desk use only. For getting attendee IDs, us  the <a href="/admin/attendee_list">general attendee list</a>.</p>
 <p>The fire list can be found on the <a href="/admin/fire_list">fire list page</a>.</p>
+    
+<h3>Attendee Details</h3>
+<p>To access details (including badges and attended Jams) about a specific attendee, select their PiNet username below.</p>
+<p align="left">Select an attendee - 
+<label>
+    <select title="Select an attendee" data-width="auto" onchange="location = this.value;" class="selectpicker" data-live-search="true">
+    {% for attendee_login in attendee_logins %}
+        <option value="/admin/attendee_login_info/{{ attendee_login.attendee_login_id }}">{{ attendee_login.attendee_login_name }}</option>
+    {% endfor %}
+</select>
+</label></p>
+
+<h3>Front Desk</h3>
 <p>Use this page to check out attendees as they leave. If more attendees have been checked in via Eventbrite since last imported, make sure to hit the below button to import the attendee information again from Eventbrite.</p>
 <p>Note that the import process can take up to 10 seconds.</p>
 
