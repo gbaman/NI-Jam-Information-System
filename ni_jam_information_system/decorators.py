@@ -4,6 +4,9 @@ from flask import request, redirect, url_for, flash
 import logins
 import configuration
 
+import secrets.config
+import json
+
 
 def super_admin_required(f):
     @wraps(f)
@@ -168,4 +171,21 @@ def module_finance_required(f):
     def decorated_function(*args, **kwargs):
         return _module_required(f, configuration.Modules.module_finance, *args, **kwargs)
 
+    return decorated_function
+
+
+# --------------------------------------------- APIs --------------------------------------------- #
+
+
+def api_key_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if request.is_json:
+            token = json.loads(request.get_json())["token"]
+        else:
+            token = request.values["token"]
+        if not token or token not in secrets.config.api_keys:
+            return redirect("505")
+        else:
+            return f(*args, **kwargs)
     return decorated_function
