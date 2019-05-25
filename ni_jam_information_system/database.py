@@ -1113,6 +1113,25 @@ def update_pinet_username_from_attendee_id(attendee_id, pinet_username):
     return False
 
 
+def add_pinet_usernames(pinet_usernames):
+    attendee_logins = get_attendee_logins()
+    new_accounts = []
+    for pinet_username in pinet_usernames:
+        for attendee_login in attendee_logins:
+            pinet_username = pinet_username.lower().strip().replace(" ", "")
+            if attendee_login.attendee_login_name == pinet_username:
+                break
+        else:
+            new_accounts.append(pinet_username)
+
+    for account in new_accounts:
+        print(f"Adding PiNet username {account}.")
+        new_attendee_login = AttendeeLogin(attendee_login_name=account)
+        db_session.add(new_attendee_login)
+
+    db_session.commit()
+
+
 def verify_all_workshop_badges_exist():
     workshops = db_session.query(Workshop).filter(Workshop.workshop_badge == None).all()
     for workshop in workshops:
@@ -1189,6 +1208,6 @@ def get_attendee_login_from_attendee_login_id(attendee_login_id) -> AttendeeLogi
     return attendee_login
 
 
-def get_attendee_logins():
+def get_attendee_logins() -> List[AttendeeLogin]:
     attendee_logins = db_session.query(AttendeeLogin).all()
     return attendee_logins
