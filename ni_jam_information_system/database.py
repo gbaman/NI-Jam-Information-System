@@ -1101,9 +1101,9 @@ def update_pinet_username_from_attendee_id(attendee_id, pinet_username):
     attendee_login = db_session.query(AttendeeLogin).filter(AttendeeLogin.attendee_login_name == pinet_username.lower()).first()
     if attendee:
         if attendee.attendee_login_id:
-            if not pinet_username.strip(): # If a blank username is submitted
+            if not pinet_username.strip() or " " in pinet_username.strip(): # If a blank username is submitted or spaces in the name
                 return False
-            attendee.attendee_login.attendee_login_name = pinet_username.lower()
+            attendee.attendee_login.attendee_login_name = pinet_username.lower().strip()
         elif attendee_login:
             attendee.attendee_login = attendee_login
         else:
