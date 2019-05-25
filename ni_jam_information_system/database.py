@@ -208,7 +208,7 @@ def update_attendees_from_eventbrite(event_id):
     db_session.commit()
 
 
-def get_attendee_login(pinet_username): # TODO : Issue in this code as pinet_username isn't touched
+def get_attendee_login(pinet_username):
     pinet_username = pinet_username.lower()
     attendee_login = db_session.query(AttendeeLogin).filter(AttendeeLogin.attendee_login_name == pinet_username).first()
     return attendee_login
@@ -257,9 +257,10 @@ def get_individual_time_slots_to_select():
         to_return.append((time_slots.slot_id, str(time_slots.slot_time_start)))
     return to_return
 
-def get_time_slots_objects():
+
+def get_time_slots_objects(): # TODO : Not used, can probably be removed eventually
     slots = db_session.query(WorkshopSlot).order_by(WorkshopSlot.slot_time_start)
-    for slot in slots: # TODO : Need to figure out how to subtract 2 datetime.time objects...
+    for slot in slots: 
         #slot.slot_duration = datetime.datetime(slot.slot_time_end) - datetime.datetime(slot.slot_time_start)
         slot.slot_duration = 0 # TODO: Get slot duration working...
     return slots
@@ -317,66 +318,6 @@ def get_schedule_by_time_slot(jam_id, order_id, admin=False) -> List[WorkshopSlo
 
         slot.jam_workshops_in_slot = jam_workshops_in_slot
 
-    return workshop_slots
-
-
-def get_time_slots_to_select(jam_id, order_id, admin_mode=False): 
-    # TODO : To be retired and replaced with get_schedule_by_time_slot()
-    workshop_slots = []
-    for workshop_slot in db_session.query(WorkshopSlot).filter():
-        workshop_slots.append({"title":str("{} - {}".format(workshop_slot.slot_time_start, workshop_slot.slot_time_end)), "slot_id":workshop_slot.slot_id, "workshops":[]})
-
-    workshops = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.jam_id == jam_id)
-    if not admin_mode:
-        workshops = workshops.filter(RaspberryJamWorkshop.workshop_id == Workshop.workshop_id, Workshop.workshop_hidden != 1)
-
-    for workshop in workshops.all():
-        if workshop.workshop.workshop_hidden == 0:
-            pass
-
-        if int(workshop.workshop_room.room_capacity) < int(workshop.workshop.workshop_limit):
-            max_attendees = workshop.workshop_room.room_capacity
-        else:
-            max_attendees = workshop.workshop.workshop_limit
-        names = ""
-        attendee_ids = []
-        for name in get_attendees_in_workshop(workshop.workshop_run_id):
-            if str(name.order_id) == order_id or admin_mode:
-                names = "{} {}, ".format(names, name.first_name.capitalize())
-                attendee_ids.append(name.attendee_id)
-
-        if workshop.users and len(workshop.users) > 0:
-            volunteer = workshop.users[0].first_name
-        else:
-            volunteer = "None"
-        
-        attendees = get_attendees_in_order(order_id).all()
-        attendees_badges_blockers = {}
-        for attendee in attendees:
-            badges_fulfilled, fulfilled_message = get_workshop_badge_requirements_fulfilled(workshop.workshop, attendee.attendee_login)
-            attendees_badges_blockers[attendee.attendee_id] = (badges_fulfilled, fulfilled_message)
-        
-        # TODO : Finish checking if attendee actually has the badges needed 
-        new_workshop = {"workshop_room":workshop.workshop_room.room_name,
-                        "workshop_title":workshop.workshop.workshop_title,
-                        "workshop_description":workshop.workshop.workshop_description,
-                        "workshop_limit":"{} / {}".format(len(get_attendees_in_workshop(workshop.workshop_run_id)), max_attendees),
-                        "attendee_names":names,
-                        "attendee_ids":attendee_ids,
-                        "attendee_badge_blockers": attendees_badges_blockers,
-                        "workshop_id":workshop.workshop_run_id,
-                        "volunteer": volunteer,
-                        "pilot": workshop.pilot,
-                        "pair":workshop.pair}
-
-        next((x for x in workshop_slots if x["slot_id"] == workshop.slot.slot_id), None)["workshops"].append(new_workshop)
-        #workshop_slots[workshop.slot.slot_id]["workshops"].append(new_workshop)
-
-    for workshop_slot_index, workshop_final_slot in enumerate(workshop_slots):
-        workshop_slots[workshop_slot_index]["workshops"] = sorted(workshop_final_slot["workshops"], key=lambda x: x["workshop_room"], reverse=False)
-
-    if not admin_mode:
-        workshop_slots = workshop_slots[1:]
     return workshop_slots
 
 
