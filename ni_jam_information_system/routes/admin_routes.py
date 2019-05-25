@@ -194,7 +194,6 @@ def manage_attendees():
         elif attendee.current_location == "Not arrived":
             attendee.bg_colour = database.light_grey
 
-    #jam_attendees = sorted(jam_attendees, key=lambda x: x.order_id, reverse=False)
     jam_attendees = sorted(jam_attendees, key=lambda x: x.current_location, reverse=False)
     attendee_logins = database.get_attendee_logins()
     return render_template("admin/manage_attendees.html", attendees=jam_attendees, attendee_logins=attendee_logins)
@@ -254,13 +253,13 @@ def workshop_details(workshop_id):
         per_attendee = False
         if request.form['per_attendee'] == "True": per_attendee = True
         database.add_equipment_to_workshop(equipment_id, workshop_id, equipment_quantity, per_attendee)
-    
+
     badge_form = forms.AddBadgeWorkshopForm(workshop_id=workshop_id)
     if badge_form.validate_on_submit():
         badge_id = int(request.form['badge_id'])
         database.add_badge_to_workshop(workshop_id, badge_id)
         return redirect(url_for('admin_routes.workshop_details', workshop_id=workshop_id))
-    
+
     workshop = database.get_workshop_from_workshop_id(workshop_id)
     return render_template("admin/workshop_details.html", workshop=workshop, file_form=file_form, equipment_form=equipment_form, equipments=database.get_all_equipment_for_workshop(workshop_id), badge_form=badge_form)
 
@@ -299,12 +298,10 @@ def manage_inventories():
     return render_template("admin/manage_inventories.html", form=form, inventories = database.get_inventories(), current_selected_inventory=current_inventoy)
 
 
-
 @admin_routes.route("/admin/manage_inventory/<inventory_id>")
 @volunteer_required
 @module_equipment_required
 def manage_inventory(inventory_id):
-    #equipment = database.get_all_equipment(manual_add_only=True)
     equipment = database.get_all_equipment(manual_add_only=False)
     return render_template("admin/inventory.html", equipment=equipment)
 
@@ -333,7 +330,6 @@ def wrangler_overview():
 @module_volunteer_signup_required
 def wrangler_overview_equipment():
     return render_template("admin/wrangler_overview_equipment.html", jam_id=database.get_current_jam_id(), raspberry_jam=database.get_jam_details(database.get_current_jam_id()).name, slots=database.get_wrangler_overview(database.get_current_jam_id()))
-
 
 
 @admin_routes.route('/admin/jam_setup', methods=['GET', 'POST'])
@@ -419,7 +415,6 @@ def badge_edit(badge_id):
         else:
             flash("Badge dependency added.", "success")
         return redirect(url_for("admin_routes.badge_edit", badge_id=badge_id))
-    #form.badge_id.default = -1
     return render_template("admin/badge_edit.html", form=form, badge=database.get_badge(badge_id))
 
 
@@ -463,8 +458,7 @@ def expenses_claim():
             google_sheets.create_expense_row(expense)
         else:
             flash("Failed to upload - File of same name already exists.", "danger")
-            
-        
+
         return redirect(url_for("admin_routes.expenses_claim"))
     expenses = google_sheets.get_volunteer_expenses_table()
     user_expenses = []
@@ -474,7 +468,7 @@ def expenses_claim():
     if user_expenses:
         form.paypal_email_address.default = user_expenses[-1].paypal_email
         form.process()
-    
+
     return render_template("admin/expenses_claims.html", form=form, expenses=user_expenses)
 
 

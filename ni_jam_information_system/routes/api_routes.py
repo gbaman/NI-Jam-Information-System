@@ -44,6 +44,7 @@ def get_equipment(token):
         data = json.dumps(data)
         return data
 
+
 @api_routes.route("/api/equipment_groups/<token>")
 @module_api_required
 def get_equipment_groups(token):
@@ -76,6 +77,7 @@ def add_equipment(token):
         if database.add_equipment(equipment_name, str(equipment_code).upper(), equipment_group_id):
             return ""
         abort(400)
+
 
 @api_routes.route("/api/upload_pinet_usernames", methods=['POST'])
 @module_api_required

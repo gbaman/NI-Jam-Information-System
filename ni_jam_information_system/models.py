@@ -1,4 +1,5 @@
 import datetime
+from typing import List
 
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, BigInteger, Time, Boolean, text
 from sqlalchemy import create_engine
@@ -299,7 +300,7 @@ class AttendeeLogin(Base):
     attendee_login_name = Column(String(45), nullable=False, unique=True)
     attendee_badges = relationship("BadgeLibrary", secondary='attendee_login_badges')
     attendee_references = relationship("Attendee")
-    
+
 
 class AttendeeLoginBadges(Base):
     __tablename__ = 'attendee_login_badges'
@@ -327,11 +328,10 @@ class BadgeLibrary(Base):
     badge_children_required_count = Column(Integer, nullable=False)
     workshop_id = Column(ForeignKey('workshop.workshop_id'), primary_key=False, nullable=True, index=True, unique=True)
     badge_icon_path = Column(String(150), nullable=True)
-    badge_dependencies = relationship('BadgeDependencies', foreign_keys=BadgeDependencies.parent_badge_id, uselist=True)
-    
+    badge_dependencies: List[BadgeDependencies] = relationship('BadgeDependencies', foreign_keys=BadgeDependencies.parent_badge_id, uselist=True) 
+
     @hybrid_property
     def dependent_badges(self):
-        #return self.badge_dependencies
         badges = []
         for badge_dependency in self.badge_dependencies:
             badges.append(badge_dependency.dependency_badge)

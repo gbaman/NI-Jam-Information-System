@@ -6,14 +6,13 @@ import uuid
 import os
 
 import math
-from typing import List
 
 from models import *
 from eventbrite_interactions import get_eventbrite_attendees_for_event
 import datetime
 from copy import deepcopy
 import configuration
-from sqlalchemy import or_, not_, and_, func, funcfilter
+from sqlalchemy import or_, not_, and_, func
 
 red = "#fc9f9f"
 orange = "#fcbd00"
@@ -63,22 +62,22 @@ def get_logged_in_user_object_from_cookie(cookie_value: str) -> LoginUser:
     return None
 
 
-def add_jam(eventbrite_id, jam_name, date): # Add a new Jam, plus a series of placeholder default hidden workshops (parking, front desk and break time)
-    jam = RaspberryJam(jam_id=eventbrite_id, name=jam_name, date=date) # Add the Jam row
+def add_jam(eventbrite_id, jam_name, date):  # Add a new Jam, plus a series of placeholder default hidden workshops (parking, front desk and break time)
+    jam = RaspberryJam(jam_id=eventbrite_id, name=jam_name, date=date)  # Add the Jam row
     db_session.add(jam)
     db_session.commit()
     if configuration.verify_config_item_bool("general", "new_jam_add_default_events"):
         car_parking_workshop = db_session.query(Workshop).filter(Workshop.workshop_title == "Car Parking").first()
         car_parking_room = db_session.query(WorkshopRoom).filter(WorkshopRoom.room_name == "Car Park").first()
         car_parking = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=car_parking_workshop.workshop_id, workshop_room_id=car_parking_room.room_id, slot_id=0, pilot=0)
-        db_session.add(car_parking) # Add car parking into slot 0
+        db_session.add(car_parking)  # Add car parking into slot 0
 
         front_desk_workshop = db_session.query(Workshop).filter(Workshop.workshop_title == "Front desk").first()
         front_desk_registration_room = db_session.query(WorkshopRoom).filter(WorkshopRoom.room_name == "Front Desk Registration").first()
         front_desk_room = db_session.query(WorkshopRoom).filter(WorkshopRoom.room_name == "Front Desk General").first()
         front_desk = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=front_desk_workshop.workshop_id, workshop_room_id=front_desk_registration_room.room_id, slot_id=0, pilot=0)
 
-        db_session.add(front_desk) # Add front desk registration
+        db_session.add(front_desk)  # Add front desk registration
 
         front_desk = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=front_desk_workshop.workshop_id, workshop_room_id=front_desk_room.room_id, slot_id=1, pilot=0)
         db_session.add(front_desk)
@@ -87,14 +86,12 @@ def add_jam(eventbrite_id, jam_name, date): # Add a new Jam, plus a series of pl
         front_desk = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=front_desk_workshop.workshop_id, workshop_room_id=front_desk_room.room_id, slot_id=3, pilot=0)
         db_session.add(front_desk)
         front_desk = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=front_desk_workshop.workshop_id, workshop_room_id=front_desk_room.room_id, slot_id=4, pilot=0)
-        db_session.add(front_desk) # Add 4th normal front desk
-
+        db_session.add(front_desk)  # Add 4th normal front desk
 
         break_room = db_session.query(WorkshopRoom).filter(WorkshopRoom.room_name == "Foyer (ground floor)").first()
         break_workshop = db_session.query(Workshop).filter(Workshop.workshop_title == "Break time").first()
         break_time = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=break_workshop.workshop_id, workshop_room_id=break_room.room_id, slot_id=3, pilot=0)
-        db_session.add(break_time) # Add break time into break session
-
+        db_session.add(break_time)  # Add break time into break session
 
         db_session.commit()
 
@@ -107,13 +104,13 @@ def get_jams_dict():
     jams = get_jams_in_db()
     jams_list = []
     for jam in jams:
-        jams_list.append({"jam_id": jam.jam_id, "name":jam.name, "date":jam.date})
+        jams_list.append({"jam_id": jam.jam_id, "name": jam.name, "date":jam.date})
     return jams_list
 
 
 def add_workshop(workshop_id, workshop_title, workshop_description, workshop_limit, workshop_level, workshop_url, workshop_volunteer_requirements):
 
-    if workshop_id or workshop_id == 0: # If workshop already exists
+    if workshop_id or workshop_id == 0:  # If workshop already exists
         workshop = db_session.query(Workshop).filter(Workshop.workshop_id == workshop_id).first()
         workshop.workshop_title = workshop_title
         workshop.workshop_description = workshop_description
@@ -121,7 +118,7 @@ def add_workshop(workshop_id, workshop_title, workshop_description, workshop_lim
         workshop.workshop_level = workshop_level
         workshop.workshop_url = workshop_url
         workshop.workshop_volunteer_requirements = workshop_volunteer_requirements
-    else: # If new workshop
+    else:  # If new workshop
         workshop = Workshop(workshop_title=workshop_title, workshop_description=workshop_description, workshop_limit=workshop_limit, workshop_level=workshop_level, workshop_hidden=0, workshop_url=workshop_url, workshop_volunteer_requirements=workshop_volunteer_requirements)
         db_session.add(workshop)
     db_session.commit()
@@ -130,7 +127,7 @@ def add_workshop(workshop_id, workshop_title, workshop_description, workshop_lim
 def get_workshops_for_jam_old(jam_id):
     workshops = []
     for workshop in db_session.query(RaspberryJam, RaspberryJamWorkshop, Workshop).filter(RaspberryJam.jam_id == jam_id, RaspberryJamWorkshop.workshop_id == Workshop.workshop_id):
-        workshops.append({"workshop_title":workshop.Workshop.workshop_title, "workshop_description":workshop.Workshop.workshop_description, "workshop_level":workshop.Workshop.workshop_level, "workshop_time":workshop.RaspberryJamWorkshop.workshop_time_slot})
+        workshops.append({"workshop_title": workshop.Workshop.workshop_title, "workshop_description": workshop.Workshop.workshop_description, "workshop_level": workshop.Workshop.workshop_level, "workshop_time": workshop.RaspberryJamWorkshop.workshop_time_slot})
     return workshops
 
 
@@ -140,7 +137,7 @@ def update_attendees_from_eventbrite(event_id):
 
         found_attendee = db_session.query(Attendee).filter(Attendee.attendee_id == int(attendee["id"])).first()
 
-        if attendee["refunded"] == True:
+        if attendee["refunded"]:
             if found_attendee:
                 db_session.delete(found_attendee)
             continue
@@ -183,7 +180,7 @@ def update_attendees_from_eventbrite(event_id):
                 except ValueError:
                     print(f"Unable to get age for {new_attendee.first_name} {new_attendee.surname} with id of {new_attendee.first_name} and {age}.")
 
-            if "what level of experience do you see yourself at with raspberry pi?" in question["question"].lower() and "answer" in question: 
+            if "what level of experience do you see yourself at with raspberry pi?" in question["question"].lower() and "answer" in question:
                 answer = question["answer"]
                 if "Beginner" in answer:
                     new_attendee.experience_level = "Beginner"
@@ -192,9 +189,8 @@ def update_attendees_from_eventbrite(event_id):
                 elif "Expert" in answer:
                     new_attendee.experience_level = "Expert"
 
-
         # 4 available states for current_location, Checked in, Checked out, Not arrived and None.
-        if new_attendee.current_location is None: # If current_location has not been set
+        if new_attendee.current_location is None:  # If current_location has not been set
             if attendee["checked_in"]:
                 new_attendee.current_location = "Checked in"
             else:
@@ -221,7 +217,7 @@ def get_attendees_in_order(order_id, current_jam=False, ignore_parent_tickets=Fa
     else:
         if current_jam:
             found_attendees = found_attendees.filter(Attendee.jam_id == get_current_jam_id())
-        
+
         if ignore_parent_tickets:
             found_attendees_without_parents = []
             for attendee in found_attendees:
@@ -258,14 +254,6 @@ def get_individual_time_slots_to_select():
     return to_return
 
 
-def get_time_slots_objects(): # TODO : Not used, can probably be removed eventually
-    slots = db_session.query(WorkshopSlot).order_by(WorkshopSlot.slot_time_start)
-    for slot in slots: 
-        #slot.slot_duration = datetime.datetime(slot.slot_time_end) - datetime.datetime(slot.slot_time_start)
-        slot.slot_duration = 0 # TODO: Get slot duration working...
-    return slots
-
-
 def get_workshop_rooms():
     to_return = []
     for workshop_room in db_session.query(WorkshopRoom):
@@ -299,7 +287,7 @@ def get_schedule_by_time_slot(jam_id, order_id, admin=False) -> List[WorkshopSlo
                 if workshop.workshop.badges:
                     if attendee.attendee_login:
                         for badge in workshop.workshop.badges:
-                            if not badge in attendee.attendee_login.attendee_badges:
+                            if badge not in attendee.attendee_login.attendee_badges:
                                 bookable = False
                                 message = f"This workshop requires the \"{badge.badge_name}\" badge which you do not have yet. You must have this badge to sign up to this workshop."
                                 break
@@ -310,7 +298,7 @@ def get_schedule_by_time_slot(jam_id, order_id, admin=False) -> List[WorkshopSlo
                 workshop.potential_attendees.append(attendee_data_to_add)
 
             # Handle alerts
-            for alert in alerts: # TODO : Add all the additional alerts rules
+            for alert in alerts:  # TODO : Add all the additional alerts rules
                 if alert.slot_id and alert.slot_id == workshop.slot_id:
                     for attendee in workshop.potential_attendees:
                         if alert.ticket_type and alert.ticket_type == attendee.attendee.ticket_type:
@@ -321,9 +309,9 @@ def get_schedule_by_time_slot(jam_id, order_id, admin=False) -> List[WorkshopSlo
     return workshop_slots
 
 
-def verify_attendee_id(id, jam_id):
-    if id:
-        attendees = db_session.query(Attendee).filter(Attendee.order_id == int(id), Attendee.jam_id == jam_id).all()
+def verify_attendee_id(attendee_id, jam_id):
+    if attendee_id:
+        attendees = db_session.query(Attendee).filter(Attendee.order_id == int(attendee_id), Attendee.jam_id == jam_id).all()
         if attendees:
             return attendees
     return False
@@ -360,12 +348,13 @@ def get_if_workshop_has_space(jam_id, workshop_run_id):
         return True
     return False
 
+
 def get_if_attendee_booked_in_slot_for_workshop(attendee_id, workshop_run_id):
     slot_id = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.workshop_run_id == workshop_run_id).first().slot_id
 
     workshops_attendee_in_slot = db_session.query(RaspberryJamWorkshop, WorkshopAttendee).filter(RaspberryJamWorkshop.workshop_run_id == WorkshopAttendee.workshop_run_id,
-                                                                    WorkshopAttendee.attendee_id == attendee_id,
-                                                                    RaspberryJamWorkshop.slot_id == slot_id).all()
+                                                                                                 WorkshopAttendee.attendee_id == attendee_id,
+                                                                                                 RaspberryJamWorkshop.slot_id == slot_id).all()
     if workshops_attendee_in_slot:
         return True
     return False
@@ -440,11 +429,11 @@ def add_workshop_to_jam_from_catalog(jam_id, workshop_id, volunteer_id, slot_id,
     workshop.workshop_room_id = room_id
     workshop.pilot = pilot
     workshop.pair = pair
-    if int(volunteer_id) >= 0: # If the None user has been selected, then hit the else
+    if int(volunteer_id) >= 0:  # If the None user has been selected, then hit the else
         if workshop.users:
             workshop.users.append(db_session.query(LoginUser).filter(LoginUser.user_id == volunteer_id).first())
         else:
-            workshop.users = [db_session.query(LoginUser).filter(LoginUser.user_id == volunteer_id).first(),]
+            workshop.users = [db_session.query(LoginUser).filter(LoginUser.user_id == volunteer_id).first(), ]
     else:
         workshop.users = []
     db_session.add(workshop)
@@ -479,7 +468,7 @@ def new_cookie_for_user(user_id):
 
 
 def remove_cookie(cookie_value):
-    cookie = db_session.query(LoginCookie).filter(LoginCookie.cookie_value == cookie_value).delete()
+    db_session.query(LoginCookie).filter(LoginCookie.cookie_value == cookie_value).delete()
     db_session.commit()
 
 
@@ -521,16 +510,16 @@ def get_volunteer_data(jam_id, current_user):
             for room in time_slot.rooms:
                 if room.room_id == workshop.workshop_room_id and time_slot.slot_id == workshop.slot_id:
                     room.workshop = workshop
-                    if room.workshop.workshop_room: # Room exists
+                    if room.workshop.workshop_room:  # Room exists
                         if not workshop.workshop.workshop_volunteer_requirements:  # and does not have volunteers needed specified
                             workshop.workshop_needed_volunteers = room.workshop.workshop_room.room_volunteers_needed
                         elif int(workshop.workshop.workshop_volunteer_requirements) < 0:
                             workshop.workshop_needed_volunteers = 0
-                        elif int(workshop.workshop.workshop_limit) != 0: # and does have volunteers specified while also does have attendees able to attend the workshop
+                        elif int(workshop.workshop.workshop_limit) != 0:  # and does have volunteers specified while also does have attendees able to attend the workshop
                             max_attendees = min(int(workshop.workshop_room.room_capacity), int(workshop.workshop.workshop_limit))
                             volunteers_needed_from_attendees = 1 + (math.ceil(max_attendees / 10) * workshop.workshop.workshop_volunteer_requirements)
-                            workshop.workshop_needed_volunteers = max(workshop.workshop_room.room_volunteers_needed, volunteers_needed_from_attendees) # Set volunteers needed to the calculated figure based on attendees, unless room minimum is greater.
-                        else: # and does not have attendees for the workshop (for example, car parking etc)
+                            workshop.workshop_needed_volunteers = max(workshop.workshop_room.room_volunteers_needed, volunteers_needed_from_attendees)  # Set volunteers needed to the calculated figure based on attendees, unless room minimum is greater.
+                        else:  # and does not have attendees for the workshop (for example, car parking etc)
                             workshop.workshop_needed_volunteers = workshop.workshop.workshop_volunteer_requirements
 
                     if not room.workshop.workshop_room:
@@ -549,10 +538,10 @@ def get_volunteer_data(jam_id, current_user):
     return time_slots, sorted(workshop_rooms_in_use, key=lambda x: x.room_name, reverse=False)
 
 
-def get_workshop_timetable_data(jam_id): # Similar to get_volunteer_data(), but for the large TV with different colouring.
+def get_workshop_timetable_data(jam_id):  # Similar to get_volunteer_data(), but for the large TV with different colouring.
     time_slots = db_session.query(WorkshopSlot).all()[1:]
 
-    workshop_data = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.jam_id == jam_id, RaspberryJamWorkshop.workshop_id == Workshop.workshop_id , Workshop.workshop_hidden != 1).all()
+    workshop_data = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.jam_id == jam_id, RaspberryJamWorkshop.workshop_id == Workshop.workshop_id, Workshop.workshop_hidden != 1).all()
 
     workshop_rooms_in_use = db_session.query(WorkshopRoom).filter(RaspberryJamWorkshop.workshop_room_id == WorkshopRoom.room_id,
                                                                   RaspberryJamWorkshop.jam_id == jam_id,
@@ -589,7 +578,7 @@ def get_workshop_timetable_data(jam_id): # Similar to get_volunteer_data(), but 
 def set_user_workshop_runs_from_ids(user, jam_id, workshop_run_ids):
     sessions_block_ids = []
     workshops = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.workshop_run_id.in_(workshop_run_ids), RaspberryJamWorkshop.jam_id == jam_id).all()
-    for workshop in workshops: # Verify that the bookings being made don't collide with other bookings by same user for same slot.
+    for workshop in workshops:  # Verify that the bookings being made don't collide with other bookings by same user for same slot.
         if workshop.slot_id in sessions_block_ids:
             print("Unable to book user in to slot, as they already have a colliding booking for that slot.")
             return False
@@ -623,7 +612,7 @@ def select_jam(jam_id):
     db_session.commit()
 
 
-def get_attending_volunteers(jam_id, only_attending_volunteers=False): # Get all the volunteers
+def get_attending_volunteers(jam_id, only_attending_volunteers=False):  # Get all the volunteers
     if only_attending_volunteers:
         attending_volunteers = db_session.query(VolunteerAttendance).filter(VolunteerAttendance.jam_id == jam_id,
                                                                             VolunteerAttendance.volunteer_attending)
@@ -632,18 +621,17 @@ def get_attending_volunteers(jam_id, only_attending_volunteers=False): # Get all
             all_volunteers.append(user.user)
     else:
         all_volunteers = get_users()
-        #all_volunteers = db_session.query(LoginUser).all()
     for volunteer in all_volunteers:
         volunteer.current_jam_workshops_involved_in = []
         for workshop in volunteer.workshop_runs:
-            if workshop.jam_id == jam_id: # Builds the workshops attached to each user
-                volunteer.current_jam_workshops_involved_in.append("{}. {}".format(workshop.slot_id, workshop.workshop.workshop_title)) # Builds a list of strings to show in the tooltip
+            if workshop.jam_id == jam_id:  # Builds the workshops attached to each user
+                volunteer.current_jam_workshops_involved_in.append("{}. {}".format(workshop.slot_id, workshop.workshop.workshop_title))  # Builds a list of strings to show in the tooltip
         volunteer.current_jam_workshops_involved_in = sorted(volunteer.current_jam_workshops_involved_in)
 
     all_volunteers = all_volunteers
 
     attending = db_session.query(VolunteerAttendance).filter(VolunteerAttendance.jam_id == jam_id).all()
-    for attend in attending: # Matches volunteer attendance to users
+    for attend in attending:  # Matches volunteer attendance to users
         for volunteer in all_volunteers:
             if volunteer.user_id == attend.user.user_id:
                 volunteer.attend = attend
@@ -677,7 +665,6 @@ def get_users_not_responded_to_attendance(jam_id):
     all_volunteers_responded = []
     for volunteer in all_volunteers_responded_attendance:
         all_volunteers_responded.append(volunteer.user)
-    #volunteers_not_responded = all_volunteers - all_volunteers_responded
     volunteers_not_responded = list(set(all_volunteers) - set(all_volunteers_responded))
     return volunteers_not_responded
 
@@ -727,7 +714,7 @@ def get_current_jam_id():
 
 
 def check_out_attendee(attendee_id):
-    if len(attendee_id) < 6: # Check if volunteer
+    if len(attendee_id) < 6:  # Check if volunteer
         volunteer_attendance = db_session.query(VolunteerAttendance).join(LoginUser).filter_by(user_id=attendee_id).filter(VolunteerAttendance.jam_id == get_current_jam_id()).first()
         volunteer_attendance.current_location = "Checked out"
     else:
@@ -737,7 +724,7 @@ def check_out_attendee(attendee_id):
 
 
 def check_in_attendee(attendee_id):
-    if len(attendee_id) < 6: # Check if volunteer
+    if len(attendee_id) < 6:  # Check if volunteer
         volunteer_attendance = db_session.query(VolunteerAttendance).join(LoginUser).filter_by(user_id=attendee_id).filter(VolunteerAttendance.jam_id == get_current_jam_id()).first()
         volunteer_attendance.current_location = "Checked in"
     else:
@@ -763,7 +750,7 @@ def remove_workshop_file(file_id):
 
 
 def add_workshop_file(file_title, file_path, file_permission, workshop_id):
-    if db_session.query(WorkshopFile).filter(WorkshopFile.workshop_id == workshop_id, WorkshopFile.file_path == file_path).first(): # If file of same name already exists
+    if db_session.query(WorkshopFile).filter(WorkshopFile.workshop_id == workshop_id, WorkshopFile.file_path == file_path).first():  # If file of same name already exists
         return False
     file = WorkshopFile(file_title=file_title, file_path=file_path, file_permission=file_permission, workshop_id=workshop_id, file_edit_date=datetime.datetime.now())
     db_session.add(file)
@@ -814,8 +801,8 @@ def get_configuration_item(configuration_key):
 
 def get_equipment_in_inventory(inventory_id):
     equipment_entries = db_session.query(EquipmentEntry).filter(InventoryEquipmentEntry.inventory_id == inventory_id,
-                                                   Equipment.equipment_id == EquipmentEntry.equipment_id, # Link the tables up
-                                                   EquipmentEntry.equipment_entry_id == InventoryEquipmentEntry.equipment_entry_id).all() # Link the tables up
+                                                   Equipment.equipment_id == EquipmentEntry.equipment_id,  # Link the tables up
+                                                   EquipmentEntry.equipment_entry_id == InventoryEquipmentEntry.equipment_entry_id).all()  # Link the tables up
     equipment = []
     for equipment_entry in equipment_entries:
         if equipment_entry.attached_equipment not in equipment:
@@ -823,7 +810,7 @@ def get_equipment_in_inventory(inventory_id):
             equipment.append(equipment_entry.attached_equipment)
         equipment_entry.attached_equipment.equipment_entries.append(equipment_entry)
 
-    for single_equipment in equipment: # Add quantities on to individual entries
+    for single_equipment in equipment:  # Add quantities on to individual entries
         single_equipment.total_quantity = 0
         for equipment_entry in single_equipment.equipment_entries:
             for inventory in equipment_entry.equipment_inventories:
@@ -840,7 +827,6 @@ def get_all_equipment(manual_add_only=False):
     """
     if manual_add_only:
         equipment = db_session.query(Equipment).filter(or_(and_(EquipmentEntry.equipment_entry_number == -1, Equipment.equipment_id == EquipmentEntry.equipment_id), not_(Equipment.equipment_entries.any())))
-        #equipment2 = db_session.query(Equipment).filter(Equipment.equipment_id == EquipmentEntry.equipment_id, not_(Equipment.equipment_entries.any()))
 
     else:
         equipment = db_session.query(Equipment)
@@ -882,6 +868,7 @@ def add_equipment_to_workshop(equipment_id, workshop_id, equipment_quantity, per
     db_session.add(WorkshopEquipment(equipment_id=equipment_id, workshop_id=workshop_id, equipment_per_attendee=per_attendee, equipment_quantity=equipment_quantity))
     db_session.commit()
 
+
 def add_equipment_entries(equipment_id, quantity):
     return_nums = []
     equipment = get_equipment_by_id(equipment_id)
@@ -898,9 +885,9 @@ def add_equipment_entries(equipment_id, quantity):
 
 
 def add_equipment(equipment_name, equipment_code, equipment_group_id):
-    if db_session.query(Equipment).filter(Equipment.equipment_name == equipment_name).first(): # Check equipment with same title doesn't already exist
+    if db_session.query(Equipment).filter(Equipment.equipment_name == equipment_name).first():  # Check equipment with same title doesn't already exist
         return False
-    if db_session.query(Equipment).filter(Equipment.equipment_code == equipment_code).first(): # Check equipment with same code doesn't already exist
+    if db_session.query(Equipment).filter(Equipment.equipment_code == equipment_code).first():  # Check equipment with same code doesn't already exist
         return False
     db_session.add(Equipment(equipment_name=equipment_name, equipment_code=equipment_code, equipment_group_id=equipment_group_id))
     db_session.commit()
@@ -908,11 +895,11 @@ def add_equipment(equipment_name, equipment_code, equipment_group_id):
 
 
 def add_equipment_quantity_to_inventory(inventory_id, equipment_id, entry_quantity):
-    found_first_inventory_equipment = db_session.query(InventoryEquipmentEntry).filter(Equipment.equipment_id == equipment_id,
-                                                                                   EquipmentEntry.equipment_id == Equipment.equipment_id,
-                                                                                   EquipmentEntry.equipment_entry_id == InventoryEquipmentEntry.equipment_entry_id,
-                                                                                   InventoryEquipmentEntry.inventory_id == inventory_id
-                                                                                   ).first()
+    found_first_inventory_equipment = db_session.query(InventoryEquipmentEntry).filter(Equipment.equipment_id == equipment_id, 
+                                                                                       EquipmentEntry.equipment_id == Equipment.equipment_id,
+                                                                                       EquipmentEntry.equipment_entry_id == InventoryEquipmentEntry.equipment_entry_id,
+                                                                                       InventoryEquipmentEntry.inventory_id == inventory_id
+                                                                                       ).first()
     if found_first_inventory_equipment:
         found_first_inventory_equipment.entry_quantity = entry_quantity
     else:
@@ -953,9 +940,9 @@ def enable_user(user_id, enable):
 
 
 def add_slot(slot_id, slot_time_start, slot_time_end):
-    if slot_id or slot_id == 0: # Already existing slot
+    if slot_id or slot_id == 0:  # Already existing slot
         slot = db_session.query(WorkshopSlot).filter(WorkshopSlot.slot_id == slot_id).first()
-    else: # New slot
+    else:  # New slot
         slot = WorkshopSlot()
     slot.slot_time_start = slot_time_start
     slot.slot_time_end = slot_time_end
@@ -996,10 +983,10 @@ def get_all_badges(include_hidden=False):
         return badges
     else:
         return badges.filter((BadgeLibrary.badge_hidden == 0) | (BadgeLibrary.badge_hidden == None))
-    
 
-def add_badge(badge_id, badge_name, badge_description, badge_required_non_core_count, badge_hidden = False):
-    if badge_id == -1 or not db_session.query(BadgeLibrary).filter(BadgeLibrary.badge_id == badge_id).first(): # New badge
+
+def add_badge(badge_id, badge_name, badge_description, badge_required_non_core_count, badge_hidden=False):
+    if badge_id == -1 or not db_session.query(BadgeLibrary).filter(BadgeLibrary.badge_id == badge_id).first():  # New badge
         badge = BadgeLibrary(badge_name=badge_name, badge_description=badge_description, badge_hidden=badge_hidden, badge_children_required_count=int(badge_required_non_core_count))
         db_session.add(badge)
     else:
@@ -1009,9 +996,9 @@ def add_badge(badge_id, badge_name, badge_description, badge_required_non_core_c
         badge.badge_description = badge_description
         badge.badge_hidden=badge_hidden
         badge.badge_children_required_count = int(badge_required_non_core_count)
-        
+
     db_session.commit()
-    
+
 
 def get_badge(badge_id) -> BadgeLibrary:
     badge = db_session.query(BadgeLibrary).filter(BadgeLibrary.badge_id == badge_id).first()
@@ -1021,11 +1008,11 @@ def get_badge(badge_id) -> BadgeLibrary:
 def get_all_dependent_badges(badge_id):
     dependent_badges = db_session.query(BadgeDependencies).filter(BadgeDependencies.parent_badge_id == badge_id).all()
     return dependent_badges
-        
-    
+
+
 def add_badge_dependency(badge_id, dependent_badge_id, badge_awarded_core):
     if db_session.query(BadgeDependencies).filter(BadgeDependencies.parent_badge_id == int(badge_id), BadgeDependencies.dependency_badge_id == int(dependent_badge_id)).first():
-        return False # Already exists
+        return False  # Badge dependency already exists
     badge_dependency = BadgeDependencies(parent_badge_id=badge_id, dependency_badge_id=dependent_badge_id, badge_awarded_core=badge_awarded_core)
     db_session.add(badge_dependency)
     db_session.commit()
@@ -1055,7 +1042,7 @@ def get_all_trustees():
     return trustees
 
 
-def _get_child_badges(badge:BadgeLibrary, total_badges): 
+def _get_child_badges(badge:BadgeLibrary, total_badges):
     if badge and badge.dependent_badges:
         for b in badge.badge_dependencies:
             total_badges.append(b.dependency_badge)
@@ -1069,9 +1056,8 @@ def get_badges_needed_for_workshop(workshop_id):
     for badge in workshop.badges:
         badges.add(badge)
         badges = badges.union(set(_get_child_badges(badge, [])))
-    print(badges)
-    
-    
+
+
 def get_workshop_badge_requirements_fulfilled(workshop:Workshop, attendee:AttendeeLogin):
     if not attendee and workshop.badges:
         return "Disabled", "No PiNet username attached"
@@ -1139,7 +1125,6 @@ def verify_all_workshop_badges_exist():
         print(f"Adding badge for workshop {workshop.workshop_title}.")
         db_session.add(badge)
     db_session.commit()
-    print()
 
 
 def update_workshop_badge_award(attendee_login: AttendeeLogin, badge_id):
@@ -1156,12 +1141,12 @@ def update_workshop_badge_award(attendee_login: AttendeeLogin, badge_id):
 
 def update_badges_for_attendee(attendee_id=None, attendee=None, attendee_login=None): 
     # Iterate through all possible badges and verify if the user is due to be awarded them.
-    
+
     if not attendee and not attendee_login:
         attendee = db_session.query(Attendee).filter(Attendee.attendee_id == attendee_id).first()
     if attendee:
         attendee_login = attendee.attendee_login
-    
+
     if attendee_login:
         if attendee_login:
             potential_badges_to_award = True
@@ -1170,18 +1155,17 @@ def update_badges_for_attendee(attendee_id=None, attendee=None, attendee_login=N
                 badges: List[BadgeLibrary] = db_session.query(BadgeLibrary).filter(BadgeLibrary.badge_hidden == False).all()
                 potential_badges_to_award = False
                 for badge in badges:
-                    if badge in attendee_badges: # If attendee already has the badge
+                    if badge in attendee_badges:  # If attendee already has the badge
                         continue
-                    if not badge.dependent_badges: # If badge has no dependencies
+                    if not badge.dependent_badges:  # If badge has no dependencies
                         continue
-                    #badge.dependent_badges : List[BadgeDependencies] = badge.dependent_badges # Added to help with auto type detection
                     has_deps = True
                     non_core_deps = 0
                     for badge_dependency in badge.badge_dependencies:
                         if badge_dependency.badge_awarded_core:
                             if badge_dependency.dependency_badge not in attendee_badges:
                                 has_deps = False
-                                break # Don't award badge as they are missing a core badge
+                                break  # Don't award badge as they are missing a core badge
                         else:
                             if badge_dependency.dependency_badge in attendee_badges:
                                 non_core_deps = non_core_deps + 1
