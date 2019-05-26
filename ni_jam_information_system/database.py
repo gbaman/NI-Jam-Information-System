@@ -1092,8 +1092,8 @@ def update_pinet_username_from_attendee_id(attendee_id, pinet_username):
             attendee.attendee_login.attendee_login_name = pinet_username.lower().strip()
         elif attendee_login:
             attendee.attendee_login = attendee_login
-        else:
-            attendee.attendee_login = AttendeeLogin(attendee_login_id=attendee.attendee_id, attendee_login_name=pinet_username.lower())
+        else:  # If the attendee_login hasn't been found in the system
+            return False
         db_session.commit()
         return attendee.attendee_login
     return False
