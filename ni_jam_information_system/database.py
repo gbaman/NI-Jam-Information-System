@@ -167,10 +167,6 @@ def update_attendees_from_eventbrite(event_id):
                     attendee_login = get_attendee_login(pinet_username)
                     if attendee_login:
                         new_attendee.attendee_login = attendee_login
-                    else:
-                        login = AttendeeLogin(attendee_login_name=pinet_username)
-                        new_attendee.attendee_login = login
-                        db_session.add(login)
                         db_session.commit()
 
             if "age" in question["question"].lower() and "answer" in question: 
