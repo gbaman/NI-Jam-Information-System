@@ -13,6 +13,11 @@ attendee_routes = Blueprint('attendee_routes', __name__,
 def display_workshops():
     if database.verify_attendee_id(request.cookies.get('jam_order_id'), database.get_current_jam_id()):
         slots = database.get_schedule_by_time_slot(database.get_current_jam_id(), request.cookies.get('jam_order_id'))
+        attendees = database.get_attendees_in_order(request.cookies.get('jam_order_id'))
+        for attendee in attendees:
+            if "general" in attendee.ticket_type.lower():
+                flash("A ticket in this booking does not have any PiNet username attached to it. If you know your PiNet username, click on the badges button above and add it. This will allow you to unlock digital badges in workshops to gain access to more advanced workshops!", "warning")
+            
         return render_template("workshops.html", slots=slots)
     else:
         flash("You must enter your Eventbrite Order ID and the day password to access the workshop booking system.", "danger")
