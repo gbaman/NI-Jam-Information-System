@@ -41,7 +41,20 @@
                         onclick="updateWorkshopBadgeAward({{ attendee.attendee_id }}, {{ jam_workshop.workshop.workshop_badge.badge_id }}, this, null)" value="val_2" name="but2">Award
                 </button></td>
         {% endif %}
-            <td onclick="editPiNetUsername({{ attendee.attendee_id }}, this.textContent, this)">{{ attendee.attendee_login.attendee_login_name }}</td>
+        <td>
+            <p align="left">
+            <label>
+                <select title="Select an attendee" data-width="auto" onchange="updatePiNetUsername(this.value, this.options[this.selectedIndex].text, false);" class="selectpicker" data-live-search="true">
+                {% for attendee_login in attendee_logins %}
+                    {% if attendee.attendee_login_id == attendee_login.attendee_login_id %}
+                        <option selected="selected" value={{ attendee.attendee_id }}>{{ attendee_login.attendee_login_name }}</option>
+                    {% else %}
+                        <option value={{ attendee.attendee_id }}>{{ attendee_login.attendee_login_name }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+            </label></p>
+        </td>
         </tr>
     {% endfor %}
 </table>

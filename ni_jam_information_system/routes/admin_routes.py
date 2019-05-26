@@ -484,7 +484,7 @@ def files_download(folder, filename):
 @module_badge_required
 def workshop_run_details(workshop_run_id):
     jam_workshop = database.get_workshop_run(int(workshop_run_id))
-    return render_template("admin/workshop_run_details.html", jam_workshop=jam_workshop)
+    return render_template("admin/workshop_run_details.html", jam_workshop=jam_workshop, attendee_logins=database.get_attendee_logins())
 
 
 @admin_routes.route("/admin/attendee_login_info/<attendee_login_id>")
