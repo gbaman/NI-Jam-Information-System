@@ -101,4 +101,31 @@
   <p><input class="btn btn-primary" type=submit value="Upload file">
 </form>
 
+<hr>
+{% if modules_enabled.module_badge %}
+<h2>Badge requirements</h2>
+<table>
+    <tr>
+        <th>Badge name</th>
+        <th>Edit badge details</th>
+        <th>Remove requirement</th>
+    </tr>
+    {% for badge in workshop.badges %}
+    <tr>
+        <td>{{badge.badge_name}}</td>
+        <td><a href="/admin/badge/edit/{{badge.badge_id}}" class="btn btn-success" role="button">Edit badge</a><br></td>
+        <td><a href="/admin/badge/remove_workshop_requirement/{{badge.badge_id}}/{{workshop.workshop_id}}" class="btn btn-danger" role="button">Remove requirement</a><br></td>
+    </tr>
+    {% endfor %}
+
+<form method="POST" enctype="multipart/form-data" style="max-width: 220px">
+  <dl>
+    {{ render_field(badge_form.badge_id, class = "form-control") }}
+  </dl>
+  <p><input class="btn btn-primary" type=submit value="Add badge">
+</form>
+
+</table>
+{% endif %}
+
 {% endblock %}

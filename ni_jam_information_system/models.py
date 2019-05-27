@@ -1,10 +1,12 @@
 import datetime
+from typing import List
 
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, BigInteger, Time, Boolean, text
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
 from secrets.config import db_user, db_pass, db_name, db_host
+from sqlalchemy.ext.hybrid import hybrid_property
 
 
 engine = create_engine('mysql+pymysql://{}:{}@{}/{}?charset=utf8'.format(db_user, db_pass, db_host, db_name))
@@ -33,6 +35,8 @@ class Attendee(Base):
     jam_id = Column(ForeignKey('raspberry_jam.jam_id'), primary_key=True, nullable=False, index=True)
     checked_in = Column(Integer)
     current_location = Column(String(15))
+    attendee_login_id = Column(ForeignKey('attendee_login.attendee_login_id'), primary_key=False, nullable=True, index=True, unique=True)
+    attendee_login = relationship('AttendeeLogin')
 
     jam = relationship('RaspberryJam')
 
@@ -130,6 +134,28 @@ class RaspberryJamWorkshop(Base):
     users = relationship('LoginUser', secondary='workshop_volunteers')
     attendees = relationship('Attendee', secondary='workshop_attendee')
 
+    @hybrid_property
+    def max_attendees(self):
+        if int(self.workshop_room.room_capacity) < int(self.workshop.workshop_limit):
+            return int(self.workshop_room.room_capacity)
+        else:
+            return int(self.workshop.workshop_limit)
+
+    @hybrid_property
+    def leading_volunteer(self):
+        if self.users:
+            return f"{self.users[0].first_name} {self.users[0].surname}"
+        return ""
+
+    @hybrid_property
+    def attendee_first_names(self):
+        to_return = ""
+        for attendee in self.attendees:
+            to_return = f"{to_return} {attendee.first_name},"
+        if to_return:
+            return to_return[:-1]
+        return to_return
+
 
 class VolunteerAttendance(Base):
     __tablename__ = 'volunteer_attendance'
@@ -165,6 +191,8 @@ class Workshop(Base):
     workshop_files = relationship('WorkshopFile')
     #workshop_equipment = relationship("Equipment", secondary="workshop_equipment")
     workshop_equipment = relationship('WorkshopEquipment')
+    badges = relationship('BadgeLibrary', secondary='workshop_badge')
+    workshop_badge = relationship('BadgeLibrary', uselist=False)
 
 
 class WorkshopAttendee(Base):
@@ -194,6 +222,10 @@ class WorkshopSlot(Base):
     slot_time_start = Column(Time, nullable=False)
     slot_time_end = Column(Time, nullable=False)
     workshops_in_slot = relationship("RaspberryJamWorkshop")
+    
+    @property
+    def title(self):
+        return f"{self.slot_time_start} - {self.slot_time_end}"
 
 
 class WorkshopFile(Base):
@@ -260,6 +292,68 @@ class Inventory(Base):
     inventory_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
     inventory_title = Column(String(45), nullable=False)
     inventory_date = Column(DateTime(), nullable=False)
+
+
+class AttendeeLogin(Base):
+    __tablename__ = 'attendee_login'
+    attendee_login_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
+    attendee_login_name = Column(String(45), nullable=False, unique=True)
+    attendee_badges = relationship("BadgeLibrary", secondary='attendee_login_badges')
+    attendee_references = relationship("Attendee")
+
+
+class AttendeeLoginBadges(Base):
+    __tablename__ = 'attendee_login_badges'
+    attendee_login_id = Column(ForeignKey('attendee_login.attendee_login_id'), primary_key=True, nullable=False, index=True)
+    badge_id = Column(ForeignKey('badge_library.badge_id'), primary_key=True, nullable=False, index=True)
+    badge_award_date = Column(DateTime, nullable=False)
+
+
+class BadgeDependencies(Base):
+    __tablename__ = 'badge_dependencies'
+    badge_dependency_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
+    parent_badge_id = Column(ForeignKey('badge_library.badge_id'), primary_key=True, nullable=False, index=True)
+    dependency_badge_id = Column(ForeignKey('badge_library.badge_id'), primary_key=True, nullable=False, index=True)
+    badge_awarded_core = Column(Boolean, nullable=False)
+    badge = relationship("BadgeLibrary", foreign_keys=parent_badge_id)
+    dependency_badge = relationship("BadgeLibrary", foreign_keys=dependency_badge_id)
+
+
+class BadgeLibrary(Base):
+    __tablename__ = 'badge_library'
+    badge_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
+    badge_name = Column(String(55), nullable=False, unique=True)
+    badge_description = Column(String(200), nullable=False)
+    badge_hidden = Column(Boolean, nullable=False)
+    badge_children_required_count = Column(Integer, nullable=False)
+    workshop_id = Column(ForeignKey('workshop.workshop_id'), primary_key=False, nullable=True, index=True, unique=True)
+    badge_icon_path = Column(String(150), nullable=True)
+    badge_dependencies: List[BadgeDependencies] = relationship('BadgeDependencies', foreign_keys=BadgeDependencies.parent_badge_id, uselist=True) 
+
+    @hybrid_property
+    def dependent_badges(self):
+        badges = []
+        for badge_dependency in self.badge_dependencies:
+            badges.append(badge_dependency.dependency_badge)
+        return badges
+
+
+class WorkshopBadge(Base):
+    __tablename__ = 'workshop_badge'
+    badge_id = Column(ForeignKey('badge_library.badge_id'), primary_key=True, nullable=False, index=True)
+    workshop_id = Column(ForeignKey('workshop.workshop_id'), primary_key=True, nullable=False, index=True)
+    workshop = relationship('Workshop')
+    badge = relationship('BadgeLibrary')
+
+
+class AlertConfig(Base):
+    __tablename__ = 'alert_config'
+    alert_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
+    alert_message = Column(String(300), nullable=False)
+    jam_id = Column(ForeignKey('raspberry_jam.jam_id'), primary_key=True, nullable=True, index=True)
+    workshop_id = Column(ForeignKey('workshop.workshop_id'), primary_key=True, nullable=True, index=True)
+    ticket_type = Column(String(45), nullable=True)
+    slot_id = Column(ForeignKey('workshop_slots.workshop_id'), primary_key=True, nullable=True, index=True)
 
 
 t_workshop_volunteers = Table(

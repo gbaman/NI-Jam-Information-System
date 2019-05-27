@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h2>{{ jam_workshop.workshop.workshop_title }} details</h2>
+<table>
+    <tr bgcolor="#d3d3d3">
+        <th width=20%>Workshop title</th>
+        <th width=15%>Room</th>
+        <th width=28%>Description</th>
+        <th width=8%>Capacity</th>
+    </tr>
+    <tr>
+        <td>{% if jam_workshop.workshop.pilot %} <i class="fas fa-flask"></i> {% endif %} {{jam_workshop.workshop.workshop_title}} {% if jam_workshop.workshop.pilot %} <i class="fas fa-flask"></i> {% endif %} </td>
+        <td>{{jam_workshop.workshop_room.room_name}}</td>
+        <td>{{jam_workshop.workshop.workshop_description}}</td>
+        <td><p id="{{jam_workshop.workshop_id}}-max-attendees">{{ jam_workshop.attendees|length }}/{{jam_workshop.max_attendees}}</p></td>
+    </tr>
+    
+</table>
+    <br>
+    <h3>Badge awarding</h3>
+    <br>
+<table>
+    <tr bgcolor="#d3d3d3">
+        <th>Attendee ID</th>
+        <th>Attendee name</th>
+        <th>Badge</th>
+        <th>PiNet Username (click to edit)</th>
+    </tr>
+    {% for attendee in jam_workshop.attendees %}
+        <tr{% if attendee.attendee_login and jam_workshop.workshop.workshop_badge in attendee.attendee_login.attendee_badges %} bgcolor="#c4fc9f" {% endif %}>
+            <td>{{ attendee.attendee_id }}</td>
+            <td>{{ attendee.first_name }} {{ attendee.surname }}</td>
+        {% if attendee.attendee_login and jam_workshop.workshop.workshop_badge in attendee.attendee_login.attendee_badges %}
+            <td><button id="award_badge_button_{{ attendee.attendee_id }}" data-id="{{jam_workshop.workshop_id}}" class="btn btn-danger {% if not attendee.attendee_login_id %} disabled {% endif %}"
+                        onclick="updateWorkshopBadgeAward({{ attendee.attendee_id }}, {{ jam_workshop.workshop.workshop_badge.badge_id }}, this, null)" value="val_2" name="but2">Remove
+                </button></td>
+        {% else %}
+            <td><button id="award_badge_button_{{ attendee.attendee_id }}" data-id="{{jam_workshop.workshop_id}}" class="btn btn-info {% if not attendee.attendee_login_id %} disabled {% endif %}"
+                        onclick="updateWorkshopBadgeAward({{ attendee.attendee_id }}, {{ jam_workshop.workshop.workshop_badge.badge_id }}, this, null)" value="val_2" name="but2">Award
+                </button></td>
+        {% endif %}
+        <td>
+            <p align="left">
+            <label>
+                <select title="Select an attendee" data-width="auto" onchange="updatePiNetUsername(this.value, this.options[this.selectedIndex].text, false);" class="selectpicker" data-live-search="true">
+                {% for attendee_login in attendee_logins %}
+                    {% if attendee.attendee_login_id == attendee_login.attendee_login_id %}
+                        <option selected="selected" value={{ attendee.attendee_id }}>{{ attendee_login.attendee_login_name }}</option>
+                    {% else %}
+                        <option value={{ attendee.attendee_id }}>{{ attendee_login.attendee_login_name }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+            </label></p>
+        </td>
+        </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

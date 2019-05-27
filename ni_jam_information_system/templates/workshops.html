@@ -1,9 +1,10 @@
 {% extends "layout.html" %}
 
 {% block content %}
+    {%include '_message_flash_helper.html'%}
     <h2>Workshops</h2>
     <p>Currently available workshops can be found below. To book into an attendee into a workshop, click the button with their name to the right of the workshop title.</p>
     <p>Note that holders of parent/guardian tickets can not book into workshops as the allocated spaces are for Jam Attendee ticket holders only.</p>
 
-    {%include 'render_workshops_in_slots.html'%}
+    {%include 'render_workshops_in_slots_2.html'%}
 {% endblock %}

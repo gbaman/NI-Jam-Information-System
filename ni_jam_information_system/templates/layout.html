@@ -33,6 +33,9 @@
                 {% if modules_enabled.module_booking %}
                 <li><a href="/workshops">Workshops</a></li>
                 {% endif %}
+                {% if modules_enabled.module_badge %}
+                <li><a href="/badges">Badges</a></li>
+                {% endif %}
                 {% if modules_enabled.module_public_schedule %}
                 <li><a href="/public_schedule">Public Schedule</a></li>
                 {% endif %}
@@ -63,6 +66,9 @@
                         {% endif %}
                         {% if modules_enabled.module_attendees %}
                         <li><a href="/admin/fire_list">Fire list</a></li>
+                        {% endif %}
+                        {% if modules_enabled.module_badge %}
+                        <li><a href="/admin/badge">Badge catalog</a></li>
                         {% endif %}
                         {% if modules_enabled.module_equipment %}
                         <li><a href="/admin/manage_inventories">Manage inventories</a></li>

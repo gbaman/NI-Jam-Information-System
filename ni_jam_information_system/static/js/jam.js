@@ -276,6 +276,12 @@ function updateAttendeeInfo() {
 }
 
 
+function bookWorkshopAlert(workshop_id, attendee_id, alert_message) {
+    alertify.confirm('Warning', alert_message
+        , function(){ bookWorkshop(workshop_id, attendee_id) }, function(){}).set('labels', {ok:'Confirm', cancel:'Cancel'})
+}
+
+
 function bookWorkshop(workshop_id, attendee_id) {
     $.ajax({
         type: "POST",
@@ -285,10 +291,18 @@ function bookWorkshop(workshop_id, attendee_id) {
             attendee_id: attendee_id
         },
         success: function (result) {
-            var button = $("#" + workshop_id + "-" + attendee_id);
-            button.toggleClass('btn-danger btn-success');
-            button.attr("onclick","unbookWorkshop('" + workshop_id + "', '" + attendee_id +" ')");
-            updateBookedInCount(workshop_id);
+            if (result === "Success"){
+                var button = $("#" + workshop_id + "-" + attendee_id);
+                button.toggleClass('btn-danger btn-success');
+                button.attr("onclick","unbookWorkshop('" + workshop_id + "', '" + attendee_id +" ')");
+                updateBookedInCount(workshop_id);
+                alertify.success('Workshop booked');
+            } else {
+                alertify.alert("Workshop booking error",  result,
+                function(){
+                    window.location.reload();
+                });
+            }
         },
         error: function (result) {
 
@@ -315,6 +329,7 @@ function unbookWorkshop(workshop_id, attendee_id) {
             button.toggleClass('btn-success btn-danger');
             button.attr("onclick","bookWorkshop('" + workshop_id + "', '" + attendee_id +" ')");
             updateBookedInCount(workshop_id);
+            alertify.error('Workshop unbooked');
         },
         error: function (result) {
             alertify.alert("Workshop update error", "Workshop failed to update.",
@@ -492,4 +507,99 @@ function rejectExpenseReason(expense_id, rejection_reason){
                 });
         }
     });
+}
+
+
+function editPiNetUsername(attendee_id, username, item) {
+    alertify.prompt('Edit PiNet username', '', username
+        , function (evt, value) {
+            updatePiNetUsername(attendee_id, value);
+            if (item){
+                updatePiNetUsername(attendee_id, value);
+                item.textContent = value;
+                var element = document.getElementById("award_badge_button_{0}".format(attendee_id));
+                element.className = element.className.replace(/\bdisabled\b/g, "")
+            } else{
+                updatePiNetUsername(attendee_id, value, true);
+                
+            }
+        }, function () {
+        });
+}
+
+    
+function updatePiNetUsername(attendee_id, username, reload){
+    $.ajax({
+        type: "POST",
+        url: "/update_pinet_username",
+        data: {
+            attendee_id: attendee_id,
+            username: username
+        },
+        success: function (result) {
+            
+            if (reload){
+                window.location.reload();
+            } else{
+               alertify.success('Username update successful'); 
+            }
+            
+        },
+        error: function (result) {
+            alertify.alert("Error", "Unable to update username. This may be because the username was blank or does not exist in the system.",
+                function(){
+                    window.location.reload();
+                });
+        }
+    });
+}
+
+
+function updateWorkshopBadgeAward(attendee_id, badge_id, item, attendee_login_id){
+    if (item.textContent.includes('Award')) {
+        item.textContent = 'Remove';
+        item.classList.replace("btn-info", "btn-danger");
+        item.parentNode.parentNode.style.backgroundColor = "#c4fc9f";
+    } else {
+        item.textContent = 'Award';
+        item.classList.replace("btn-danger", "btn-info");
+        item.parentNode.parentNode.style.backgroundColor = "#ffffff";
+    }
+    
+    $.ajax({
+        type: "POST",
+        url: "/admin/update_workshop_badge_award",
+        data: {
+            attendee_id: attendee_id,
+            badge_id: badge_id,
+            attendee_login_id: attendee_login_id
+        },
+        success: function (result) {
+            alertify.success('Badge updated');
+        },
+        error: function (result) {
+            alertify.alert("Unable to update badge",
+                function(){
+                    window.location.reload();
+                });
+        }
+    });
+}
+
+
+function recalculateBadges() {
+    $.ajax({
+        type: "POST",
+        url: "/admin/ajax_recalculate_badges",
+        success: function (result) {
+            alertify.success('Badge awardees updated');
+        },
+        error: function (result) {
+            alertify.error('Badge awardees failed to update');
+        }
+    });
+}
+
+function unableToBookMessage(message) {
+    alertify.alert('Unable to book workshop', message, function(){});
 }

@@ -18,6 +18,16 @@ MAIN_SHEET = None
 EXPENSE_SHEET = None
 CATEGORIES_SHEET = None
 
+BANK_TEXT_AUTO_FILL = {
+    "GSUITE_nir CC@GOOGLE.COM":"Google",
+    "RS COMPONENTS":"RS Components",
+    "LITTLE WING":"Little Wings",
+    "TESCO STORES":"Tescos",
+    "Amazon.co.uk":"Amazon",
+    "AMZ*":"Amazon",
+    "HSBC":"HSBC"
+}
+
 
 # Used to allow main Flask app to start for development, without waiting ~2 seconds extra for sheets to be setup.
 def setup_worksheets_in_background():
@@ -280,6 +290,7 @@ def import_bank_csv(csv_path):
     for new_transaction in new_transactions:
         transaction_id = int(transaction_id) + 1
         new_transaction.transaction_id = transaction_id
+        auto_fill_expense_data(new_transaction)
         MAIN_SHEET.append_row(new_transaction.get_row(), value_input_option='USER_ENTERED')
 
 
@@ -351,4 +362,10 @@ def create_expense_row(e: Expense):
     else:
         e.expense_id = 0
     EXPENSE_SHEET.append_row([e.expense_id, e.expense_submit_date.strftime("%d/%m/%Y"), e.receipt_date.strftime("%d/%m/%Y"), e.volunteer_id, e.volunteer_name, e.paypal_email, e.receipt_url, e.value], value_input_option='USER_ENTERED')
-    
+
+
+def auto_fill_expense_data(transaction):
+    # Guess supplier from bank_text
+    for text in BANK_TEXT_AUTO_FILL:
+        if text.lower() in transaction.bank_text.lower():
+            transaction.supplier = BANK_TEXT_AUTO_FILL[text]

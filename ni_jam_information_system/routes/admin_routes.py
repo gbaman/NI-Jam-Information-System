@@ -92,7 +92,7 @@ def add_workshop_to_catalog(workshop_id = None):
         form.process()
     if request.method == 'POST' and form.validate():
         database.add_workshop(form.workshop_id.data, form.workshop_title.data, form.workshop_description.data, form.workshop_limit.data, form.workshop_level.data, form.workshop_url.data, form.workshop_volunteer_requirements.data)
-        return redirect(('admin/manage_workshop_catalog'))
+        return redirect(url_for('admin_routes.add_workshop_to_catalog'))
     return render_template('admin/manage_workshop_catalog.html', form=form, workshops=database.get_workshops_to_select())
 
 
@@ -104,7 +104,7 @@ def add_workshop_to_jam():
     if request.method == 'POST':# and form.validate():
         database.add_workshop_to_jam_from_catalog(database.get_current_jam_id(), form.workshop.data, form.volunteer.data, form.slot.data, form.room.data, int(literal_eval(form.pilot.data)), int(literal_eval(form.pair.data)))
         return redirect("/admin/add_workshop_to_jam", code=302)
-    return render_template('admin/add_workshop_to_jam_form.html', form=form, workshop_slots=database.get_time_slots_to_select(database.get_current_jam_id(), 0, admin_mode=True))
+    return render_template('admin/add_workshop_to_jam_form.html', form=form, workshop_slots=database.get_schedule_by_time_slot(database.get_current_jam_id(), 0, admin=True))
 
 
 @admin_routes.route('/admin/delete_workshop/<workshop_id>')
@@ -184,6 +184,7 @@ def manage_attendees():
         volunteer_attendee.current_location = volunteer_attendee.current_jam.current_location
         volunteer_attendee.attendee_id = volunteer_attendee.user_id
         volunteer_attendee.order_id = "Volunteer"
+        volunteer_attendee.attendee_login = ""
         jam_attendees.append(volunteer_attendee)
     for attendee in jam_attendees:
         if attendee.current_location == "Checked in":
@@ -193,9 +194,9 @@ def manage_attendees():
         elif attendee.current_location == "Not arrived":
             attendee.bg_colour = database.light_grey
 
-    #jam_attendees = sorted(jam_attendees, key=lambda x: x.order_id, reverse=False)
     jam_attendees = sorted(jam_attendees, key=lambda x: x.current_location, reverse=False)
-    return render_template("admin/manage_attendees.html", attendees=jam_attendees)
+    attendee_logins = database.get_attendee_logins()
+    return render_template("admin/manage_attendees.html", attendees=jam_attendees, attendee_logins=attendee_logins)
 
 
 @admin_routes.route("/admin/fire_list")
@@ -253,8 +254,14 @@ def workshop_details(workshop_id):
         if request.form['per_attendee'] == "True": per_attendee = True
         database.add_equipment_to_workshop(equipment_id, workshop_id, equipment_quantity, per_attendee)
 
+    badge_form = forms.AddBadgeWorkshopForm(workshop_id=workshop_id)
+    if badge_form.validate_on_submit():
+        badge_id = int(request.form['badge_id'])
+        database.add_badge_to_workshop(workshop_id, badge_id)
+        return redirect(url_for('admin_routes.workshop_details', workshop_id=workshop_id))
+
     workshop = database.get_workshop_from_workshop_id(workshop_id)
-    return render_template("admin/workshop_details.html", workshop=workshop, file_form=file_form, equipment_form=equipment_form, equipments=database.get_all_equipment_for_workshop(workshop_id))
+    return render_template("admin/workshop_details.html", workshop=workshop, file_form=file_form, equipment_form=equipment_form, equipments=database.get_all_equipment_for_workshop(workshop_id), badge_form=badge_form)
 
 
 @admin_routes.route("/admin/delete_workshop_file/<file_id>")
@@ -291,12 +298,10 @@ def manage_inventories():
     return render_template("admin/manage_inventories.html", form=form, inventories = database.get_inventories(), current_selected_inventory=current_inventoy)
 
 
-
 @admin_routes.route("/admin/manage_inventory/<inventory_id>")
 @volunteer_required
 @module_equipment_required
 def manage_inventory(inventory_id):
-    #equipment = database.get_all_equipment(manual_add_only=True)
     equipment = database.get_all_equipment(manual_add_only=False)
     return render_template("admin/inventory.html", equipment=equipment)
 
@@ -325,7 +330,6 @@ def wrangler_overview():
 @module_volunteer_signup_required
 def wrangler_overview_equipment():
     return render_template("admin/wrangler_overview_equipment.html", jam_id=database.get_current_jam_id(), raspberry_jam=database.get_jam_details(database.get_current_jam_id()).name, slots=database.get_wrangler_overview(database.get_current_jam_id()))
-
 
 
 @admin_routes.route('/admin/jam_setup', methods=['GET', 'POST'])
@@ -379,6 +383,56 @@ def remote_workshop_room(room_id):
     return redirect(('admin/jam_setup'))
 
 
+@admin_routes.route('/admin/badge', methods=['GET', 'POST'])
+@admin_routes.route('/admin/badge/<int:badge_id>', methods=['GET', 'POST'])
+@volunteer_required
+@module_badge_required
+def badge_catalog(badge_id=None):
+    form = forms.AddBadgeForm(request.form)
+    if badge_id and request.method == 'GET':
+        badge = database.get_badge(badge_id)
+        form.badge_id.default = badge.badge_id
+        form.badge_name.default = badge.badge_name
+        form.badge_description.default = badge.badge_description
+        form.badge_required_non_core_count.default = badge.badge_children_required_count
+        form.process()
+    elif request.method == 'POST' and form.validate():
+        if not database.add_badge(form.badge_id.data, form.badge_name.data, form.badge_description.data, form.badge_required_non_core_count.data):
+            flash("Unable to add/edit badge.", "danger")
+        return redirect(url_for("admin_routes.badge_catalog"))
+    form.badge_id.default = -1
+    return render_template("admin/badge_catalog.html", form=form, badges=database.get_all_badges())
+
+
+@admin_routes.route('/admin/badge/edit/<badge_id>', methods=['GET', 'POST'])
+@volunteer_required
+@module_badge_required
+def badge_edit(badge_id):
+    form = forms.AddBadgeDependencyForm(request.form, badge_id = int(badge_id))
+    if request.method == 'POST' and form.validate():
+        if not database.add_badge_dependency(badge_id, form.badge_id.data, int(literal_eval(form.badge_awarded_core.data))):
+            flash("Unable to add badge dependency.", "danger")
+        else:
+            flash("Badge dependency added.", "success")
+        return redirect(url_for("admin_routes.badge_edit", badge_id=badge_id))
+    return render_template("admin/badge_edit.html", form=form, badge=database.get_badge(badge_id))
+
+
+@admin_routes.route('/admin/badge/remove_workshop_requirement/<badge_id>/<workshop_id>')
+@volunteer_required
+@module_badge_required
+def remove_badge_workshop_requirement(badge_id, workshop_id):
+    database.remove_badge_workshop_requirement(workshop_id, badge_id)
+    return redirect(url_for("admin_routes.workshop_details", workshop_id=workshop_id))
+
+
+@admin_routes.route('/admin/badge/remove_badge_dependency/<badge_id>/<dependency_badge_id>')
+@volunteer_required
+@module_badge_required
+def remove_badge_dependency(badge_id, dependency_badge_id):
+    database.remove_badge_dependency(badge_id, dependency_badge_id)
+    return redirect(url_for("admin_routes.badge_edit", badge_id=badge_id))
+
 
 @admin_routes.route("/admin/expenses_claim", methods=['GET', 'POST'])
 @volunteer_required
@@ -404,8 +458,7 @@ def expenses_claim():
             google_sheets.create_expense_row(expense)
         else:
             flash("Failed to upload - File of same name already exists.", "danger")
-            
-        
+
         return redirect(url_for("admin_routes.expenses_claim"))
     expenses = google_sheets.get_volunteer_expenses_table()
     user_expenses = []
@@ -415,7 +468,7 @@ def expenses_claim():
     if user_expenses:
         form.paypal_email_address.default = user_expenses[-1].paypal_email
         form.process()
-    
+
     return render_template("admin/expenses_claims.html", form=form, expenses=user_expenses)
 
 
@@ -424,6 +477,23 @@ def expenses_claim():
 @module_finance_required
 def files_download(folder, filename):
     return send_file(f"static/files/expenses/{folder}/{filename}")
+
+
+@admin_routes.route("/admin/workshop_run/<workshop_run_id>")
+@volunteer_required
+@module_badge_required
+def workshop_run_details(workshop_run_id):
+    jam_workshop = database.get_workshop_run(int(workshop_run_id))
+    return render_template("admin/workshop_run_details.html", jam_workshop=jam_workshop, attendee_logins=database.get_attendee_logins())
+
+
+@admin_routes.route("/admin/attendee_login_info/<attendee_login_id>")
+@volunteer_required
+@module_attendees_required
+def attendee_login_info(attendee_login_id):
+    badges = database.get_all_badges(include_hidden=True)
+    attendee_login = database.get_attendee_login_from_attendee_login_id(attendee_login_id)
+    return render_template("admin/attendee_login_info.html", attendee_login=attendee_login, badges=badges)
 
 
 ####################################### AJAX Routes #######################################
@@ -473,7 +543,8 @@ def enable_volunteer_account():
 def modify_workshop_ajax():
     workshop_id = request.form['workshop_id']
     attendee_id = request.form['attendee_id']
-    if database.add_attendee_to_workshop(database.get_current_jam_id(), attendee_id, workshop_id):
+    status, message = database.add_attendee_to_workshop(database.get_current_jam_id(), attendee_id, workshop_id)
+    if status:
         return ("")
 
 
@@ -575,3 +646,28 @@ def remove_inventory_equipment_entry():
     equipment_entry_id = int(request.form['equipment_entry_id'])
     database.remove_equipment_entry_to_inventory(int(inventory_id), int(equipment_entry_id))
     return ""
+
+
+@admin_routes.route("/admin/update_workshop_badge_award", methods=['GET', 'POST'])
+@volunteer_required
+@module_badge_required
+def update_workshop_badge_award(): # Handle both if an attendee_id is provided or an attendee_login_id
+    attendee_id = request.form['attendee_id']
+    attendee_login_id = request.form['attendee_login_id']
+    badge_id = request.form['badge_id']
+    if attendee_id: # If attendee_id
+        attendee_login = database.get_attendee_login_from_attendee_id(int(attendee_id))
+    elif attendee_login_id: # If attendee_login_id
+        attendee_login = database.get_attendee_login_from_attendee_login_id(int(attendee_login_id))
+    else:
+        attendee_login = None
+    if database.update_workshop_badge_award(attendee_login, badge_id):
+        return ""
+
+
+@admin_routes.route("/admin/ajax_recalculate_badges", methods=['GET', 'POST'])
+@volunteer_required
+@module_badge_required
+def recalculate_badges():
+    if database.update_badges_for_all_attendees():
+        return ""

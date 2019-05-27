@@ -1,0 +1,59 @@
+{% extends "layout.html" %}
+
+{% block content %}
+{% from "_formhelpers.html" import render_field %}
+
+<h1>Edit badge - {{ badge.badge_name }}</h1>
+<p></p>
+    
+{% with messages = get_flashed_messages(with_categories=true) %}
+          <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible" role="alert">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <!-- <strong>Title</strong> --> {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+    
+<br>
+
+    <a href="/admin/badge" class="btn btn-info" role="button">Return to badges list</a> <br>
+    
+    <h3>Add new badge dependency</h3>
+    
+    <form method=post style="max-width: 220px">
+    <dl>
+        {{ render_field(form.badge_id, class="selectpicker", **{'data-live-search':'true'}) }}
+        {{ render_field(form.badge_awarded_core, class = "selectpicker") }}
+    </dl>
+    <p><input class="btn btn-primary" type=submit value="Add badge dependency">
+</form>
+    
+<h3>Current badge dependencies</h3>
+    
+<table>
+    <tr>
+        <th>Dependent badge name</th>
+        <th>Dependent badge description</th>
+        <th>Badge required</th>
+        <th>Remove dependency</th>
+
+    </tr>
+
+    {% for dependent_badge in badge.badge_dependencies %}
+        <tr>
+            <td>{{dependent_badge.dependency_badge.badge_name}}</td>
+            <td>{{dependent_badge.dependency_badge.badge_description}}</td>
+            <td>{{dependent_badge.badge_awarded_core}}</td>
+            <td><a href="/admin/badge/remove_badge_dependency/{{badge.badge_id}}/{{dependent_badge.dependency_badge.badge_id}}" class="btn btn-danger" role="button">Delete</a></td>
+        </tr>
+    {% endfor %}
+
+</table>
+
+
+
+{% endblock %}

@@ -7,7 +7,8 @@ from wtforms_components import TimeField
 from flask import g, Flask, current_app
 import datetime
 
-from database import get_volunteers_to_select, get_workshops_to_select, get_individual_time_slots_to_select, get_workshop_rooms, get_equipment_groups, get_all_equipment, get_all_trustees
+from database import get_volunteers_to_select, get_workshops_to_select, get_individual_time_slots_to_select, get_workshop_rooms, get_equipment_groups, get_all_equipment, get_all_badges, get_badge, get_workshop_from_workshop_id
+
 
 
 class CreateWorkshopForm(Form):
@@ -119,6 +120,40 @@ class EquipmentAddToWorkshopForm(FlaskForm):
         self.equipment_name.choices = [(str(equipment.equipment_id), equipment.equipment_name) for equipment in get_all_equipment()]
 
 
+class AddBadgeForm(FlaskForm):
+    badge_id = HiddenField("Badge ID", default="")
+    badge_name = StringField("Badge name", [validators.DataRequired()])
+    badge_description = StringField("Badge description", [validators.DataRequired()])
+    badge_required_non_core_count = IntegerField("Required number of non core dependencies badges", [validators.InputRequired()])
+
+
+class AddBadgeDependencyForm(FlaskForm):
+    badge_id = SelectField("Badge name", coerce=int)
+    badge_awarded_core = SelectField("Core badge", choices=[("False", "False"), ("True", "True")])
+    
+    def __init__(self, *args, **kwargs):
+        super(AddBadgeDependencyForm, self).__init__(*args, **kwargs)
+        badge_choices = []
+        parent_badge = get_badge(kwargs["badge_id"])
+        for badge in get_all_badges(include_hidden=True):
+            if badge.badge_id != int(parent_badge.badge_id) and not any(b.dependency_badge_id == badge.badge_id for b in parent_badge.badge_dependencies):
+                badge_choices.append([badge.badge_id, badge.badge_name])
+        self.badge_id.choices = badge_choices
+
+
+class AddBadgeWorkshopForm(FlaskForm):
+    badge_id = SelectField("Badge name", coerce=int)
+    
+    def __init__(self, *args, **kwargs):
+        super(AddBadgeWorkshopForm, self).__init__(*args, **kwargs)
+        badge_choices = []
+        workshop = get_workshop_from_workshop_id(kwargs["workshop_id"])
+        for badge in get_all_badges(include_hidden=True):
+            if not any(b.badge_id == badge.badge_id for b in workshop.badges):
+                badge_choices.append([badge.badge_id, badge.badge_name])
+        self.badge_id.choices = badge_choices
+
+
 class ExpensesClaimForm(FlaskForm):
     class Meta:
         csrf = False
@@ -148,3 +183,4 @@ class UploadLedgerCSVForm(FlaskForm):
         FileRequired(),
         FileAllowed(("csv",), 'Should be a CSV file from the bank.')
     ])
+

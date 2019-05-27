@@ -7,24 +7,26 @@
             <tr bgcolor="#d3d3d3">
                 <th width=20%>Workshop title</th>
                 <th width=15%>Workshop room</th>
-                <th width=30%>Workshop description</th>
-                <th width=10%>Workshop capacity</th>
-                <th width=10%>Workshop attendees</th>
-                <th width=10%>Run by</th>
+                <th width=28%>Workshop description</th>
+                <th width=9%>Workshop capacity</th>
+                <th width=9%>Workshop attendees</th>
+                <th width=9%>Run by</th>
+                <td width=5%>Details</td>
                 <th width=5%>Delete</th>
             </tr>
         </thead>
-        {% for workshop in workshop_slot.workshops %}
+        {% for workshop in workshop_slot.jam_workshops_in_slot %}
         <tr>
-            <td>{% if workshop.pair %}<img height="20" width="20" src="/static/img/pair-programming.svg"> {% endif %}{% if workshop.pilot %} <i class="fas fa-flask"></i> {% endif %} {{workshop.workshop_title}} {% if workshop.pilot %} <i class="fas fa-flask"></i> {% endif %}{% if workshop.pair %}<img height="20" width="20" src="/static/img/pair-programming.svg"> {% endif %} </td>
-            <td>{{workshop.workshop_room}}</td>
-            <td>{{workshop.workshop_description}}</td>
-            <td>{{workshop.workshop_limit}}</td>
-            <td>{{workshop.attendee_names}}</td>
-            <td>{{workshop.volunteer}}</td>
+            <td>{% if workshop.pair %}<img height="20" width="20" src="/static/img/pair-programming.svg"> {% endif %}{% if workshop.pilot %} <i class="fas fa-flask"></i> {% endif %} {{workshop.workshop.workshop_title}} {% if workshop.pilot %} <i class="fas fa-flask"></i> {% endif %}{% if workshop.pair %}<img height="20" width="20" src="/static/img/pair-programming.svg"> {% endif %} </td>
+            <td>{{workshop.workshop_room.room_name}}</td>
+            <td>{{workshop.workshop.workshop_description}}</td>
+            <td>{{ workshop.attendees|length }}/{{workshop.max_attendees}}</td>
+            <td>{{workshop.attendee_first_names}}</td>
+            <td>{{workshop.leading_volunteer}}</td>
+            <td><a href="/admin/workshop_run/{{ workshop.workshop_run_id }}" class="btn btn-success {% if not workshop.max_attendees %} disabled {% endif %}" role="button">Details</a></td>
             <td>
-                <button id="delete_button" data-id="{{workshop.workshop_id}}" class="btn btn-danger"
-                        onclick="deleteJamWorkshop({{workshop.workshop_id}})" value="val_1" name="but1">Delete
+                <button id="delete_button" data-id="{{workshop.workshop_run_id}}" class="btn btn-danger"
+                        onclick="deleteJamWorkshop({{workshop.workshop_run_id}})" value="val_1" name="but1">Delete
                 </button>
             </td>
         </tr>
