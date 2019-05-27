@@ -16,7 +16,7 @@ def display_workshops():
         attendees = database.get_attendees_in_order(request.cookies.get('jam_order_id'))
         for attendee in attendees:
             if "general" in attendee.ticket_type.lower():
-                flash("A ticket in this booking does not have any PiNet username attached to it. If you know your PiNet username, click on the badges button above and add it. This will allow you to unlock digital badges in workshops to gain access to more advanced workshops!", "warning")
+                flash("A ticket in this booking does not have a valid PiNet username attached to it. If you know your PiNet username, click on the badges button above and add it. This will allow you to unlock digital badges in workshops to gain access to more advanced workshops!", "warning")
             
         return render_template("workshops.html", slots=slots)
     else:
