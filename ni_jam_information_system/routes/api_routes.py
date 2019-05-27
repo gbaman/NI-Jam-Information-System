@@ -89,3 +89,15 @@ def upload_pinet_usernames():
         database.add_pinet_usernames(data["usernames"])    
         return "Success"
     return "Failed to import usernames"
+
+
+@api_routes.route("/api/general_stats", methods=['POST'])
+@module_api_required
+@api_key_required
+def general_api_stats():
+    data_to_return = {
+        "total_workshop_bookings": database.get_all_workshop_bookings_count(),
+        "total_jams": len(database.get_jams_in_db()),
+        "total_attendees": database.get_all_attendees_count(),
+    }
+    return json.dumps(data_to_return)

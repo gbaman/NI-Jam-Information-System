@@ -1191,3 +1191,11 @@ def get_attendee_login_from_attendee_login_id(attendee_login_id) -> AttendeeLogi
 def get_attendee_logins() -> List[AttendeeLogin]:
     attendee_logins = db_session.query(AttendeeLogin).all()
     return attendee_logins
+
+
+def get_all_workshop_bookings_count():
+    return db_session.query(WorkshopAttendee).count()
+
+
+def get_all_attendees_count():
+    return db_session.query(Attendee).count()
