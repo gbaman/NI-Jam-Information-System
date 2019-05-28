@@ -1,5 +1,6 @@
 import os
 import uuid
+from typing import List
 
 from flask import Blueprint, render_template, request, make_response, redirect, flash, send_file, abort
 from werkzeug.datastructures import CombinedMultiDict
@@ -218,6 +219,19 @@ def ledger_upload_link_expense(transaction_id, expense_id):
 def files_download(folder, filename):
     return send_file(f"static/files/receipts/{folder}/{filename}")
 
+
+@trustee_routes.route("/volunteer_stats")
+@trustee_required
+@module_volunteer_attendance_required
+def volunteer_stats():
+    all_jams = database.get_jams_in_db()
+    jams: List[database.RaspberryJam] = []
+    for jam_count_id, jam in enumerate(all_jams[::-1]):
+        if jam_count_id > 11:
+            break
+        jams.append(jam)
+    volunteers = sorted(database.get_login_users(), key=lambda x: x.surname.lower(), reverse=False)
+    return render_template("trustee/volunteer_stats.html", jams=jams[::-1], volunteers=volunteers)
 
 # -------------- AJAX routes -------------
 

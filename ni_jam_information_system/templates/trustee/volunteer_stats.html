@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h1>Volunteer Stats</h1>
+    
+<div style="font-size: large">
+
+    <table class="volunteer_key">
+        <tr>
+            <th>Key</th>
+        </tr>
+        <tr>
+            <td bgcolor="#f08080">No data / not replied</td>
+            <td bgcolor="#ffff80">Replied, but did not attend</td>
+            <td bgcolor="#90ee90">Attended setup or main Jam</td>
+        </tr>
+    </table>
+</div> 
+    <br>
+<div>
+    <table class="table table-hover, table-bordered">
+        <tr bgcolor="#d3d3d3">
+            <th>First name</th>
+            <th>Surname</th>
+            {% for jam in jams %}
+                <th>{{ jam.date.strftime("%b %Y") }}</th>
+            {% endfor %}
+        </tr>
+        {% for volunteer in volunteers %}
+            <tr>
+                <td>{{volunteer.first_name}}</td>
+                <td>{{volunteer.surname}}</td>
+                {% for jam in jams %}
+                    {% if volunteer in jam.volunteers_attending_jam %}
+                       <td bgcolor="#90ee90"></td> 
+                    {% else %}
+                        {% if volunteer in jam.volunteer_replied_attendance %}
+                            <td bgcolor="#ffff80"></td>
+                        {% else %}
+                            <td bgcolor="#f08080"></td>
+                        {% endif %}
+                    {% endif %}
+                    
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
