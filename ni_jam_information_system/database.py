@@ -386,7 +386,7 @@ def get_users(include_inactive=False):
     users = db_session.query(LoginUser)
     if include_inactive:
         return users.all()
-    return users.filter(LoginUser.active == 1)
+    return users.filter(LoginUser.active == 1).all()
 
 
 def get_user_details_from_username(username):
@@ -611,7 +611,7 @@ def select_jam(jam_id):
 def get_attending_volunteers(jam_id, only_attending_volunteers=False):  # Get all the volunteers
     if only_attending_volunteers:
         attending_volunteers = db_session.query(VolunteerAttendance).filter(VolunteerAttendance.jam_id == jam_id,
-                                                                            VolunteerAttendance.volunteer_attending)
+                                                                            VolunteerAttendance.volunteer_attending).all()
         all_volunteers = []
         for user in attending_volunteers:
             all_volunteers.append(user.user)
@@ -631,7 +631,8 @@ def get_attending_volunteers(jam_id, only_attending_volunteers=False):  # Get al
         for volunteer in all_volunteers:
             if volunteer.user_id == attend.user.user_id:
                 volunteer.attend = attend
-    return sorted(sorted(all_volunteers, key=lambda x: x.surname, reverse=False), key=lambda x: hasattr(x, "attend"), reverse=True)
+    sorted_volunteers = sorted(sorted(all_volunteers, key=lambda x: x.surname, reverse=False), key=lambda x: hasattr(x, "attend"), reverse=True)
+    return sorted_volunteers
 
 
 def add_volunteer_attendance(jam_id, user_id, attending_jam, attending_setup, attending_packdown, attending_food, notes, arrival_time):
