@@ -97,7 +97,8 @@ def add_jam(eventbrite_id, jam_name, date):  # Add a new Jam, plus a series of p
 
 
 def get_jams_in_db():
-    return db_session().query(RaspberryJam).all()
+    jams = db_session().query(RaspberryJam).all() 
+    return sorted(jams, key=lambda x: x.date, reverse=False)
 
 
 def get_jams_dict():
@@ -1200,3 +1201,10 @@ def get_all_workshop_bookings_count():
 
 def get_all_attendees_count():
     return db_session.query(Attendee).count()
+
+
+def get_login_users(include_archived=False) -> List[LoginUser]:
+    login_users = db_session.query(LoginUser)
+    if not include_archived:
+        login_users = login_users.filter(LoginUser.active)
+    return login_users.all()

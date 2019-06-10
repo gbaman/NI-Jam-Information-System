@@ -41,10 +41,10 @@
                 {% endif %}
                 {% if logged_in_user %}
                 <li class="dropdown">
-                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">Admin<span class="caret"></span></a>
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">Volunteer<span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         {% if modules_enabled.module_core %}
-                        <li><a href="/admin/admin_home">Admin Home</a></li>
+                        <li><a href="/admin/admin_home">Volunteer Home</a></li>
                         {% endif %}
                         {% if modules_enabled.module_workshops %}
                         <li><a href="/admin/manage_workshop_catalog">Manage workshops in catalog</a></li>
@@ -79,25 +79,29 @@
                         {% if modules_enabled.module_volunteer_signup %}
                         <li><a href="/admin/wrangler_overview">Wrangler overview</a></li>
                         {% endif %}
-                        {% if modules_enabled.module_core %}
-                        <li><a href="/admin/add_jam">Add Jam (SA)</a></li>
-                        {% endif %}
-                        {% if modules_enabled.module_core %}
-                        <li><a href="/admin/manage_users">User Management (SA)</a></li>
+                        {%  if modules_enabled.module_finance %}
+                        <li><a href="/admin/expenses_claim">Expenses claims</a></li>
                         {% endif %}
                     </ul>
                 </li>
-                {%  if modules_enabled.module_finance %}
+                {%  if logged_in_user.group_id >= 4 %}
                     <li class="dropdown">
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">Finance<span class="caret"></span></a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">Trustee<span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li><a href="/admin/expenses_claim">Expenses claims</a></li>
-                            {% if logged_in_user.group_id >= 4 %}
+                            {%  if modules_enabled.module_finance %}
                                 <li><a href="/trustee/finance/ledger">Ledger</a></li>
                                 <li><a href="/trustee/finance/expenses_list">Expenses list</a></li>
                             {% endif %}
-                            
-                        </ul>
+                            {% if modules_enabled.module_volunteer_attendance %}
+                                <li><a href="/trustee/volunteer_stats">Volunteer stats</a></li>
+                            {% endif %}
+                            {%  if logged_in_user.group_id >= 5 %}
+                                {% if modules_enabled.module_core %}
+                                    <li><a href="/admin/add_jam">Add Jam</a></li>
+                                    <li><a href="/admin/manage_users">User Management</a></li>
+                                {% endif %}
+                            {% endif %}
+                            </ul>
                     </li>
                 {% endif %}
                     

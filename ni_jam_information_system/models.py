@@ -113,6 +113,22 @@ class RaspberryJam(Base):
     name = Column(String(150), nullable=False)
     date = Column(DateTime, nullable=False)
     food_after = Column(Integer)
+    volunteer_attendance = relationship('VolunteerAttendance')
+
+    @hybrid_property
+    def volunteers_attending_jam(self):
+        attending = []
+        for volunteer_attendance in self.volunteer_attendance:
+            if volunteer_attendance.volunteer_attending or volunteer_attendance.setup_attending:
+                attending.append(volunteer_attendance.user)
+        return attending
+
+    @hybrid_property
+    def volunteer_replied_attendance(self):
+        replied = []
+        for volunteer_attendance in self.volunteer_attendance:
+            replied.append(volunteer_attendance.user)
+        return replied
 
 
 class RaspberryJamWorkshop(Base):
