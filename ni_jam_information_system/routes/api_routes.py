@@ -65,18 +65,18 @@ def add_equipment_entries(token):
         return json.dumps(nums_created)
 
 
-@api_routes.route("/api/add_equipment/<token>", methods=['POST'])
+@api_routes.route("/api/add_equipment/", methods=['POST'])
 @module_api_required
-def add_equipment(token):
-    if token in api_keys:
-        equipment_name = request.form['equipment_name']
-        equipment_code = request.form['equipment_code']
-        equipment_group_id = request.form['equipment_group_id']
-        if len(equipment_code) != 3:
-            abort(400)
-        if database.add_equipment(equipment_name, str(equipment_code).upper(), equipment_group_id):
-            return ""
+@api_key_required
+def add_equipment():
+    equipment_name = request.form['equipment_name']
+    equipment_code = request.form['equipment_code']
+    equipment_group_id = request.form['equipment_group_id']
+    if len(equipment_code) != 3:
         abort(400)
+    if database.add_equipment(equipment_name, str(equipment_code).upper(), equipment_group_id):
+        return ""
+    abort(400)
 
 
 @api_routes.route("/api/upload_pinet_usernames", methods=['POST'])
@@ -86,7 +86,7 @@ def upload_pinet_usernames():
     raw_data = request.get_json()
     if raw_data:
         data = json.loads(raw_data)
-        database.add_pinet_usernames(data["usernames"])    
+        database.add_pinet_usernames(data["usernames"])
         return "Success"
     return "Failed to import usernames"
 
