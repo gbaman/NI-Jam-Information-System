@@ -36,7 +36,7 @@ def admin_home():
 @trustee_required
 @module_core_required
 def manage_jams():
-    return render_template("admin/manage_jams.html", jams=eventbrite_interactions.get_eventbrite_events_name_id(), jams_in_db=database.get_jams_dict(), current_jam_id=database.get_current_jam_id())
+    return render_template("admin/manage_jams.html", jams=eventbrite_interactions.get_eventbrite_events_name_id(), jams_in_db=database.get_jams_in_db(), current_jam_id=database.get_current_jam_id())
 
 
 @admin_routes.route("/admin/add_jam/<eventbrite_id>")
@@ -335,7 +335,7 @@ def wrangler_overview_equipment():
 @admin_routes.route('/admin/jam_setup', methods=['GET', 'POST'])
 @admin_routes.route('/admin/jam_setup/slot/<slot_id>', methods=['GET', 'POST'])
 @admin_routes.route('/admin/jam_setup/room/<room_id>', methods=['GET', 'POST'])
-@super_admin_required
+@trustee_required
 @module_workshops_required
 def jam_setup(slot_id=None, room_id=None):
     room_form = forms.RoomForm(request.form)
@@ -366,7 +366,7 @@ def jam_setup(slot_id=None, room_id=None):
 
 
 @admin_routes.route('/admin/jam_setup/remove_slot/<slot_id>', methods=['GET', 'POST'])
-@super_admin_required
+@trustee_required
 @module_core_required
 def remove_slot(slot_id):
     database.remove_slot(slot_id)
@@ -375,7 +375,7 @@ def remove_slot(slot_id):
 
 
 @admin_routes.route('/admin/jam_setup/remove_workshop_room/<room_id>', methods=['GET', 'POST'])
-@super_admin_required
+@trustee_required
 @module_core_required
 def remote_workshop_room(room_id):
     database.remove_room(room_id)
@@ -598,7 +598,7 @@ def update_attendee_info():
 
 
 @admin_routes.route("/admin/select_inventory_ajax", methods=['GET', 'POST'])
-@super_admin_required
+@trustee_required
 @module_equipment_required
 def select_inventory():
     inventory_id = int(request.form['inventory_id'])
@@ -671,3 +671,13 @@ def update_workshop_badge_award(): # Handle both if an attendee_id is provided o
 def recalculate_badges():
     if database.update_badges_for_all_attendees():
         return ""
+    
+    
+@admin_routes.route("/admin/update_jam_password_ajax", methods=['GET', 'POST'])
+@trustee_required
+@module_core_required
+def update_jam_password():
+    jam_id = int(request.form["jam_id"])
+    jam_password = request.form["jam_password"]
+    database.set_jam_password(jam_id, jam_password)
+    return " "

@@ -101,14 +101,6 @@ def get_jams_in_db():
     return sorted(jams, key=lambda x: x.date, reverse=False)
 
 
-def get_jams_dict():
-    jams = get_jams_in_db()
-    jams_list = []
-    for jam in jams:
-        jams_list.append({"jam_id": jam.jam_id, "name": jam.name, "date":jam.date})
-    return jams_list
-
-
 def add_workshop(workshop_id, workshop_title, workshop_description, workshop_limit, workshop_level, workshop_url, workshop_volunteer_requirements):
 
     if workshop_id or workshop_id == 0:  # If workshop already exists
@@ -1216,3 +1208,18 @@ def get_login_users(include_archived=False) -> List[LoginUser]:
     if not include_archived:
         login_users = login_users.filter(LoginUser.active)
     return login_users.all()
+
+
+def set_jam_password(jam_id, password):
+    jam = db_session.query(RaspberryJam).filter(RaspberryJam.jam_id == int(jam_id)).first()
+    if password == "None" or not password:
+        password = None
+    jam.jam_password = password
+    db_session.commit()
+    
+    
+def get_jam_password(jam_id=None):
+    if not jam_id:
+        jam_id = get_current_jam_id()
+    jam_password = get_jam_details(jam_id).jam_password
+    return jam_password
