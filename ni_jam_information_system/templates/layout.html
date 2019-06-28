@@ -95,9 +95,9 @@
                             {% if modules_enabled.module_volunteer_attendance %}
                                 <li><a href="/trustee/volunteer_stats">Volunteer stats</a></li>
                             {% endif %}
+                            <li><a href="/admin/manage_jams">Manage/Add Jams</a></li>
                             {%  if logged_in_user.group_id >= 5 %}
                                 {% if modules_enabled.module_core %}
-                                    <li><a href="/admin/manage_jams">Manage/Add Jams</a></li>
                                     <li><a href="/admin/manage_users">User Management</a></li>
                                     <li><a href="/admin/jam_setup">Jam Setup</a></li>
                                 {% endif %}

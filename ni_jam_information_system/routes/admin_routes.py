@@ -18,7 +18,7 @@ admin_routes = Blueprint('admin_routes', __name__, template_folder='templates')
 
 
 @admin_routes.route("/admin/import_attendees_from_eventbrite/<jam_id>")
-@super_admin_required
+@trustee_required
 @module_core_required
 def import_from_eventbrite(jam_id):
     database.update_attendees_from_eventbrite(jam_id)
@@ -33,14 +33,14 @@ def admin_home():
 
 
 @admin_routes.route("/admin/manage_jams")
-@super_admin_required
+@trustee_required
 @module_core_required
 def manage_jams():
     return render_template("admin/manage_jams.html", jams=eventbrite_interactions.get_eventbrite_events_name_id(), jams_in_db=database.get_jams_dict(), current_jam_id=database.get_current_jam_id())
 
 
 @admin_routes.route("/admin/add_jam/<eventbrite_id>")
-@super_admin_required
+@trustee_required
 @module_core_required
 def add_jam_id(eventbrite_id):
     eventbrite_jam = eventbrite_interactions.get_eventbrite_event_by_id(eventbrite_id)
@@ -49,7 +49,7 @@ def add_jam_id(eventbrite_id):
 
 
 @admin_routes.route("/admin/delete_jam", methods=['POST', 'GET'])
-@super_admin_required
+@trustee_required
 @module_core_required
 def delete_jam():
     jam_id = request.form["jam_id"]
@@ -62,7 +62,7 @@ def delete_jam():
 
 
 @admin_routes.route("/admin/select_jam", methods=['POST', 'GET'])
-@super_admin_required
+@trustee_required
 @module_core_required
 def select_jam():
     jam_id = request.form["jam_id"]
