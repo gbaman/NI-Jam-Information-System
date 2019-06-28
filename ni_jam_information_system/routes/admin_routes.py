@@ -22,7 +22,7 @@ admin_routes = Blueprint('admin_routes', __name__, template_folder='templates')
 @module_core_required
 def import_from_eventbrite(jam_id):
     database.update_attendees_from_eventbrite(jam_id)
-    return redirect("/admin/add_jam")
+    return redirect("/admin/manage_jams")
 
 
 @admin_routes.route("/admin/admin_home")
@@ -32,11 +32,11 @@ def admin_home():
     return render_template("admin/admin_home.html", selected_jam = database.get_jam_details(database.get_current_jam_id()))
 
 
-@admin_routes.route("/admin/add_jam")
+@admin_routes.route("/admin/manage_jams")
 @super_admin_required
 @module_core_required
-def add_jam():
-    return render_template("admin/add_jam.html", jams=eventbrite_interactions.get_eventbrite_events_name_id(), jams_in_db=database.get_jams_dict(), current_jam_id=database.get_current_jam_id())
+def manage_jams():
+    return render_template("admin/manage_jams.html", jams=eventbrite_interactions.get_eventbrite_events_name_id(), jams_in_db=database.get_jams_dict(), current_jam_id=database.get_current_jam_id())
 
 
 @admin_routes.route("/admin/add_jam/<eventbrite_id>")
@@ -45,7 +45,7 @@ def add_jam():
 def add_jam_id(eventbrite_id):
     eventbrite_jam = eventbrite_interactions.get_eventbrite_event_by_id(eventbrite_id)
     database.add_jam(eventbrite_id, eventbrite_jam["name"]["text"], eventbrite_jam["start"]["local"].replace("T", " "))
-    return redirect("/admin/add_jam", code=302)
+    return redirect("/admin/manage_jams", code=302)
 
 
 @admin_routes.route("/admin/delete_jam", methods=['POST', 'GET'])

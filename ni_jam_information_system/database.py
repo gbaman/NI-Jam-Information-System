@@ -165,10 +165,11 @@ def update_attendees_from_eventbrite(event_id):
             if "pinet" in question["question"].lower() and "answer" in question:
                 pinet_username = question["answer"].lower().strip().replace(" ", "")
                 if len(pinet_username) >= 3:
-                    attendee_login = get_attendee_login(pinet_username)
-                    if attendee_login:
-                        new_attendee.attendee_login = attendee_login
-                        db_session.commit()
+                    #attendee_login = get_attendee_login(pinet_username)
+                    #if attendee_login:
+                    #    new_attendee.attendee_login = attendee_login
+                    #    db_session.commit()
+                    pass
 
             if "age" in question["question"].lower() and "answer" in question: 
                 age = question["answer"]
@@ -222,6 +223,13 @@ def get_attendees_in_order(order_id, current_jam=False, ignore_parent_tickets=Fa
                     found_attendees_without_parents.append(attendee)
             return found_attendees_without_parents
         return found_attendees
+
+
+def get_time_slots_objects():
+    slots = db_session.query(WorkshopSlot).order_by(WorkshopSlot.slot_time_start)
+    for slot in slots: 
+        slot.slot_duration = 0 # TODO: Get slot duration working...
+    return slots
 
 
 def get_volunteers_to_select():
