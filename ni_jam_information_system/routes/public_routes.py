@@ -21,7 +21,8 @@ def index():
         return redirect("workshops")
     form = forms.GetOrderIDForm(request.form)
     if request.method == 'POST' and form.validate():
-        if database.verify_attendee_id(form.order_id.data, database.get_current_jam_id()) and form.day_password.data == day_password:
+        day_password = database.get_jam_password()
+        if database.verify_attendee_id(form.order_id.data, database.get_current_jam_id()) and day_password and form.day_password.data == day_password:
             resp = make_response(redirect("workshops"))
             resp.set_cookie('jam_order_id', str(form.order_id.data), expires=(datetime.now() + timedelta(hours=6)))
             resp.set_cookie('jam_id', str(database.get_current_jam_id()))
@@ -35,7 +36,8 @@ def index():
 @public_routes.route("/qr/<order_id>/<password>") # Allow attendees to be logged into NIJIS via a badge QR code
 @module_core_required
 def attendee_qr_login(order_id, password):
-    if database.verify_attendee_id(order_id, database.get_current_jam_id()) and password == day_password:
+    day_password = database.get_jam_password()
+    if database.verify_attendee_id(order_id, database.get_current_jam_id()) and day_password and password == day_password:
         resp = make_response(redirect("/workshops"))
         resp.set_cookie('jam_order_id', str(order_id), expires=(datetime.now() + timedelta(hours=6)))
         resp.set_cookie('jam_id', str(database.get_current_jam_id()))
