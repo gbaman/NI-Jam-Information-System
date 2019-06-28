@@ -101,14 +101,6 @@ def get_jams_in_db():
     return sorted(jams, key=lambda x: x.date, reverse=False)
 
 
-def get_jams_dict():
-    jams = get_jams_in_db()
-    jams_list = []
-    for jam in jams:
-        jams_list.append({"jam_id": jam.jam_id, "name": jam.name, "date":jam.date})
-    return jams_list
-
-
 def add_workshop(workshop_id, workshop_title, workshop_description, workshop_limit, workshop_level, workshop_url, workshop_volunteer_requirements):
 
     if workshop_id or workshop_id == 0:  # If workshop already exists
@@ -165,10 +157,11 @@ def update_attendees_from_eventbrite(event_id):
             if "pinet" in question["question"].lower() and "answer" in question:
                 pinet_username = question["answer"].lower().strip().replace(" ", "")
                 if len(pinet_username) >= 3:
-                    attendee_login = get_attendee_login(pinet_username)
-                    if attendee_login:
-                        new_attendee.attendee_login = attendee_login
-                        db_session.commit()
+                    #attendee_login = get_attendee_login(pinet_username)
+                    #if attendee_login:
+                    #    new_attendee.attendee_login = attendee_login
+                    #    db_session.commit()
+                    pass
 
             if "age" in question["question"].lower() and "answer" in question: 
                 age = question["answer"]
@@ -222,6 +215,13 @@ def get_attendees_in_order(order_id, current_jam=False, ignore_parent_tickets=Fa
                     found_attendees_without_parents.append(attendee)
             return found_attendees_without_parents
         return found_attendees
+
+
+def get_time_slots_objects():
+    slots = db_session.query(WorkshopSlot).order_by(WorkshopSlot.slot_time_start)
+    for slot in slots: 
+        slot.slot_duration = 0 # TODO: Get slot duration working...
+    return slots
 
 
 def get_volunteers_to_select():
@@ -1208,3 +1208,18 @@ def get_login_users(include_archived=False) -> List[LoginUser]:
     if not include_archived:
         login_users = login_users.filter(LoginUser.active)
     return login_users.all()
+
+
+def set_jam_password(jam_id, password):
+    jam = db_session.query(RaspberryJam).filter(RaspberryJam.jam_id == int(jam_id)).first()
+    if password == "None" or not password:
+        password = None
+    jam.jam_password = password
+    db_session.commit()
+    
+    
+def get_jam_password(jam_id=None):
+    if not jam_id:
+        jam_id = get_current_jam_id()
+    jam_password = get_jam_details(jam_id).jam_password
+    return jam_password

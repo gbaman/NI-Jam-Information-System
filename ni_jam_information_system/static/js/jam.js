@@ -603,3 +603,30 @@ function recalculateBadges() {
 function unableToBookMessage(message) {
     alertify.alert('Unable to book workshop', message, function(){});
 }
+
+
+function editJamPassword(jam_id, jam_password, item) {
+    alertify.prompt( 'Edit password', '', jam_password
+               , function(evt, value){ updateJamPassword(jam_id, value); item.textContent = value}, function() {});
+}
+
+
+function updateJamPassword(jam_id, jam_password){
+    $.ajax({
+        type: "POST",
+        url: "/admin/update_jam_password_ajax",
+        data: {
+            jam_id: jam_id,
+            jam_password: jam_password
+        },
+        success: function (result) {
+            alertify.success('Updated password saved');
+        },
+        error: function (result) {
+            alertify.alert("Unable to update password.",
+                function(){
+                    window.location.reload();
+                });
+        }
+    });
+}

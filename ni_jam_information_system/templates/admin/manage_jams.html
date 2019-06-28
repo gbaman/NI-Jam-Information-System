@@ -10,9 +10,10 @@
             <th>Jam ID</th>
             <th>Jam Name</th>
             <th>Jam Date</th>
+            <th>Password</th>
             <th>Select</th>
             <th>Delete</th>
-            <th>Reimport attendee data</th>
+            <th>Attendee data</th>
         </tr>
         {% for jam_in_db in jams_in_db %}
         {% if current_jam_id == jam_in_db.jam_id %}
@@ -21,9 +22,10 @@
             <tr>
         {% endif %}
 
-            <td>{{jam_in_db.jam_id}}</td>
-            <td>{{jam_in_db.name}}</td>
-            <td>{{jam_in_db.date}}</td>
+            <td>{{ jam_in_db.jam_id }}</td>
+            <td>{{ jam_in_db.name }}</td>
+            <td>{{ jam_in_db.date }}</td>
+            <td onclick='editJamPassword("{{ jam_in_db.jam_id }}", this.textContent, this)'>{{ jam_in_db.jam_password }}</td>
             <td>
                 <button id="select_jam_button" data-id="{{jam_in_db.jam_id}}" class="btn btn-success"
                         onclick="selectJam({{jam_in_db.jam_id}})" value="val_1" name="but1">Select

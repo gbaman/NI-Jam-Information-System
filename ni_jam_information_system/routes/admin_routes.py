@@ -18,11 +18,11 @@ admin_routes = Blueprint('admin_routes', __name__, template_folder='templates')
 
 
 @admin_routes.route("/admin/import_attendees_from_eventbrite/<jam_id>")
-@super_admin_required
+@trustee_required
 @module_core_required
 def import_from_eventbrite(jam_id):
     database.update_attendees_from_eventbrite(jam_id)
-    return redirect("/admin/add_jam")
+    return redirect("/admin/manage_jams")
 
 
 @admin_routes.route("/admin/admin_home")
@@ -32,24 +32,24 @@ def admin_home():
     return render_template("admin/admin_home.html", selected_jam = database.get_jam_details(database.get_current_jam_id()))
 
 
-@admin_routes.route("/admin/add_jam")
-@super_admin_required
+@admin_routes.route("/admin/manage_jams")
+@trustee_required
 @module_core_required
-def add_jam():
-    return render_template("admin/add_jam.html", jams=eventbrite_interactions.get_eventbrite_events_name_id(), jams_in_db=database.get_jams_dict(), current_jam_id=database.get_current_jam_id())
+def manage_jams():
+    return render_template("admin/manage_jams.html", jams=eventbrite_interactions.get_eventbrite_events_name_id(), jams_in_db=database.get_jams_in_db(), current_jam_id=database.get_current_jam_id())
 
 
 @admin_routes.route("/admin/add_jam/<eventbrite_id>")
-@super_admin_required
+@trustee_required
 @module_core_required
 def add_jam_id(eventbrite_id):
     eventbrite_jam = eventbrite_interactions.get_eventbrite_event_by_id(eventbrite_id)
     database.add_jam(eventbrite_id, eventbrite_jam["name"]["text"], eventbrite_jam["start"]["local"].replace("T", " "))
-    return redirect("/admin/add_jam", code=302)
+    return redirect("/admin/manage_jams", code=302)
 
 
 @admin_routes.route("/admin/delete_jam", methods=['POST', 'GET'])
-@super_admin_required
+@trustee_required
 @module_core_required
 def delete_jam():
     jam_id = request.form["jam_id"]
@@ -62,7 +62,7 @@ def delete_jam():
 
 
 @admin_routes.route("/admin/select_jam", methods=['POST', 'GET'])
-@super_admin_required
+@trustee_required
 @module_core_required
 def select_jam():
     jam_id = request.form["jam_id"]
@@ -335,7 +335,7 @@ def wrangler_overview_equipment():
 @admin_routes.route('/admin/jam_setup', methods=['GET', 'POST'])
 @admin_routes.route('/admin/jam_setup/slot/<slot_id>', methods=['GET', 'POST'])
 @admin_routes.route('/admin/jam_setup/room/<room_id>', methods=['GET', 'POST'])
-@super_admin_required
+@trustee_required
 @module_workshops_required
 def jam_setup(slot_id=None, room_id=None):
     room_form = forms.RoomForm(request.form)
@@ -366,7 +366,7 @@ def jam_setup(slot_id=None, room_id=None):
 
 
 @admin_routes.route('/admin/jam_setup/remove_slot/<slot_id>', methods=['GET', 'POST'])
-@super_admin_required
+@trustee_required
 @module_core_required
 def remove_slot(slot_id):
     database.remove_slot(slot_id)
@@ -375,7 +375,7 @@ def remove_slot(slot_id):
 
 
 @admin_routes.route('/admin/jam_setup/remove_workshop_room/<room_id>', methods=['GET', 'POST'])
-@super_admin_required
+@trustee_required
 @module_core_required
 def remote_workshop_room(room_id):
     database.remove_room(room_id)
@@ -598,7 +598,7 @@ def update_attendee_info():
 
 
 @admin_routes.route("/admin/select_inventory_ajax", methods=['GET', 'POST'])
-@super_admin_required
+@trustee_required
 @module_equipment_required
 def select_inventory():
     inventory_id = int(request.form['inventory_id'])
@@ -671,3 +671,13 @@ def update_workshop_badge_award(): # Handle both if an attendee_id is provided o
 def recalculate_badges():
     if database.update_badges_for_all_attendees():
         return ""
+    
+    
+@admin_routes.route("/admin/update_jam_password_ajax", methods=['GET', 'POST'])
+@trustee_required
+@module_core_required
+def update_jam_password():
+    jam_id = int(request.form["jam_id"])
+    jam_password = request.form["jam_password"]
+    database.set_jam_password(jam_id, jam_password)
+    return " "

@@ -113,6 +113,7 @@ class RaspberryJam(Base):
     name = Column(String(150), nullable=False)
     date = Column(DateTime, nullable=False)
     food_after = Column(Integer)
+    jam_password = Column(String(45), nullable=True)
     volunteer_attendance = relationship('VolunteerAttendance')
 
     @hybrid_property
