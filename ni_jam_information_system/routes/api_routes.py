@@ -101,3 +101,23 @@ def general_api_stats():
         "total_attendees": database.get_all_attendees_count(),
     }
     return json.dumps(data_to_return)
+
+
+@api_routes.route("/api/get_jam_day_password", methods=['POST'])
+@module_api_required
+@api_key_required
+def get_jam_day_password():
+    jam_id = None
+    raw_data = request.get_json()
+    if raw_data:
+        data = json.loads(raw_data)
+        if "jam_id" in data:
+            jam_id = int(data["jam_id"])
+    database.get_jam_password(jam_id)
+
+    data_to_return = {
+        "jam_day_password": database.get_jam_password(jam_id),
+    }
+    return json.dumps(data_to_return)
+
+
