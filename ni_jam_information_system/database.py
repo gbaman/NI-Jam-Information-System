@@ -1216,10 +1216,17 @@ def set_jam_password(jam_id, password):
         password = None
     jam.jam_password = password
     db_session.commit()
-    
-    
+
+
 def get_jam_password(jam_id=None):
     if not jam_id:
         jam_id = get_current_jam_id()
     jam_password = get_jam_details(jam_id).jam_password
     return jam_password
+
+
+def get_eventbrite_webhook_key():
+    key_value = db_session.query(Configuration).filter(Configuration.config_name == "eventbrite_webhook_key").first()
+    if key_value:
+        return key_value.config_value
+    return None

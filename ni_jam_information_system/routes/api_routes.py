@@ -121,3 +121,15 @@ def get_jam_day_password():
     return json.dumps(data_to_return)
 
 
+@api_routes.route("/api/eventbrite_webhook/<webhook_key>", methods=['POST'])
+def eventbrite_webhook(webhook_key):
+    db_webhook_key = database.get_eventbrite_webhook_key()
+    if webhook_key:
+        if db_webhook_key == webhook_key:
+            data = request.json
+            if "api_url" in data:
+                if "orders" in data["api_url"] or "attendee" in data["api_url"]:
+                    current_jam = database.get_current_jam_id()
+                    database.update_attendees_from_eventbrite(current_jam)
+                    return ""
+    abort(405)
