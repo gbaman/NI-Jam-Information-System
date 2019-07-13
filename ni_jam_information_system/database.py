@@ -157,11 +157,11 @@ def update_attendees_from_eventbrite(event_id):
             if "pinet" in question["question"].lower() and "answer" in question:
                 pinet_username = question["answer"].lower().strip().replace(" ", "")
                 if len(pinet_username) >= 3:
-                    #attendee_login = get_attendee_login(pinet_username)
-                    #if attendee_login:
-                    #    new_attendee.attendee_login = attendee_login
-                    #    db_session.commit()
-                    pass
+                    attendee_login = get_attendee_login(pinet_username)
+                    if attendee_login:
+                        new_attendee.attendee_login = attendee_login
+                        db_session.commit()
+
 
             if "age" in question["question"].lower() and "answer" in question: 
                 age = question["answer"]
