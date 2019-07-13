@@ -1,6 +1,7 @@
 import collections
 import random
 import string
+import traceback
 import uuid
 
 import os
@@ -155,14 +156,16 @@ def update_attendees_from_eventbrite(event_id):
         new_attendee.checked_in = attendee["checked_in"]
         for question in attendee["answers"]:
             if "pinet" in question["question"].lower() and "answer" in question:
-                pinet_username = question["answer"].lower().strip().replace(" ", "")
-                if len(pinet_username) >= 3:
-                    attendee_login = get_attendee_login(pinet_username)
-                    if attendee_login:
-                        new_attendee.attendee_login = attendee_login
-                        db_session.commit()
-
-
+                try:  # A slightly unreliable piece of code that can fall over now and then, hence the try/except to stop it breaking main importer.
+                    pinet_username = question["answer"].lower().strip().replace(" ", "")
+                    if len(pinet_username) >= 3:
+                        attendee_login = get_attendee_login(pinet_username)
+                        if attendee_login:
+                            new_attendee.attendee_login = attendee_login
+                            db_session.commit()
+                except:
+                    traceback.print_exc()
+                
             if "age" in question["question"].lower() and "answer" in question: 
                 age = question["answer"]
                 try:
