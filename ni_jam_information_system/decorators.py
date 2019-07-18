@@ -174,6 +174,13 @@ def module_finance_required(f):
     return decorated_function
 
 
+def module_email_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        return _module_required(f, configuration.Modules.module_email, *args, **kwargs)
+
+    return decorated_function
+
 # --------------------------------------------- APIs --------------------------------------------- #
 
 

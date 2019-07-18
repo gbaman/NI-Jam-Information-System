@@ -89,6 +89,8 @@ class LoginUser(Base):
     email = Column(String(45))
     reset_code = Column(String(10))
     active = Column(Integer)
+    forgotten_password_url = Column(String(100), nullable=True, unique=True)
+    forgotten_password_expiry = Column(DateTime, nullable=True)
 
     attending = relationship("VolunteerAttendance")
     group = relationship('Group')

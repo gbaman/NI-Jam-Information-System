@@ -184,3 +184,12 @@ class UploadLedgerCSVForm(FlaskForm):
         FileAllowed(("csv",), 'Should be a CSV file from the bank.')
     ])
 
+
+class PasswordResetForm(Form):
+    email_address = StringField("Account email", [validators.DataRequired(), validators.Email()])
+    maths = StringField("What is 5+5?", [validators.DataRequired()])
+
+
+class ChangePasswordForm(Form):
+    new_password = PasswordField("New password", [validators.DataRequired()])
+    url_key = HiddenField()

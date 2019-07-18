@@ -393,7 +393,7 @@ def get_users(include_inactive=False):
     return users.filter(LoginUser.active == 1).all()
 
 
-def get_user_details_from_username(username):
+def get_user_details_from_username(username) -> LoginUser:
     return db_session.query(LoginUser).filter(LoginUser.username == username).first()
 
 
@@ -690,12 +690,12 @@ def get_user_reset_code(user_id):
     return new_code
 
 
-def reset_password(username, reset_code, salt, hash):
-    user = db_session.query(LoginUser).filter(LoginUser.username == username, LoginUser.reset_code == reset_code).first()
+def reset_password(user, salt, hash):
     if user:
         user.password_hash = hash
         user.password_salt = salt
         user.reset_code = None
+        user.forgotten_password_expiry = datetime.datetime.now()
         db_session.commit()
         return True
     return False
@@ -1233,3 +1233,30 @@ def get_eventbrite_webhook_key():
     if key_value:
         return key_value.config_value
     return None
+
+
+def get_login_user_from_email(email_address):
+    return db_session.query(LoginUser).filter(LoginUser.email == email_address).first()
+
+
+def get_user_from_password_reset_url(password_reset_url):
+    return db_session.query(LoginUser).filter(LoginUser.forgotten_password_url == password_reset_url).first()
+
+
+def verify_password_reset_url(reset_key):
+    if len(str(reset_key)) == 64:
+        user = db_session.query(LoginUser).filter(LoginUser.forgotten_password_url == reset_key).first()
+        if user:
+            if user.forgotten_password_expiry > datetime.datetime.now():
+                return True
+    return False
+
+
+def generate_password_reset_url(user_ud) -> LoginUser:
+    user = db_session.query(LoginUser).filter(LoginUser.user_id == user_ud).first()
+    user.forgotten_password_url = str(uuid.uuid4()).replace("-", "") + str(uuid.uuid4()).replace("-", "")
+    user.forgotten_password_expiry = datetime.datetime.now() + datetime.timedelta(days=2)
+    db_session.commit()
+    return user
+
+
