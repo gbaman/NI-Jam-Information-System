@@ -1,6 +1,7 @@
 import collections
 import random
 import string
+import traceback
 import uuid
 
 import os
@@ -155,14 +156,16 @@ def update_attendees_from_eventbrite(event_id):
         new_attendee.checked_in = attendee["checked_in"]
         for question in attendee["answers"]:
             if "pinet" in question["question"].lower() and "answer" in question:
-                pinet_username = question["answer"].lower().strip().replace(" ", "")
-                if len(pinet_username) >= 3:
-                    #attendee_login = get_attendee_login(pinet_username)
-                    #if attendee_login:
-                    #    new_attendee.attendee_login = attendee_login
-                    #    db_session.commit()
-                    pass
-
+                try:  # A slightly unreliable piece of code that can fall over now and then, hence the try/except to stop it breaking main importer.
+                    pinet_username = question["answer"].lower().strip().replace(" ", "")
+                    if len(pinet_username) >= 3:
+                        attendee_login = get_attendee_login(pinet_username)
+                        if attendee_login:
+                            new_attendee.attendee_login = attendee_login
+                            db_session.commit()
+                except:
+                    traceback.print_exc()
+                
             if "age" in question["question"].lower() and "answer" in question: 
                 age = question["answer"]
                 try:
@@ -390,7 +393,7 @@ def get_users(include_inactive=False):
     return users.filter(LoginUser.active == 1).all()
 
 
-def get_user_details_from_username(username):
+def get_user_details_from_username(username) -> LoginUser:
     return db_session.query(LoginUser).filter(LoginUser.username == username).first()
 
 
@@ -687,12 +690,12 @@ def get_user_reset_code(user_id):
     return new_code
 
 
-def reset_password(username, reset_code, salt, hash):
-    user = db_session.query(LoginUser).filter(LoginUser.username == username, LoginUser.reset_code == reset_code).first()
+def reset_password(user, salt, hash):
     if user:
         user.password_hash = hash
         user.password_salt = salt
         user.reset_code = None
+        user.forgotten_password_expiry = datetime.datetime.now()
         db_session.commit()
         return True
     return False
@@ -1216,10 +1219,44 @@ def set_jam_password(jam_id, password):
         password = None
     jam.jam_password = password
     db_session.commit()
-    
-    
+
+
 def get_jam_password(jam_id=None):
     if not jam_id:
         jam_id = get_current_jam_id()
     jam_password = get_jam_details(jam_id).jam_password
     return jam_password
+
+
+def get_eventbrite_webhook_key():
+    key_value = db_session.query(Configuration).filter(Configuration.config_name == "eventbrite_webhook_key").first()
+    if key_value:
+        return key_value.config_value
+    return None
+
+
+def get_login_user_from_email(email_address) -> LoginUser:
+    return db_session.query(LoginUser).filter(LoginUser.email == email_address).first()
+
+
+def get_user_from_password_reset_url(password_reset_url):
+    return db_session.query(LoginUser).filter(LoginUser.forgotten_password_url == password_reset_url).first()
+
+
+def verify_password_reset_url(reset_key):
+    if len(str(reset_key)) == 64:
+        user = db_session.query(LoginUser).filter(LoginUser.forgotten_password_url == reset_key).first()
+        if user:
+            if user.forgotten_password_expiry > datetime.datetime.now():
+                return True
+    return False
+
+
+def generate_password_reset_url(user_ud) -> LoginUser:
+    user = db_session.query(LoginUser).filter(LoginUser.user_id == user_ud).first()
+    user.forgotten_password_url = str(uuid.uuid4()).replace("-", "") + str(uuid.uuid4()).replace("-", "")
+    user.forgotten_password_expiry = datetime.datetime.now() + datetime.timedelta(days=2)
+    db_session.commit()
+    return user
+
+

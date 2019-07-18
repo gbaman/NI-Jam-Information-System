@@ -6,6 +6,8 @@ import requests
 from flask import Flask, render_template, request
 import secrets.config as config
 
+token = config.nijis_api_key
+
 BASE_DIR = "~/Documents/jam_labels"
 
 app = Flask(__name__)
@@ -16,7 +18,7 @@ url_prefix = "https://workshops.niraspberryjam.com"
 equipment_url = dev_url_prefix + "/api/equipment/" + str(config.nijis_api_key)
 equipment_groups_url = dev_url_prefix + "/api/equipment_groups/" + str(config.nijis_api_key)
 add_equipment_entries_url =dev_url_prefix + "/api/add_equipment_entries/" + str(config.nijis_api_key)
-add_equipment_url =dev_url_prefix + "/api/add_equipment/" + str(config.nijis_api_key)
+add_equipment_url =dev_url_prefix + "/api/add_equipment/"
 
 
 @app.route("/")
@@ -49,7 +51,7 @@ def add_equipment():
     equipment_name = request.form['equipment_name']
     equipment_code = request.form['equipment_code']
     equipment_group_id = request.form['equipment_group_id']
-    if requests.post(add_equipment_url, data={"equipment_name": equipment_name, "equipment_code": equipment_code, "equipment_group_id": equipment_group_id}):
+    if requests.post(add_equipment_url, data={"token": token, "equipment_name": equipment_name, "equipment_code": equipment_code, "equipment_group_id": equipment_group_id}):
         return ""
 
 

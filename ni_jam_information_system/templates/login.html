@@ -9,7 +9,8 @@
                     {{ render_field(form.username, class="form-control col-xs-5 col-lg-1") }}
                     {{ render_field(form.password, class="form-control") }}
                 </dl>
-                <p><input class="btn btn-primary" type=submit value="Login"> <a href="/reset" class="btn btn-danger" role="button">Reset password</a></p>
+                <p><input class="btn btn-primary" type=submit value="Login">  {% if modules_enabled.module_email %}<a href="/forgotten_password" class="btn btn-warning" role="button">Forgotten password</a>{% endif %}</p>
+                <p><a href="/reset_password_with_reset_code" class="btn btn-danger" role="button">Reset password with reset code</a></p>
                 <input type=hidden value="{{ next or '' }}" name=next>
             </form>
             {%include '_message_flash_helper.html'%}

@@ -65,18 +65,18 @@ def add_equipment_entries(token):
         return json.dumps(nums_created)
 
 
-@api_routes.route("/api/add_equipment/<token>", methods=['POST'])
+@api_routes.route("/api/add_equipment/", methods=['POST'])
 @module_api_required
-def add_equipment(token):
-    if token in api_keys:
-        equipment_name = request.form['equipment_name']
-        equipment_code = request.form['equipment_code']
-        equipment_group_id = request.form['equipment_group_id']
-        if len(equipment_code) != 3:
-            abort(400)
-        if database.add_equipment(equipment_name, str(equipment_code).upper(), equipment_group_id):
-            return ""
+@api_key_required
+def add_equipment():
+    equipment_name = request.form['equipment_name']
+    equipment_code = request.form['equipment_code']
+    equipment_group_id = request.form['equipment_group_id']
+    if len(equipment_code) != 3:
         abort(400)
+    if database.add_equipment(equipment_name, str(equipment_code).upper(), equipment_group_id):
+        return ""
+    abort(400)
 
 
 @api_routes.route("/api/upload_pinet_usernames", methods=['POST'])
@@ -86,7 +86,7 @@ def upload_pinet_usernames():
     raw_data = request.get_json()
     if raw_data:
         data = json.loads(raw_data)
-        database.add_pinet_usernames(data["usernames"])    
+        database.add_pinet_usernames(data["usernames"])
         return "Success"
     return "Failed to import usernames"
 
@@ -101,3 +101,35 @@ def general_api_stats():
         "total_attendees": database.get_all_attendees_count(),
     }
     return json.dumps(data_to_return)
+
+
+@api_routes.route("/api/get_jam_day_password", methods=['POST'])
+@module_api_required
+@api_key_required
+def get_jam_day_password():
+    jam_id = None
+    raw_data = request.get_json()
+    if raw_data:
+        data = json.loads(raw_data)
+        if "jam_id" in data:
+            jam_id = int(data["jam_id"])
+    database.get_jam_password(jam_id)
+
+    data_to_return = {
+        "jam_day_password": database.get_jam_password(jam_id),
+    }
+    return json.dumps(data_to_return)
+
+
+@api_routes.route("/api/eventbrite_webhook/<webhook_key>", methods=['POST'])
+def eventbrite_webhook(webhook_key):
+    db_webhook_key = database.get_eventbrite_webhook_key()
+    if webhook_key:
+        if db_webhook_key == webhook_key:
+            data = request.json
+            if "api_url" in data:
+                if "orders" in data["api_url"] or "attendee" in data["api_url"]:
+                    current_jam = database.get_current_jam_id()
+                    database.update_attendees_from_eventbrite(current_jam)
+                    return ""
+    abort(405)

@@ -174,6 +174,13 @@ def module_finance_required(f):
     return decorated_function
 
 
+def module_email_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        return _module_required(f, configuration.Modules.module_email, *args, **kwargs)
+
+    return decorated_function
+
 # --------------------------------------------- APIs --------------------------------------------- #
 
 
@@ -185,7 +192,9 @@ def api_key_required(f):
         else:
             token = request.values["token"]
         if not token or token not in secrets.config.api_keys:
+            print(f"Received API query with token of \"{token}\" for {request.path} which has been rejected.")
             return redirect("505")
         else:
+            print(f"Received API query with token starting with {token[0:5]} for {request.path} which has been approved.")
             return f(*args, **kwargs)
     return decorated_function

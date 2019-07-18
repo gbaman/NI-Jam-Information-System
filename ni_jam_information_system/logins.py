@@ -7,9 +7,14 @@ import flask_bcrypt
 import random
 from urllib.parse import urlparse, urljoin
 from flask import request, url_for, redirect, flash
+import configuration
+from secrets import config
 
 import models
 
+import flask_mail
+
+from flask import current_app as app
 
 def validate_login(username, password):
     print("Attempting to validate login for {}".format(username))
@@ -93,4 +98,50 @@ def redirect_back(endpoint, **values):
 def get_current_user() -> Optional[models.LoginUser]:
     if request.cookies.get('jam_login'):
         return database.get_user_from_cookie(request.cookies.get('jam_login'))
-    return None 
+    return None
+
+
+def update_password(user: models.LoginUser, password):
+    password_hash, password_salt = create_password_salt(password)
+    database.reset_password(user, password_hash, password_salt)
+
+
+def send_password_reset_email(login_user: models.LoginUser):
+    print(f"Sending password reset email to {login_user.username}")
+    database.generate_password_reset_url(login_user.user_id)
+    email_body = f"""
+    Hey {login_user.first_name},
+
+    A password reset request has been put through for your account.
+    If you did not request this, please let your NIJIS admin know right away.
+    If on the other hand you did request it, please go to the following URL to reset your password
+
+    {configuration.verify_config_item("general", "base_url")}/password_reset_url/{login_user.forgotten_password_url}
+
+    Note - This URL will time out in 48 hours.
+
+    -- {configuration.verify_config_item("general", "short_jam_organisation_name")} team
+    """
+
+    mail = flask_mail.Mail(app)
+    with mail.connect() as conn:
+        m = flask_mail.Message("NIJIS password reset request", sender=[f"{configuration.verify_config_item('general', 'short_jam_organisation_name')} team", config.email_username], recipients=[login_user.email], body=email_body)
+        conn.send(m)
+        
+
+
+def send_password_reset_complete_email(login_user: models.LoginUser):
+    print(f"Sending password reset complete email to {login_user.username}")
+    email_body = f"""
+    Hey {login_user.first_name},
+
+    A password reset has been completed on your NIJIS account.
+    If you requested this, please ignore this email.
+    If though on the other hand, you did not, please let your NIJIS admin know ASAP!
+
+    -- {configuration.verify_config_item("general", "short_jam_organisation_name")} team
+    """
+    mail = flask_mail.Mail(app)
+    with mail.connect() as conn:
+        m = flask_mail.Message("NIJIS password reset complete", sender=[f"{configuration.verify_config_item('general', 'short_jam_organisation_name')} team", config.email_username], recipients=[login_user.email], body=email_body)
+        conn.send(m)

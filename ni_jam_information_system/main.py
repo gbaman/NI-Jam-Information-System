@@ -1,10 +1,12 @@
 import uuid
 from flask import Flask, render_template, request
+from flask_mail import Mail
 from flask_uploads import UploadSet, configure_uploads, ALL
 
 import logins
 import database as database
 import configuration
+from secrets import config
 
 app = Flask(__name__)
 
@@ -44,6 +46,18 @@ app.register_blueprint(misc_routes)
 app.register_blueprint(trustee_routes, url_prefix="/trustee")
 
 configuration.output_modules_enabled()
+
+if configuration.verify_modules_enabled().module_email: 
+    mail_settings = {
+        "MAIL_SERVER": 'smtp.gmail.com',
+        "MAIL_PORT": 465,
+        "MAIL_USE_TLS": False,
+        "MAIL_USE_SSL": True,
+        "MAIL_USERNAME": config.email_username,
+        "MAIL_PASSWORD": config.email_password
+    }
+    app.config.update(mail_settings)
+    mail = Mail(app)
 
 if configuration.verify_modules_enabled().module_finance:
     import google_sheets

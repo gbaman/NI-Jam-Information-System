@@ -1,9 +1,11 @@
+import random
+import time
+
 from flask import Blueprint, render_template, request, make_response, redirect, flash, send_file, abort
 import database
 from datetime import datetime, timedelta
 from secrets.config import *
 import forms as forms
-import logins
 from decorators import *
 import configuration
 
@@ -84,14 +86,17 @@ def register():
     return(render_template("register.html", form=form))
 
 
-@public_routes.route("/reset", methods=['GET', 'POST'])
+@public_routes.route("/reset_password_with_reset_code", methods=['GET', 'POST'])
 @module_core_required
-def reset_password():
+def reset_password_with_reset_code():
     form = forms.ResetPasswordForm(request.form)
     if request.method == 'POST' and form.validate():
-        salt, hash = logins.create_password_salt(form.new_password.data)
-        if database.reset_password(form.username.data, form.reset_code.data, salt, hash):
+        user = database.get_user_details_from_username(form.username.data)
+        if user.reset_code and str(user.reset_code) == form.reset_code.data:
+            logins.update_password(user, form.new_password.data)
+            flash("Password reset complete - You can now log in.", "success")
             return redirect("/login")
+        flash("Password reset failed, credentials provided were invalid.")
         return render_template("reset_password.html", form=form, error="Reset failed, credentials provided are invalid.")
     return render_template("reset_password.html", form=form)
 
@@ -107,6 +112,47 @@ def logout():
     resp.set_cookie('jam_login', "", expires=0)
     resp.set_cookie('jam_month', "", expires=0)
     return resp
+
+
+@public_routes.route("/forgotten_password", methods=['GET', 'POST'])
+@module_email_required
+def forgotten_password():
+    form = forms.PasswordResetForm(request.form)
+    if request.method == 'POST' and form.validate():
+        email_address = form.email_address.data
+        maths = form.maths.data
+        if maths.lower() == "10" or maths.lower == "ten":
+            user = database.get_login_user_from_email(email_address)
+            time.sleep(random.uniform(0, 3))
+            if user:
+                if user.group_id >= 4:
+                    flash("This user is trustee or higher level and does not support the forgot my password mechanism. The password for this account must be changed manually.", "danger")
+                    return redirect("/login")
+                logins.send_password_reset_email(user)
+            flash("If user exists, password reset has been sent", "success")
+        else:
+            flash("Incorrect answer to maths question...", "danger")
+    return render_template("forgotten_password.html", form=form)
+
+
+@public_routes.route("/password_reset_url/<reset_key>", methods=['GET', 'POST'])
+@module_email_required
+def password_reset_url(reset_key):
+    form = forms.ChangePasswordForm(request.form)
+    if request.method == 'POST' and form.validate():
+        if database.verify_password_reset_url(form.url_key.data):
+            user = database.get_user_from_password_reset_url(form.url_key.data)
+            logins.update_password(user, form.new_password.data)
+            logins.send_password_reset_complete_email(user)
+            flash("Password reset complete. You can now log in.", "success")
+            return redirect("/login")
+
+    elif database.verify_password_reset_url(reset_key):
+        form.url_key.default = reset_key
+        form.process()
+        return render_template("change_password.html", form=form)
+    flash("Invalid password reset URL", "danger")
+    return redirect(url_for("public_routes.forgotten_password"))
 
 
 @public_routes.route("/public_schedule")
