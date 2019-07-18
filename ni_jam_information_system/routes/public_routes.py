@@ -125,6 +125,9 @@ def forgotten_password():
             user = database.get_login_user_from_email(email_address)
             time.sleep(random.uniform(0, 3))
             if user:
+                if user.group_id >= 4:
+                    flash("This user is trustee or higher level and does not support the forgot my password mechanism. The password for this account must be changed manually.", "danger")
+                    return redirect("/login")
                 logins.send_password_reset_email(user)
             flash("If user exists, password reset has been sent", "success")
         else:

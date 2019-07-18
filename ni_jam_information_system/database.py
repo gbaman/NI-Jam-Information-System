@@ -1235,7 +1235,7 @@ def get_eventbrite_webhook_key():
     return None
 
 
-def get_login_user_from_email(email_address):
+def get_login_user_from_email(email_address) -> LoginUser:
     return db_session.query(LoginUser).filter(LoginUser.email == email_address).first()
 
 
