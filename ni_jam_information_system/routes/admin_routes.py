@@ -160,16 +160,21 @@ def volunteer():
 
 
 @admin_routes.route("/admin/volunteer_attendance", methods=['GET', 'POST'])
+@admin_routes.route("/admin/volunteer_attendance/<event_id>", methods=['GET', 'POST'])
 @volunteer_required
 @module_volunteer_signup_required
-def volunteer_attendance():
-    volunteer_attendances = database.get_attending_volunteers(database.get_current_jam_id())
+def volunteer_attendance(event_id=None):
+    if event_id:
+        event_id = database.get_jam_details(event_id).jam_id
+    else:
+        event_id = database.get_current_jam_id()
+    volunteer_attendances = database.get_attending_volunteers(event_id)
     form = forms.VolunteerAttendance(request.form)
     if request.method == 'POST' and form.validate():
-        database.add_volunteer_attendance(database.get_current_jam_id(), request.logged_in_user.user_id, int(literal_eval(form.attending_jam.data)), int(literal_eval(form.attending_setup.data)), int(literal_eval(form.attending_packdown.data)), int(literal_eval(form.attending_food.data)), form.notes.data, form.arrival_time.data)
+        database.add_volunteer_attendance(event_id, request.logged_in_user.user_id, int(literal_eval(form.attending_jam.data)), int(literal_eval(form.attending_setup.data)), int(literal_eval(form.attending_packdown.data)), int(literal_eval(form.attending_food.data)), form.notes.data, form.arrival_time.data)
 
-        return redirect(("/admin/volunteer_attendance"), code=302)
-    return render_template("admin/volunteer_attendance.html", form=form, volunteer_attendances=volunteer_attendances, user_id=request.logged_in_user.user_id, selected_jam = database.get_jam_details(database.get_current_jam_id()))
+        return redirect((f"/admin/volunteer_attendance{ f'/{event_id}' if event_id else ''}"), code=302)
+    return render_template("admin/volunteer_attendance.html", form=form, volunteer_attendances=volunteer_attendances, user_id=request.logged_in_user.user_id, selected_jam = database.get_jam_details(event_id))
 
 
 @admin_routes.route("/admin/manage_attendees")
