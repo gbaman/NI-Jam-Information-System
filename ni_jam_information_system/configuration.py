@@ -44,7 +44,7 @@ def verify_config_item_bool(section, config_key):
     return None
 
 
-def verify_modules_enabled():
+def verify_modules_enabled() -> Modules:
     modules_object = Modules()
     modules = [x for x in dir(modules_object) if not x.startswith('__')]
     to_return = Modules()
@@ -56,6 +56,7 @@ def verify_modules_enabled():
             setattr(to_return, module, True)
 
     return to_return
+
 
 def output_modules_enabled():
     config = _get_config_file()

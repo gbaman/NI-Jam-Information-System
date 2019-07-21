@@ -7,6 +7,8 @@ from werkzeug.datastructures import CombinedMultiDict
 
 import database
 from datetime import datetime
+
+import emails
 import forms as forms
 from decorators import *
 import configuration
@@ -127,6 +129,12 @@ def expenses_list_paid_by(expense_id):
     id_column_data = google_sheets.update_expense_cell(expense_id, google_sheets.E.PAID_BY_ID, current_user.user_id)
     google_sheets.update_expense_cell(expense_id, google_sheets.E.PAID_BY, f"{current_user.first_name} {current_user.surname}", id_column_data=id_column_data)
     google_sheets.update_expense_cell(expense_id, google_sheets.E.PAYMENT_DATE, datetime.today().strftime("%d/%m/%Y"), id_column_data=id_column_data)
+    if configuration.verify_modules_enabled().module_email:
+        expenses = google_sheets.get_volunteer_expenses_table()
+        for expense in expenses:
+            if int(expense.expense_id) == int(expense_id):
+                emails.send_expenses_paid_email(expense.volunteer_object, expense)
+                break
     return redirect(url_for("trustee_routes.expenses_list"))
 
 
@@ -283,4 +291,10 @@ def expenses_list_rejection_reason():
     expense_id = request.form['expense_id']
     rejection_reason = request.form['rejection_reason']
     google_sheets.update_expense_cell(expense_id, google_sheets.E.REJECTION_REASON, rejection_reason)
+    if configuration.verify_modules_enabled().module_email:
+        expenses = google_sheets.get_volunteer_expenses_table()
+        for expense in expenses:
+            if int(expense.expense_id) == int(expense_id):
+                emails.send_expenses_rejected_email(expense.volunteer_object, expense)
+                break
     return ""
