@@ -64,7 +64,14 @@ def get_logged_in_user_object_from_cookie(cookie_value: str) -> LoginUser:
 
 
 def add_standalone_event(event_name, date):
-    event = RaspberryJam(name=event_name, date=date, event_source=EventSourceEnum.standalone)
+    lowest_usable_event_id = 0
+    events = get_jams_in_db()
+    for event in events:
+        if event.jam_id < 10000:
+            if event.jam_id > lowest_usable_event_id:
+                lowest_usable_event_id = event.jam_id
+                
+    event = RaspberryJam(jam_id=lowest_usable_event_id + 1, name=event_name, date=date, event_source=EventSourceEnum.standalone)
     db_session.add(event)
     db_session.commit()
 
@@ -103,7 +110,7 @@ def add_eventbrite_jam(eventbrite_id, jam_name, date):  # Add a new Jam, plus a 
         db_session.commit()
 
 
-def get_jams_in_db():
+def get_jams_in_db() -> List[RaspberryJam]:
     jams = db_session().query(RaspberryJam).all() 
     return sorted(jams, key=lambda x: x.date, reverse=False)
 
