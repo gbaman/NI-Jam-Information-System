@@ -4,6 +4,8 @@ import time
 from flask import Blueprint, render_template, request, make_response, redirect, flash, send_file, abort
 import database
 from datetime import datetime, timedelta
+
+import emails
 from secrets.config import *
 import forms as forms
 from decorators import *
@@ -128,7 +130,7 @@ def forgotten_password():
                 if user.group_id >= 4:
                     flash("This user is trustee or higher level and does not support the forgot my password mechanism. The password for this account must be changed manually.", "danger")
                     return redirect("/login")
-                logins.send_password_reset_email(user)
+                emails.send_password_reset_email(user)
             flash("If user exists, password reset has been sent", "success")
         else:
             flash("Incorrect answer to maths question...", "danger")
@@ -143,7 +145,7 @@ def password_reset_url(reset_key):
         if database.verify_password_reset_url(form.url_key.data):
             user = database.get_user_from_password_reset_url(form.url_key.data)
             logins.update_password(user, form.new_password.data)
-            logins.send_password_reset_complete_email(user)
+            emails.send_password_reset_complete_email(user)
             flash("Password reset complete. You can now log in.", "success")
             return redirect("/login")
 
