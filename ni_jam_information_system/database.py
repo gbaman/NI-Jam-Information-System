@@ -63,8 +63,14 @@ def get_logged_in_user_object_from_cookie(cookie_value: str) -> LoginUser:
     return None
 
 
-def add_jam(eventbrite_id, jam_name, date):  # Add a new Jam, plus a series of placeholder default hidden workshops (parking, front desk and break time)
-    jam = RaspberryJam(jam_id=eventbrite_id, name=jam_name, date=date)  # Add the Jam row
+def add_standalone_event(event_name, date):
+    event = RaspberryJam(name=event_name, date=date, event_source=EventSourceEnum.standalone)
+    db_session.add(event)
+    db_session.commit()
+
+
+def add_eventbrite_jam(eventbrite_id, jam_name, date):  # Add a new Jam, plus a series of placeholder default hidden workshops (parking, front desk and break time)
+    jam = RaspberryJam(jam_id=eventbrite_id, name=jam_name, date=date, event_source=EventSourceEnum.eventbrite)  # Add the Jam row
     db_session.add(jam)
     db_session.commit()
     if configuration.verify_config_item_bool("general", "new_jam_add_default_events"):
@@ -126,6 +132,9 @@ def get_workshops_for_jam_old(jam_id):
 
 
 def update_attendees_from_eventbrite(event_id):
+    event = get_jam_details(event_id)
+    if event.event_source != EventSourceEnum.eventbrite:  # Only import users if it is an Eventbrite event
+        return
     attendees = get_eventbrite_attendees_for_event(event_id)
     for attendee in attendees["attendees"]:
 

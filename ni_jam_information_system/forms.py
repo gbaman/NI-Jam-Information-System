@@ -193,3 +193,8 @@ class PasswordResetForm(Form):
 class ChangePasswordForm(Form):
     new_password = PasswordField("New password", [validators.DataRequired()])
     url_key = HiddenField()
+
+
+class NewEventForm(Form):
+    event_name = StringField("Event Name", [validators.DataRequired()])
+    event_date = DateField("Event Date", [validators.DataRequired()])

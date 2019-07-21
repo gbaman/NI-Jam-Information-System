@@ -32,11 +32,15 @@ def admin_home():
     return render_template("admin/admin_home.html", selected_jam = database.get_jam_details(database.get_current_jam_id()))
 
 
-@admin_routes.route("/admin/manage_jams")
+@admin_routes.route("/admin/manage_jams", methods=['POST', 'GET'])
 @trustee_required
 @module_core_required
 def manage_jams():
-    return render_template("admin/manage_jams.html", jams=eventbrite_interactions.get_eventbrite_events_name_id(), jams_in_db=database.get_jams_in_db(), current_jam_id=database.get_current_jam_id())
+    form = forms.NewEventForm(request.form)
+    if request.method == 'POST' and form.validate():
+        database.add_standalone_event(form.event_name.data, form.event_date.data)
+        return redirect(url_for("admin_routes.manage_jams"))
+    return render_template("admin/manage_jams.html", form=form, jams=eventbrite_interactions.get_eventbrite_events_name_id(), jams_in_db=database.get_jams_in_db(), current_jam_id=database.get_current_jam_id())
 
 
 @admin_routes.route("/admin/add_jam/<eventbrite_id>")
@@ -44,7 +48,7 @@ def manage_jams():
 @module_core_required
 def add_jam_id(eventbrite_id):
     eventbrite_jam = eventbrite_interactions.get_eventbrite_event_by_id(eventbrite_id)
-    database.add_jam(eventbrite_id, eventbrite_jam["name"]["text"], eventbrite_jam["start"]["local"].replace("T", " "))
+    database.add_eventbrite_jam(eventbrite_id, eventbrite_jam["name"]["text"], eventbrite_jam["start"]["local"].replace("T", " "))
     return redirect("/admin/manage_jams", code=302)
 
 
