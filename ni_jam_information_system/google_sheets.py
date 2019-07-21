@@ -6,6 +6,7 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
 import database
+import models
 from secrets.config import finance_google_sheet_id
 
 
@@ -164,15 +165,19 @@ class Expense():
         self.receipt_date = datetime.datetime.strptime(row[2], "%d/%m/%Y").date()
         self.volunteer_id = row[3]
         self.volunteer_name = row[4]
+        self.volunteer_object: models.LoginUser = models.LoginUser()
         self.paypal_email = row[5]
         self.receipt_url = row[6]
         self.value = row[7]
         self.approved_by_id = row[8]
         self.approved_by = row[9]
+        self.approved_by_object: models.LoginUser = models.LoginUser()
         self.secondary_approved_by_id = row[10]
         self.secondary_approved_by = row[11]
+        self.secondary_approved_by_object: models.LoginUser = models.LoginUser()
         self.paid_by_id = row[12]
         self.paid_by = row[13]
+        self.paid_by_object: models.LoginUser = models.LoginUser()
         self.rejected_reason = row[14]
         self.payment_made_date = None
         
@@ -225,12 +230,19 @@ class Expense():
         for user in login_users:
             if self.volunteer_id and int(self.volunteer_id) == user.user_id:
                 self.volunteer_name = f"{user.first_name} {user.surname}"
+                self.volunteer_object = user
 
             if self.approved_by_id and int(self.approved_by_id) == user.user_id:
                 self.approved_by = f"{user.first_name} {user.surname}"
+                self.approved_by_object = user
 
             if self.secondary_approved_by_id and int(self.secondary_approved_by_id) == user.user_id:
                 self.secondary_approved_by = f"{user.first_name} {user.surname}"
+                self.secondary_approved_by_object = user
+
+            if self.paid_by_id and int(self.paid_by_id) == user.user_id:
+                self.paid_by = f"{user.first_name} {user.surname}"
+                self.paid_by_object = user
 
 
 def _convert_date(date_string, bank):
