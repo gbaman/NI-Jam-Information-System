@@ -145,7 +145,8 @@ def ledger_upload_link(transaction_id):
     form = forms.AddTransactionReceiptForm(CombinedMultiDict((request.files, request.form)))
 
     users = database.get_users(include_inactive=True)
-    transactions = google_sheets.get_transaction_table(users)
+    main_transactions, expenses, categories = google_sheets.get_table_data_from_sheets()
+    transactions = google_sheets.get_transaction_table(users, main_sheet_data=main_transactions, categories_data=categories)
     for transaction in transactions:
         if int(transaction.transaction_id) == int(transaction_id):
             t = transaction
@@ -183,7 +184,7 @@ def ledger_upload_link(transaction_id):
                     already_matched_expenses.append(int(checking_transaction.description.split("Expense ID = ")[1]))
                 except:
                     continue
-        expenses = google_sheets.get_volunteer_expenses_table()
+        expenses = google_sheets.get_volunteer_expenses_table(volunteer_expenses=expenses)
         nearby_expenses = []
         for expense in expenses:
             if not expense.payment_made_date:
@@ -192,7 +193,6 @@ def ledger_upload_link(transaction_id):
             if abs((t.bank_date - expense.payment_made_date).days) < 6 and transaction.paid_out == expense.value and expense.paid_by_id:
                 if int(expense.expense_id) not in already_matched_expenses:
                     nearby_expenses.append(expense)
-
     return render_template("trustee/ledger_upload_link.html", transaction=t, expenses=nearby_expenses, form=form)
 
 

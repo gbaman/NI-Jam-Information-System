@@ -306,16 +306,56 @@ def import_bank_csv(csv_path):
         MAIN_SHEET.append_row(new_transaction.get_row(), value_input_option='USER_ENTERED')
 
 
-def get_transaction_table(logins, offset=3):
+def get_all_values_for_table(table, return_data):
+    return_data.append(table.get_all_values())
+    return return_data
+
+
+def get_table_data_from_sheets(main_transactions=True, volunteer_expenses=True, categories=True):
+    main_sheet_data = []
+    if main_transactions:
+        main_sheet_data_thread = threading.Thread(target=get_all_values_for_table, args=(MAIN_SHEET, main_sheet_data))
+    expenses_sheet_data = []
+    if volunteer_expenses:
+        expenses_sheet_data_thread = threading.Thread(target=get_all_values_for_table, args=(EXPENSE_SHEET, expenses_sheet_data))
+    categories_data = []
+    if categories:
+        categories_data_thread = threading.Thread(target=get_all_values_for_table, args=(CATEGORIES_SHEET, categories_data))
+
+    if main_transactions:
+        main_sheet_data_thread.start()
+    if volunteer_expenses:
+        expenses_sheet_data_thread.start()
+    if categories:
+        categories_data_thread.start()
+
+    if main_transactions:
+        main_sheet_data_thread.join()
+        main_sheet_data = main_sheet_data[0]
+    if volunteer_expenses:
+        expenses_sheet_data_thread.join()
+        expenses_sheet_data = expenses_sheet_data[0]
+    if categories:
+        categories_data_thread.join()
+        categories_data = categories_data[0]
+
+    return main_sheet_data, expenses_sheet_data, categories_data
+
+
+def get_transaction_table(logins, offset=3, main_sheet_data=None, categories_data=None):
     _check_oauth_token()
     transaction_data = []
-    data = MAIN_SHEET.get_all_values()[offset:]
-    categories_data = CATEGORIES_SHEET.get_all_values()[2:]
+
+    if not main_sheet_data or not categories_data:
+        main_sheet_data, volunteer_expenses, categories_data = get_table_data_from_sheets(main_transactions=True, volunteer_expenses=False, categories=True)
+
+    main_sheet_data = main_sheet_data[offset:]
+    categories_data = categories_data[2:]
     categories = []
     for line in categories_data:
         if line[1]:
             categories.append(line[1])
-    for line in data:
+    for line in main_sheet_data:
         t = Transaction(line)
         t.categories = categories
         t.update_names(logins)
@@ -323,12 +363,14 @@ def get_transaction_table(logins, offset=3):
     return transaction_data
 
 
-def get_volunteer_expenses_table(offset=3):
+def get_volunteer_expenses_table(offset=3, volunteer_expenses=None):
     expense_data = []
     _check_oauth_token()
-    data = EXPENSE_SHEET.get_all_values()[offset:]
+    if not volunteer_expenses:
+        main_transactions, volunteer_expenses, categories = get_table_data_from_sheets(main_transactions=False, volunteer_expenses=True, categories=False)
+    volunteer_expenses = volunteer_expenses[offset:]
     login_users = database.get_users(include_inactive=True)
-    for line in data:
+    for line in volunteer_expenses:
         expense = Expense(line)
         expense.update_users(login_users)
         expense_data.append(expense)
