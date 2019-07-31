@@ -1,7 +1,8 @@
 import datetime
 from typing import List
+import enum
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, BigInteger, Time, Boolean, text
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, BigInteger, Time, Boolean, text, Enum
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -17,6 +18,16 @@ db_session = scoped_session(sessionmaker(autocommit=False,
 Base = declarative_base()
 Base.query = db_session.query_property()
 metadata = Base.metadata
+
+
+class CertificateTypeEnum(enum.Enum):
+    dbs = 1
+    dbs_update = 2
+    access_ni = 3
+    pvg = 4
+    garda = 5
+    other = 6
+
 
 class Attendee(Base):
     __tablename__ = 'attendees'
@@ -91,11 +102,13 @@ class LoginUser(Base):
     active = Column(Integer)
     forgotten_password_url = Column(String(100), nullable=True, unique=True)
     forgotten_password_expiry = Column(DateTime, nullable=True)
+    date_of_birth = Column(DateTime, nullable=True)
 
     attending = relationship("VolunteerAttendance")
     group = relationship('Group')
     login_cookie = relationship('LoginCookie')
     workshop_runs = relationship('RaspberryJamWorkshop', secondary='workshop_volunteers')
+    police_checks = relationship("PoliceChecks", foreign_keys="[PoliceChecks.user_id]")
 
 
 class PagePermission(Base):
@@ -373,6 +386,25 @@ class AlertConfig(Base):
     workshop_id = Column(ForeignKey('workshop.workshop_id'), primary_key=True, nullable=True, index=True)
     ticket_type = Column(String(45), nullable=True)
     slot_id = Column(ForeignKey('workshop_slots.workshop_id'), primary_key=True, nullable=True, index=True)
+
+
+class PoliceChecks(Base):
+    __tablename__ = "police_checks"
+    certificate_table_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
+    user_id = Column(ForeignKey('login_users.user_id'), primary_key=False, nullable=False, index=True)
+
+    certificate_reference = Column(String(45), nullable=True)
+    certificate_issue_date = Column(DateTime, nullable=True)
+    certificate_type = Column(Enum(CertificateTypeEnum), nullable=False)
+    certificate_expiry_date = Column(DateTime, nullable=True)
+    certificate_last_digital_checked = Column(DateTime, nullable=True)
+
+    certificate_application_date = Column(DateTime, nullable=False)
+
+    certificate_in_person_verified_on = Column(DateTime, nullable=True)
+    verified_in_person_by = Column(ForeignKey('login_users.user_id'), primary_key=False, nullable=True, index=True)
+
+    user = relationship("LoginUser", foreign_keys=user_id, uselist=False)
 
 
 t_workshop_volunteers = Table(
