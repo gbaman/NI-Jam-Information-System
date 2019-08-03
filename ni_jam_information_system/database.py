@@ -1260,3 +1260,31 @@ def generate_password_reset_url(user_ud) -> LoginUser:
     return user
 
 
+def get_police_checks_for_user(user_id):
+    police_checks = db_session.query(PoliceCheck).filter(PoliceCheck.user_id == user_id).all()
+    return police_checks
+
+
+def get_police_check_single(user_id, certificate_table_id) -> PoliceCheck:
+    police_check = db_session.query(PoliceCheck).filter(PoliceCheck.user_id == user_id, PoliceCheck.certificate_table_id == certificate_table_id).first()
+    return police_check
+
+
+def update_police_check(user_id, certificate_table_id, certificate_type, certificate_application_date, certificate_reference, certificate_issue_date, certificate_expiry_date):
+    police_check: PoliceCheck = db_session.query(PoliceCheck).filter(PoliceCheck.certificate_table_id == certificate_table_id).first()
+    if police_check:
+        if police_check.user_id != user_id:
+            return False
+    else:
+        police_check = PoliceCheck()
+
+    police_check.user_id = user_id
+    police_check.certificate_type = str(certificate_type)
+    police_check.certificate_application_date = certificate_application_date
+    police_check.certificate_reference = certificate_reference
+    police_check.certificate_issue_date = certificate_issue_date
+    police_check.certificate_expiry_date = certificate_expiry_date
+    police_check.certificate_update_service_safe = False
+    db_session.add(police_check)
+    db_session.commit()
+

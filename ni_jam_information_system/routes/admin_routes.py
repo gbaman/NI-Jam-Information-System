@@ -496,6 +496,36 @@ def attendee_login_info(attendee_login_id):
     return render_template("admin/attendee_login_info.html", attendee_login=attendee_login, badges=badges)
 
 
+@admin_routes.route("/admin/police_checks", methods=['GET', 'POST'])
+@admin_routes.route("/admin/police_checks/<certificate_table_id>", methods=['GET', 'POST'])
+@volunteer_required
+@module_police_check_required
+def police_check(certificate_table_id=None):
+    police_checks_in_db = database.get_police_checks_for_user(request.logged_in_user.user_id)
+    form = forms.PoliceCheckForm(request.form)
+    if request.method == 'POST' and form.validate():
+        database.update_police_check(request.logged_in_user.user_id,
+                                     form.certificate_table_id.data,
+                                     form.certificate_type.data,
+                                     form.certificate_application_date.data,
+                                     form.certificate_reference.data,
+                                     form.certificate_issue_date.data,
+                                     form.certificate_expiry_date.data
+                                     )
+        return redirect(url_for("admin_routes.police_check"))
+    if certificate_table_id:
+        edit_police_check = database.get_police_check_single(request.logged_in_user.user_id, certificate_table_id)
+        if edit_police_check:
+            form.certificate_table_id.default = edit_police_check.certificate_table_id
+            form.certificate_type.default = edit_police_check.certificate_type
+            form.certificate_application_date.default = edit_police_check.certificate_application_date
+            form.certificate_reference.default = edit_police_check.certificate_reference
+            form.certificate_issue_date.default = edit_police_check.certificate_issue_date
+            form.certificate_expiry_date.default = edit_police_check.certificate_expiry_date
+            form.process()
+    return render_template("admin/police_checks.html", form=form, police_checks=police_checks_in_db)
+
+
 ####################################### AJAX Routes #######################################
 
 

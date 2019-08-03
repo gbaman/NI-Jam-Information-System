@@ -21,12 +21,19 @@ metadata = Base.metadata
 
 
 class CertificateTypeEnum(enum.Enum):
-    dbs = 1
-    dbs_update = 2
-    access_ni = 3
-    pvg = 4
-    garda = 5
-    other = 6
+    DBS = 1
+    DBS_Update = 2
+    Access_NI = 3
+    PVG = 4
+    Garda = 5
+    Other = 6
+
+    @classmethod
+    def dropdown_view(cls):
+        to_return = []
+        for item in CertificateTypeEnum:
+            to_return.append([item.value, item.name])
+        return to_return
 
 
 class Attendee(Base):
@@ -108,7 +115,7 @@ class LoginUser(Base):
     group = relationship('Group')
     login_cookie = relationship('LoginCookie')
     workshop_runs = relationship('RaspberryJamWorkshop', secondary='workshop_volunteers')
-    police_checks = relationship("PoliceChecks", foreign_keys="[PoliceChecks.user_id]")
+    police_checks = relationship("PoliceCheck", foreign_keys="[PoliceCheck.user_id]")
 
 
 class PagePermission(Base):
@@ -388,7 +395,7 @@ class AlertConfig(Base):
     slot_id = Column(ForeignKey('workshop_slots.workshop_id'), primary_key=True, nullable=True, index=True)
 
 
-class PoliceChecks(Base):
+class PoliceCheck(Base):
     __tablename__ = "police_checks"
     certificate_table_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
     user_id = Column(ForeignKey('login_users.user_id'), primary_key=False, nullable=False, index=True)
@@ -401,10 +408,33 @@ class PoliceChecks(Base):
 
     certificate_application_date = Column(DateTime, nullable=False)
 
+    certificate_update_service_safe = Column(Boolean, nullable=False)
+
     certificate_in_person_verified_on = Column(DateTime, nullable=True)
-    verified_in_person_by = Column(ForeignKey('login_users.user_id'), primary_key=False, nullable=True, index=True)
+    verified_in_person_by_user = Column(ForeignKey('login_users.user_id'), primary_key=False, nullable=True, index=True)
 
     user = relationship("LoginUser", foreign_keys=user_id, uselist=False)
+
+    @hybrid_property
+    def _status(self):
+        if self.certificate_type == CertificateTypeEnum.DBS_Update:
+            if self.certificate_update_service_safe:
+                return "Verified", "#ffffff"
+            elif self.certificate_last_digital_checked:
+                return "WARNING", "#ffffff"
+            else:
+                return "Not checked", "#ffffff"
+        else:
+            return "N/A", "#ffffff"
+
+    @hybrid_property
+    def status(self):
+        return self._status[0]
+
+    @hybrid_property
+    def status_colour(self):
+        return self._status[1]
+    
 
 
 t_workshop_volunteers = Table(
