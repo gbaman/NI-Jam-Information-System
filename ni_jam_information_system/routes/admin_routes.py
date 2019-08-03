@@ -12,6 +12,7 @@ import forms as forms
 import eventbrite_interactions
 from ast import literal_eval
 
+import misc
 from decorators import *
 
 admin_routes = Blueprint('admin_routes', __name__, template_folder='templates')
@@ -517,13 +518,21 @@ def police_check(certificate_table_id=None):
         edit_police_check = database.get_police_check_single(request.logged_in_user.user_id, certificate_table_id)
         if edit_police_check:
             form.certificate_table_id.default = edit_police_check.certificate_table_id
-            form.certificate_type.default = edit_police_check.certificate_type
+            form.certificate_type.default = edit_police_check.certificate_type.value
             form.certificate_application_date.default = edit_police_check.certificate_application_date
             form.certificate_reference.default = edit_police_check.certificate_reference
             form.certificate_issue_date.default = edit_police_check.certificate_issue_date
             form.certificate_expiry_date.default = edit_police_check.certificate_expiry_date
             form.process()
     return render_template("admin/police_checks.html", form=form, police_checks=police_checks_in_db)
+
+
+@admin_routes.route("/admin/verify_police_check/<certificate_table_id>")
+@volunteer_required
+@module_police_check_required
+def verify_police_check(certificate_table_id):
+    database.verify_dbs_update_service_certificate(request.logged_in_user.user_id, certificate_table_id)
+    return redirect(url_for("admin_routes.police_check"))
 
 
 ####################################### AJAX Routes #######################################

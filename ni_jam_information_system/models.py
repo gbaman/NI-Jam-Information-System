@@ -1,6 +1,7 @@
 import datetime
 from typing import List
 import enum
+import database
 
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, BigInteger, Time, Boolean, text, Enum
 from sqlalchemy import create_engine
@@ -21,8 +22,8 @@ metadata = Base.metadata
 
 
 class CertificateTypeEnum(enum.Enum):
-    DBS = 1
-    DBS_Update = 2
+    DBS_Update_Service = 1
+    DBS_No_Update_Service = 2
     Access_NI = 3
     PVG = 4
     Garda = 5
@@ -417,15 +418,23 @@ class PoliceCheck(Base):
 
     @hybrid_property
     def _status(self):
-        if self.certificate_type == CertificateTypeEnum.DBS_Update:
-            if self.certificate_update_service_safe:
-                return "Verified", "#ffffff"
-            elif self.certificate_last_digital_checked:
-                return "WARNING", "#ffffff"
+        if self.certificate_issue_date and self.certificate_expiry_date and self.certificate_application_date and self.certificate_type and self.certificate_reference:
+            if self.certificate_type == CertificateTypeEnum.DBS_Update_Service:
+                if self.certificate_update_service_safe and self.certificate_in_person_verified_on:
+                    return "Verified", database.green
+                elif self.certificate_update_service_safe:
+                    return "Verified online, awaiting in person verification", database.yellow
+                elif self.certificate_last_digital_checked:
+                    return "Invalid or Warning", database.red
+                else:
+                    return "Not verified", database.orange
             else:
-                return "Not checked", "#ffffff"
+                if self.certificate_in_person_verified_on:
+                    return "Verified", database.green
+                else:
+                    return "Awaiting in person verification", database.yellow
         else:
-            return "N/A", "#ffffff"
+            return "Incomplete certificate", "#ffffff"
 
     @hybrid_property
     def status(self):
@@ -434,7 +443,21 @@ class PoliceCheck(Base):
     @hybrid_property
     def status_colour(self):
         return self._status[1]
+
+    @hybrid_property
+    def update_service(self):
+        if self.certificate_type == CertificateTypeEnum.DBS_Update_Service:
+            return True
+        return False
     
+    @hybrid_property
+    def verify_button_status(self):
+        if self.certificate_type == CertificateTypeEnum.DBS_Update_Service and self.certificate_expiry_date and self.certificate_issue_date and self.certificate_reference:
+            return "", ""
+        elif not self.user.date_of_birth:
+            return 'disabled', "User has no date of birth on the system"
+        else:
+            return 'disabled', "Missing either certificate reference, issue date or expiry date"
 
 
 t_workshop_volunteers = Table(

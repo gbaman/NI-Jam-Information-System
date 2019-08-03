@@ -8,6 +8,7 @@ import os
 
 import math
 
+import misc
 from models import *
 from eventbrite_interactions import get_eventbrite_attendees_for_event
 import datetime
@@ -1213,6 +1214,11 @@ def get_login_users(include_archived=False) -> List[LoginUser]:
     return login_users.all()
 
 
+def get_login_user_from_user_id(user_id) -> LoginUser:
+    user = db_session.query(LoginUser).filter(LoginUser.user_id == user_id).first()
+    return user
+
+
 def set_jam_password(jam_id, password):
     jam = db_session.query(RaspberryJam).filter(RaspberryJam.jam_id == int(jam_id)).first()
     if password == "None" or not password:
@@ -1287,4 +1293,21 @@ def update_police_check(user_id, certificate_table_id, certificate_type, certifi
     police_check.certificate_update_service_safe = False
     db_session.add(police_check)
     db_session.commit()
+    if certificate_type == CertificateTypeEnum.DBS_Update_Service.value and certificate_reference and certificate_issue_date and certificate_expiry_date:
+        verify_dbs_update_service_certificate(user_id, police_check.certificate_table_id)
 
+
+def verify_dbs_update_service_certificate(user_id, certificate_table_id):
+    raw_cert = db_session.query(PoliceCheck).filter(PoliceCheck.user_id == user_id, PoliceCheck.certificate_table_id == certificate_table_id)
+    cert: PoliceCheck = raw_cert.first()
+    user = get_login_user_from_user_id(user_id)
+    if cert and cert.user.date_of_birth:
+        dbs_response = misc.check_dbs_certificate(cert.certificate_reference, cert.user.surname, cert.user.date_of_birth, user.first_name, user.surname, configuration.verify_config_item("general", "jam_organisation_name"))
+        cert.certificate_last_digital_checked = datetime.datetime.now()
+        if dbs_response:
+            cert.certificate_update_service_safe = True
+        else:
+            cert.certificate_update_service_safe = False
+        db_session.add(cert)
+        db_session.commit()
+    

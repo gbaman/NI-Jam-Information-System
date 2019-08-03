@@ -196,8 +196,8 @@ class ChangePasswordForm(Form):
 
 
 class PoliceCheckForm(Form):
-    certificate_type = SelectField("Select certificate type, default is DBS Update Service", validators=[validators.DataRequired()], coerce=int)
-    certificate_application_date = DateField("Application submitted date", [validators.DataRequired()])
+    certificate_type = SelectField("Select certificate type, default is DBS Update Service *", validators=[validators.DataRequired()], coerce=int)
+    certificate_application_date = DateField("Application submitted date *", [validators.DataRequired()])
     certificate_reference = StringField("Certificate reference number")
     certificate_issue_date = DateField("Certificate issue date", validators=[validators.Optional()])
     certificate_expiry_date = DateField("Certificate Expiry date (usually 3 years after issue date)", validators=[validators.Optional()])
