@@ -30,7 +30,6 @@
             <th>Expiry date</th>
             <th>Status</th>
             <th>Edit</th>
-            <th>Verify</th>
             <th>Delete</th>
         </tr>
         {% for cert in police_checks %}
@@ -42,11 +41,6 @@
                 <td>{{ cert.certificate_expiry_date.strftime("%d-%m-%Y") }}</td>
                 <td><b>{{ cert.status }}</b></td>
                 <td><a href="police_checks/{{ cert.certificate_table_id }}" class="btn btn-info" role="button">Edit</a></td>
-                {% if cert.update_service %}
-                <td><div tabindex="0" data-toggle="tooltip" title="{{ cert.verify_button_status[1] }}"><a href="/admin/verify_police_check/{{ cert.certificate_table_id }}" class="btn btn-success {{ cert.verify_button_status[0] }} " role="button">Verify</a></div></td>
-                {% else %}
-                <td>N/A</td>
-                {% endif %}
                 <td><a href="police_checks/{{ cert.certificate_table_id }}" class="btn btn-danger" role="button">Delete</a></td>
             </tr>
         {% endfor %}

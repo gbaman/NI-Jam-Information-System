@@ -424,6 +424,8 @@ class PoliceCheck(Base):
                     return "Verified", database.green
                 elif self.certificate_update_service_safe:
                     return "Verified online, awaiting in person verification", database.yellow
+                elif not self.user.date_of_birth:
+                    return "No DoB in the system", database.red
                 elif self.certificate_last_digital_checked:
                     return "Invalid or Warning", database.red
                 else:
