@@ -82,6 +82,9 @@
                         {%  if modules_enabled.module_finance %}
                         <li><a href="/admin/expenses_claim">Expenses claims</a></li>
                         {% endif %}
+                        {%  if modules_enabled.module_police_check %}
+                        <li><a href="/admin/police_checks">Police checks</a></li>
+                        {% endif %}
                     </ul>
                 </li>
                 {%  if logged_in_user.group_id >= 4 %}
