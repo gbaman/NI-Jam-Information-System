@@ -52,6 +52,7 @@ class RegisterUserForm(Form):
     first_name = StringField("First name", [validators.DataRequired()])
     surname = StringField("Surname", [validators.DataRequired()])
     access_code = StringField("Access code", [validators.DataRequired()])
+    dob = DateField("Date of Birth", [validators.DataRequired()])
     email = StringField("Email address - Note must be same used for Slack", [validators.DataRequired()])
 
     # Added ready to add to Login form itself on page.

@@ -405,7 +405,7 @@ def get_user_from_cookie(cookie_value):
     return None
 
 
-def create_user(username, password_hash, password_salt, first_name, surname, email, group_id=1, active=True):
+def create_user(username, password_hash, password_salt, first_name, surname, email, dob, group_id=1, active=True):
     db_session.commit()
     user = LoginUser()
     user.username = username
@@ -416,6 +416,7 @@ def create_user(username, password_hash, password_salt, first_name, surname, ema
     user.group_id = group_id
     user.email = email
     user.active = active
+    user.date_of_birth = dob
 
     db_session.add(user)
     db_session.commit()

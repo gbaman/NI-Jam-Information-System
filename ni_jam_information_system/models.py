@@ -119,6 +119,13 @@ class LoginUser(Base):
     police_checks = relationship("PoliceCheck", foreign_keys="[PoliceCheck.user_id]")
 
 
+    @hybrid_property
+    def date_of_birth_str(self):
+        if self.date_of_birth:
+            return self.date_of_birth.strftime("%d-%m-%Y")
+        return None
+
+
 class PagePermission(Base):
     __tablename__ = 'page_permissions'
 
