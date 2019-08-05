@@ -465,7 +465,7 @@ class PoliceCheck(Base):
         if self.certificate_type == CertificateTypeEnum.DBS_Update_Service:
             return True
         return False
-    
+
     @hybrid_property
     def verify_button_status(self):
         if self.certificate_type == CertificateTypeEnum.DBS_Update_Service and self.certificate_expiry_date and self.certificate_issue_date and self.certificate_reference:
@@ -474,6 +474,24 @@ class PoliceCheck(Base):
             return 'disabled', "User has no date of birth on the system"
         else:
             return 'disabled', "Missing either certificate reference, issue date or expiry date"
+
+    @hybrid_property
+    def certificate_issue_date_str(self):
+        if self.certificate_issue_date:
+            return self.certificate_issue_date.strftime("%d-%m-%Y")
+        return None
+
+    @hybrid_property
+    def certificate_expiry_date_str(self):
+        if self.certificate_expiry_date:
+            return self.certificate_expiry_date.strftime("%d-%m-%Y")
+        return None
+
+    @hybrid_property
+    def certificate_last_digital_checked_str(self):
+        if self.certificate_last_digital_checked:
+            return self.certificate_last_digital_checked.strftime("%d-%m-%Y")
+        return None
 
 
 t_workshop_volunteers = Table(

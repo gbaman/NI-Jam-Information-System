@@ -259,6 +259,16 @@ def police_checks_admin_confirm(certificate_table_id):
     return redirect(misc.redirect_url())
 
 
+@trustee_routes.route("/police_checks_admin_verify_all")
+@trustee_required
+@module_police_check_required
+def police_checks_admin_verify_all():
+    certs = database.get_all_police_checks()
+    for cert in certs:
+        if cert.update_service:
+            database.verify_dbs_update_service_certificate(request.logged_in_user, cert.certificate_table_id)
+    return redirect(misc.redirect_url())
+
 # -------------- AJAX routes -------------
 
 

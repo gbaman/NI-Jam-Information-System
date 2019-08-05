@@ -37,8 +37,8 @@
                 <td>{{ cert.certificate_type.name}}</td>
                 <td>{{ cert.certificate_reference }}</td>
                 <td>{{ cert.certificate_application_date.strftime("%d-%m-%Y") }}</td>
-                <td>{{ cert.certificate_issue_date.strftime("%d-%m-%Y") }}</td>
-                <td>{{ cert.certificate_expiry_date.strftime("%d-%m-%Y") }}</td>
+                <td>{{ cert.certificate_issue_date_str }}</td>
+                <td>{{ cert.certificate_expiry_date_str }}</td>
                 <td><b>{{ cert.status }}</b></td>
                 <td><a href="police_checks/{{ cert.certificate_table_id }}" class="btn btn-info" role="button">Edit</a></td>
                 <td><a href="police_checks/{{ cert.certificate_table_id }}" class="btn btn-danger" role="button">Delete</a></td>

@@ -7,6 +7,9 @@
     
 <br>
 <h2>Police Certificates</h2>
+    
+<a href="police_checks_admin_verify_all" id="submit_button" class="btn btn-info" role="button">Re-verify all certificates</a>
+    
 <div>
     <table class="table table-hover, table-bordered">
         <tr bgcolor="#d3d3d3">
@@ -17,6 +20,7 @@
             <th>Application date</th>
             <th>Issue date</th>
             <th>Expiry date</th>
+            <th>Last digtal check</th>
             <th>Status</th>
             <th>Confirm in person check</th>
             <th>Re-verify</th>
@@ -28,8 +32,9 @@
                 <td>{{ cert.certificate_type.name}}</td>
                 <td>{{ cert.certificate_reference }}</td>
                 <td>{{ cert.certificate_application_date.strftime("%d-%m-%Y") }}</td>
-                <td>{{ cert.certificate_issue_date.strftime("%d-%m-%Y") }}</td>
-                <td>{{ cert.certificate_expiry_date.strftime("%d-%m-%Y") }}</td>
+                <td>{{ cert.certificate_issue_date_str}}</td>
+                <td>{{ cert.certificate_expiry_date_str }}</td>
+                <td>{{ cert.certificate_last_digital_checked_str }}</td>
                 <td><b>{{ cert.status }}</b></td>
                 {% if cert.certificate_in_person_verified_on %}
                     <td>{{ cert.verified_by_user.first_name }} {{ cert.verified_by_user.surname }} ({{ cert.certificate_in_person_verified_on.strftime("%d-%m-%Y") }})</td>
