@@ -505,7 +505,7 @@ def police_check(certificate_table_id=None):
     police_checks_in_db = database.get_police_checks_for_user(request.logged_in_user.user_id)
     form = forms.PoliceCheckForm(request.form)
     if request.method == 'POST' and form.validate():
-        database.update_police_check(request.logged_in_user.user_id,
+        database.update_police_check(request.logged_in_user,
                                      form.certificate_table_id.data,
                                      form.certificate_type.data,
                                      form.certificate_application_date.data,

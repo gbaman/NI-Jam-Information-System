@@ -427,9 +427,15 @@ class PoliceCheck(Base):
     @hybrid_property
     def _status(self):
         if self.certificate_issue_date and self.certificate_expiry_date and self.certificate_application_date and self.certificate_type and self.certificate_reference:
-            if self.certificate_type == CertificateTypeEnum.DBS_Update_Service:
+            days_till_expire = (self.certificate_expiry_date - datetime.datetime.today()).days
+            if days_till_expire < 0:
+                return "Certificate has now expired!", database.red 
+            elif days_till_expire < 60:
+                return f"Expires in {days_till_expire} days!", database.orange 
+            
+            elif self.certificate_type == CertificateTypeEnum.DBS_Update_Service:
                 if self.certificate_update_service_safe and self.certificate_in_person_verified_on:
-                    return "Verified", database.green
+                    return "Valid and verified", database.green
                 elif self.certificate_update_service_safe:
                     return "Verified online, awaiting in person verification", database.yellow
                 elif not self.user.date_of_birth:
@@ -440,7 +446,7 @@ class PoliceCheck(Base):
                     return "Not verified", database.orange
             else:
                 if self.certificate_in_person_verified_on:
-                    return "Verified", database.green
+                    return "Valid and verified", database.green
                 else:
                     return "Awaiting in person verification", database.yellow
         else:

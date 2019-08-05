@@ -1290,15 +1290,15 @@ def get_police_check_single(user_id, certificate_table_id) -> PoliceCheck:
     return police_check
 
 
-def update_police_check(user_id, certificate_table_id, certificate_type, certificate_application_date, certificate_reference, certificate_issue_date, certificate_expiry_date):
+def update_police_check(user: LoginUser, certificate_table_id, certificate_type, certificate_application_date, certificate_reference, certificate_issue_date, certificate_expiry_date):
     police_check: PoliceCheck = db_session.query(PoliceCheck).filter(PoliceCheck.certificate_table_id == certificate_table_id).first()
     if police_check:
-        if police_check.user_id != user_id:
+        if police_check.user_id != user.user_id:
             return False
     else:
         police_check = PoliceCheck()
 
-    police_check.user_id = user_id
+    police_check.user_id = user.user_id
     police_check.certificate_type = str(certificate_type)
     police_check.certificate_application_date = certificate_application_date
     police_check.certificate_reference = certificate_reference
@@ -1308,7 +1308,7 @@ def update_police_check(user_id, certificate_table_id, certificate_type, certifi
     db_session.add(police_check)
     db_session.commit()
     if certificate_type == CertificateTypeEnum.DBS_Update_Service.value and certificate_reference and certificate_issue_date and certificate_expiry_date:
-        verify_dbs_update_service_certificate(user_id, police_check.certificate_table_id)
+        verify_dbs_update_service_certificate(user, police_check.certificate_table_id)
 
 
 def verify_dbs_update_service_certificate(user: LoginUser, certificate_table_id):
