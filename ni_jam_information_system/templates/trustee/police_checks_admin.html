@@ -34,7 +34,7 @@
                 {% if cert.certificate_in_person_verified_on %}
                     <td>{{ cert.verified_by_user.first_name }} {{ cert.verified_by_user.surname }} ({{ cert.certificate_in_person_verified_on.strftime("%d-%m-%Y") }})</td>
                 {% else %}
-                    <td><a href="police_checks_admin_confirm/{{ cert.certificate_table_id }}" class="btn btn-info" role="button">Confirmed</a></td>
+                    <td><a href="police_checks_admin_confirm/{{ cert.certificate_table_id }}" class="btn btn-info  {% if cert.user_id == logged_in_user.user_id %} disabled {% endif %}" role="button">Confirmed</a></td>
                 {% endif %}
                 {% if cert.update_service %}
                     <td><a href="/admin/verify_police_check/{{ cert.certificate_table_id }}" class="btn btn-info" role="button">Re-verify</a></td>
