@@ -531,8 +531,8 @@ def police_check(certificate_table_id=None):
 @volunteer_required
 @module_police_check_required
 def verify_police_check(certificate_table_id):
-    database.verify_dbs_update_service_certificate(request.logged_in_user.user_id, certificate_table_id)
-    return redirect(url_for("admin_routes.police_check"))
+    database.verify_dbs_update_service_certificate(request.logged_in_user, certificate_table_id)
+    return redirect(misc.redirect_url())
 
 
 ####################################### AJAX Routes #######################################

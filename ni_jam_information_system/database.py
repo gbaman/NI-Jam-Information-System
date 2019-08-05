@@ -1311,11 +1311,11 @@ def update_police_check(user_id, certificate_table_id, certificate_type, certifi
         verify_dbs_update_service_certificate(user_id, police_check.certificate_table_id)
 
 
-def verify_dbs_update_service_certificate(user_id, certificate_table_id):
-    raw_cert = db_session.query(PoliceCheck).filter(PoliceCheck.user_id == user_id, PoliceCheck.certificate_table_id == certificate_table_id)
+def verify_dbs_update_service_certificate(user: LoginUser, certificate_table_id):
+    raw_cert = db_session.query(PoliceCheck).filter(PoliceCheck.certificate_table_id == certificate_table_id)
     cert: PoliceCheck = raw_cert.first()
-    user = get_login_user_from_user_id(user_id)
-    if cert and cert.user.date_of_birth:
+
+    if cert and cert.user.date_of_birth and (cert.user_id == user.user_id or user.group.group_id >= LoginUserGroupEnum.trustee):
         dbs_response = misc.check_dbs_certificate(cert.certificate_reference, cert.user.surname, cert.user.date_of_birth, user.first_name, user.surname, configuration.verify_config_item("general", "jam_organisation_name"))
         cert.certificate_last_digital_checked = datetime.datetime.now()
         if dbs_response:
