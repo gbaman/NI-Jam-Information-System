@@ -1334,3 +1334,9 @@ def confirm_police_certificate_verified(user_id, certificate_table_id):
             cert.verified_in_person_by_user = trustee.user_id
             cert.certificate_in_person_verified_on = datetime.datetime.now()
             db_session.commit()
+
+
+def update_login_user_date_of_birth(user: LoginUser, date_of_birth):
+    user.date_of_birth = date_of_birth
+    db_session.add(user)
+    db_session.commit()

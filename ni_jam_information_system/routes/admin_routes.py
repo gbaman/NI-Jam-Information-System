@@ -720,3 +720,27 @@ def update_jam_password():
     jam_password = request.form["jam_password"]
     database.set_jam_password(jam_id, jam_password)
     return " "
+
+
+@admin_routes.route("/admin/verify_dob_in_system", methods=['GET', 'POST'])
+@volunteer_required
+@module_core_required
+def verify_dob_in_system():
+    user: database.LoginUser = request.logged_in_user
+    if user.date_of_birth:
+        return "true"
+    return "false"
+
+
+@admin_routes.route("/admin/update_dob_in_system", methods=['GET', 'POST'])
+@volunteer_required
+@module_core_required
+def update_dob_in_system():
+    user: database.LoginUser = request.logged_in_user
+    date_of_birth = request.form["dob"]
+    try:
+        converted_date_of_birth = datetime.datetime.strptime(date_of_birth, "%d/%m/%Y")
+        database.update_login_user_date_of_birth(user, converted_date_of_birth)
+        return " "
+    except ValueError:
+        pass

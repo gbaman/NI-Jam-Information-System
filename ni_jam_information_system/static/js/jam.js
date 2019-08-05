@@ -630,3 +630,41 @@ function updateJamPassword(jam_id, jam_password){
         }
     });
 }
+
+
+function checkDobInSystem(){
+    $.ajax({
+        type: "POST",
+        url: "/admin/verify_dob_in_system",
+        success: function (result) {
+            if (result === "false") {
+                alertify.prompt('Please enter Date of Birth', 'Please enter your Date of Birth in DD/MM/YYYY format, as this section of NIJIS requires it.', 'DD/MM/YYYY'
+                    , function (evt, value) {
+                        $.ajax({
+                            type: "POST",
+                            url: "/admin/update_dob_in_system",
+                            data: {
+                                dob: value
+                            },
+                            success: function (result) {
+                                alertify.success('DoB updated!');
+                            },
+                            error: function (result) {
+                                alertify.error('Updating DoB failed...');
+                            }
+                        });
+                    }
+                    , function () {
+                        alertify.error('No DoB entered...')
+                    });
+            }
+        },
+        error: function (result) {
+            alertify.alert("Unable to do DoB check",
+                function(){
+                    window.location.reload();
+                });
+        }
+    });
+    
+}
