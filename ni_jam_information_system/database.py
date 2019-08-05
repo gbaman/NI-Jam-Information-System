@@ -26,6 +26,14 @@ light_grey = "#ededed"
 light_blue = "#00dbc1"
 
 
+class LoginUserGroupEnum(Enum):
+    guest = 1
+    attendee = 2
+    volunteer = 3
+    trustee = 4
+    superadmin = 5
+
+
 def init_db():
     # import all modules here that might define models so that
     # they will be registered properly on the metadata.  Otherwise
@@ -1267,6 +1275,11 @@ def generate_password_reset_url(user_ud) -> LoginUser:
     return user
 
 
+def get_all_police_checks() -> List[PoliceCheck]:
+    police_checks = db_session.query(PoliceCheck).order_by(PoliceCheck.certificate_application_date).all()
+    return police_checks
+
+
 def get_police_checks_for_user(user_id):
     police_checks = db_session.query(PoliceCheck).filter(PoliceCheck.user_id == user_id).all()
     return police_checks
@@ -1311,4 +1324,13 @@ def verify_dbs_update_service_certificate(user_id, certificate_table_id):
             cert.certificate_update_service_safe = False
         db_session.add(cert)
         db_session.commit()
-    
+
+
+def confirm_police_certificate_verified(user_id, certificate_table_id):
+    trustee: LoginUser = db_session.query(LoginUser).filter(LoginUser.user_id == user_id, LoginUser.group_id >= LoginUserGroupEnum.trustee).first()
+    if trustee:
+        cert: PoliceCheck = db_session.query(PoliceCheck).filter(PoliceCheck.certificate_table_id == certificate_table_id).first()
+        if cert:
+            cert.verified_in_person_by_user = trustee.user_id
+            cert.certificate_in_person_verified_on = datetime.datetime.now()
+            db_session.commit()

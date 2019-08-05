@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+from flask import request, url_for
 
 
 def check_dbs_certificate(certificate_number, applicant_surname, applicant_dob, verifier_forename, verifier_surname, organisation_name):
@@ -13,3 +14,9 @@ def check_dbs_certificate(certificate_number, applicant_surname, applicant_dob, 
         elif status == "NON_BLANK_NO_NEW_INFO" or "BLANK_NO_NEW_INFO":
             return True
     return False
+
+
+def redirect_url(default='admin.admin_home'):
+    return request.args.get('next') or \
+           request.referrer or \
+           url_for(default)

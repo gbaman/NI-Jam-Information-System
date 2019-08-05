@@ -422,6 +422,7 @@ class PoliceCheck(Base):
     verified_in_person_by_user = Column(ForeignKey('login_users.user_id'), primary_key=False, nullable=True, index=True)
 
     user = relationship("LoginUser", foreign_keys=user_id, uselist=False)
+    verified_by_user = relationship("LoginUser", foreign_keys=verified_in_person_by_user, uselist=False)
 
     @hybrid_property
     def _status(self):

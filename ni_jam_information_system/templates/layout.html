@@ -98,6 +98,9 @@
                             {% if modules_enabled.module_volunteer_attendance %}
                                 <li><a href="/trustee/volunteer_stats">Volunteer stats</a></li>
                             {% endif %}
+                            {% if modules_enabled.module_police_check %}
+                                <li><a href="/trustee/police_checks_admin">Police checks admin</a></li>
+                            {% endif %}
                             <li><a href="/admin/manage_jams">Manage/Add Jams</a></li>
                             {%  if logged_in_user.group_id >= 5 %}
                                 {% if modules_enabled.module_core %}
