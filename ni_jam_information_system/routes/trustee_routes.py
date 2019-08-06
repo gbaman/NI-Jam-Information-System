@@ -247,8 +247,9 @@ def volunteer_stats():
 @trustee_required
 @module_police_check_required
 def police_checks_admin():
+    login_users = database.get_login_users(include_archived=False)
     police_checks = database.get_all_police_checks()
-    return render_template("trustee/police_checks_admin.html", police_checks=police_checks)
+    return render_template("trustee/police_checks_admin.html", police_checks=police_checks, login_users=login_users)
 
 
 @trustee_routes.route("/police_checks_admin_confirm/<certificate_table_id>")

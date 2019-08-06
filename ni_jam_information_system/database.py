@@ -24,6 +24,7 @@ grey = "#969696"
 blue = "#00bbff"
 light_grey = "#ededed"
 light_blue = "#00dbc1"
+lighter_blue = "#54d1f7"
 
 
 class LoginUserGroupEnum(Enum):
@@ -1340,3 +1341,12 @@ def update_login_user_date_of_birth(user: LoginUser, date_of_birth):
     user.date_of_birth = date_of_birth
     db_session.add(user)
     db_session.commit()
+
+
+def remove_police_check(user: LoginUser, certificate_table_id):
+    cert = db_session.query(PoliceCheck).filter(PoliceCheck.certificate_table_id == certificate_table_id, PoliceCheck.user_id == user.user_id).first()
+    if cert:
+        db_session.delete(cert)
+        db_session.commit()
+        return True
+    return False

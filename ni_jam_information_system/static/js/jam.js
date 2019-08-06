@@ -638,7 +638,7 @@ function checkDobInSystem(){
         url: "/admin/verify_dob_in_system",
         success: function (result) {
             if (result === "false") {
-                alertify.prompt('Please enter Date of Birth', 'Please enter your Date of Birth in DD/MM/YYYY format, as this section of NIJIS requires it.', 'DD/MM/YYYY'
+                alertify.prompt('Please enter Date of Birth', 'Please enter your Date of Birth in DD/MM/YYYY format (for example 21/01/2001), as this section of NIJIS requires it.', 'DD/MM/YYYY'
                     , function (evt, value) {
                         $.ajax({
                             type: "POST",

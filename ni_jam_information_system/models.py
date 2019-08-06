@@ -2,6 +2,7 @@ import datetime
 from typing import List
 import enum
 import database
+import math
 
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, BigInteger, Time, Boolean, text, Enum
 from sqlalchemy import create_engine
@@ -116,7 +117,7 @@ class LoginUser(Base):
     group = relationship('Group')
     login_cookie = relationship('LoginCookie')
     workshop_runs = relationship('RaspberryJamWorkshop', secondary='workshop_volunteers')
-    police_checks = relationship("PoliceCheck", foreign_keys="[PoliceCheck.user_id]")
+    police_checks = relationship("PoliceCheck", foreign_keys="[PoliceCheck.user_id]", uselist=True)
 
 
     @hybrid_property
@@ -124,6 +125,56 @@ class LoginUser(Base):
         if self.date_of_birth:
             return self.date_of_birth.strftime("%d-%m-%Y")
         return None
+
+    @hybrid_property
+    def most_recent_dbs_update_cert_or_other(self):
+        most_recent_dbs = None
+        most_recent_other = None
+
+        # TODO : Section below needs completed
+        for cert in self.police_checks:
+            if cert.update_service:
+                if not most_recent_dbs:
+                    most_recent_dbs = cert
+                    continue
+                else:
+                    if most_recent_dbs.time_delta_till_expiry.days < cert.time_delta_till_expiry.days:
+                        most_recent_dbs = cert
+            else:
+                if cert.update_service:
+                    if not most_recent_other:
+                        most_recent_other = cert
+                        continue
+                    else:
+                        if most_recent_other.time_delta_till_expiry.days < cert.time_delta_till_expiry.days:
+                            most_recent_other = cert
+
+        if self.police_checks:
+            return self.police_checks[:0]
+
+    @hybrid_property
+    def police_cert_status(self):
+        if self.date_of_birth:
+            days_since_dob = (datetime.datetime.now() - self.date_of_birth).days
+            if days_since_dob < 6205:  # Number of days in 17 years
+                return f"Not required, {math.floor(days_since_dob / 365)} years old", database.light_grey
+            for cert in self.police_checks:
+                if cert.is_valid:
+                    return cert._status
+        else:
+            return "No DoB", database.lighter_blue
+        return "No certificate", database.orange
+    
+    @hybrid_property
+    def police_check_required_message(self):
+        if self.date_of_birth:
+            days_since_dob = (datetime.datetime.now() - self.date_of_birth).days
+            if days_since_dob > 6205:  # Number of days in 17 years
+                return f"<b>Yes</b> as you are {math.floor(days_since_dob / 365)} years old. A police check is required at age 17 and above."
+            else:
+                return f"<b>No</b> as you are only {math.floor(days_since_dob / 365)} years old. A police check is only required at age 17 and above."
+        else:
+            return "<b>Unknown</b> - No DoB in the system..."
 
 
 class PagePermission(Base):
@@ -427,11 +478,10 @@ class PoliceCheck(Base):
     @hybrid_property
     def _status(self):
         if self.certificate_issue_date and self.certificate_expiry_date and self.certificate_application_date and self.certificate_type and self.certificate_reference:
-            days_till_expire = (self.certificate_expiry_date - datetime.datetime.today()).days
-            if days_till_expire < 0:
+            if self.time_delta_till_expiry.days < 0:
                 return "Certificate has now expired!", database.red 
-            elif days_till_expire < 60:
-                return f"Expires in {days_till_expire} days!", database.orange 
+            elif self.time_delta_till_expiry.days < 60:
+                return f"Expires in {self.time_delta_till_expiry.days} days!", database.orange 
             
             elif self.certificate_type == CertificateTypeEnum.DBS_Update_Service:
                 if self.certificate_update_service_safe and self.certificate_in_person_verified_on:
@@ -492,6 +542,16 @@ class PoliceCheck(Base):
         if self.certificate_last_digital_checked:
             return self.certificate_last_digital_checked.strftime("%d-%m-%Y")
         return None
+
+    @hybrid_property
+    def time_delta_till_expiry(self):
+        return self.certificate_expiry_date - datetime.datetime.today()
+
+    @hybrid_property
+    def is_valid(self):
+        if self.certificate_expiry_date and self.time_delta_till_expiry.days > 0:
+            return True
+        return False
 
 
 t_workshop_volunteers = Table(
