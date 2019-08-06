@@ -12,6 +12,7 @@ import forms as forms
 import eventbrite_interactions
 from ast import literal_eval
 
+import misc
 from decorators import *
 
 admin_routes = Blueprint('admin_routes', __name__, template_folder='templates')
@@ -496,6 +497,52 @@ def attendee_login_info(attendee_login_id):
     return render_template("admin/attendee_login_info.html", attendee_login=attendee_login, badges=badges)
 
 
+@admin_routes.route("/admin/police_checks", methods=['GET', 'POST'])
+@admin_routes.route("/admin/police_checks/<certificate_table_id>", methods=['GET', 'POST'])
+@volunteer_required
+@module_police_check_required
+def police_check(certificate_table_id=None):
+    police_checks_in_db = database.get_police_checks_for_user(request.logged_in_user.user_id)
+    form = forms.PoliceCheckForm(request.form)
+    if request.method == 'POST' and form.validate():
+        database.update_police_check(request.logged_in_user,
+                                     form.certificate_table_id.data,
+                                     form.certificate_type.data,
+                                     form.certificate_application_date.data,
+                                     form.certificate_reference.data,
+                                     form.certificate_issue_date.data,
+                                     form.certificate_expiry_date.data
+                                     )
+        return redirect(url_for("admin_routes.police_check"))
+    if certificate_table_id:
+        edit_police_check = database.get_police_check_single(request.logged_in_user.user_id, certificate_table_id)
+        if edit_police_check:
+            form.certificate_table_id.default = edit_police_check.certificate_table_id
+            form.certificate_type.default = edit_police_check.certificate_type.value
+            form.certificate_application_date.default = edit_police_check.certificate_application_date
+            form.certificate_reference.default = edit_police_check.certificate_reference
+            form.certificate_issue_date.default = edit_police_check.certificate_issue_date
+            form.certificate_expiry_date.default = edit_police_check.certificate_expiry_date
+            form.process()
+    return render_template("admin/police_checks.html", form=form, police_checks=police_checks_in_db)
+
+
+@admin_routes.route("/admin/verify_police_check/<certificate_table_id>")
+@volunteer_required
+@module_police_check_required
+def verify_police_check(certificate_table_id):
+    database.verify_dbs_update_service_certificate(request.logged_in_user, certificate_table_id)
+    return redirect(misc.redirect_url())
+
+
+@admin_routes.route("/admin/remove_police_check/<certificate_table_id>")
+@volunteer_required
+@module_police_check_required
+def remove_police_check(certificate_table_id):
+    database.remove_police_check(request.logged_in_user, certificate_table_id)
+    return redirect(misc.redirect_url())
+
+
 ####################################### AJAX Routes #######################################
 
 
@@ -681,3 +728,27 @@ def update_jam_password():
     jam_password = request.form["jam_password"]
     database.set_jam_password(jam_id, jam_password)
     return " "
+
+
+@admin_routes.route("/admin/verify_dob_in_system", methods=['GET', 'POST'])
+@volunteer_required
+@module_core_required
+def verify_dob_in_system():
+    user: database.LoginUser = request.logged_in_user
+    if user.date_of_birth:
+        return "true"
+    return "false"
+
+
+@admin_routes.route("/admin/update_dob_in_system", methods=['GET', 'POST'])
+@volunteer_required
+@module_core_required
+def update_dob_in_system():
+    user: database.LoginUser = request.logged_in_user
+    date_of_birth = request.form["dob"]
+    try:
+        converted_date_of_birth = datetime.datetime.strptime(date_of_birth, "%d/%m/%Y")
+        database.update_login_user_date_of_birth(user, converted_date_of_birth)
+        return " "
+    except ValueError:
+        pass

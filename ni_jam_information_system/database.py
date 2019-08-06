@@ -8,6 +8,7 @@ import os
 
 import math
 
+import misc
 from models import *
 from eventbrite_interactions import get_eventbrite_attendees_for_event
 import datetime
@@ -23,6 +24,15 @@ grey = "#969696"
 blue = "#00bbff"
 light_grey = "#ededed"
 light_blue = "#00dbc1"
+lighter_blue = "#54d1f7"
+
+
+class LoginUserGroupEnum(Enum):
+    guest = 1
+    attendee = 2
+    volunteer = 3
+    trustee = 4
+    superadmin = 5
 
 
 def init_db():
@@ -404,7 +414,7 @@ def get_user_from_cookie(cookie_value):
     return None
 
 
-def create_user(username, password_hash, password_salt, first_name, surname, email, group_id=1, active=True):
+def create_user(username, password_hash, password_salt, first_name, surname, email, dob, group_id=1, active=True):
     db_session.commit()
     user = LoginUser()
     user.username = username
@@ -415,6 +425,7 @@ def create_user(username, password_hash, password_salt, first_name, surname, ema
     user.group_id = group_id
     user.email = email
     user.active = active
+    user.date_of_birth = dob
 
     db_session.add(user)
     db_session.commit()
@@ -1213,6 +1224,11 @@ def get_login_users(include_archived=False) -> List[LoginUser]:
     return login_users.all()
 
 
+def get_login_user_from_user_id(user_id) -> LoginUser:
+    user = db_session.query(LoginUser).filter(LoginUser.user_id == user_id).first()
+    return user
+
+
 def set_jam_password(jam_id, password):
     jam = db_session.query(RaspberryJam).filter(RaspberryJam.jam_id == int(jam_id)).first()
     if password == "None" or not password:
@@ -1260,3 +1276,77 @@ def generate_password_reset_url(user_ud) -> LoginUser:
     return user
 
 
+def get_all_police_checks() -> List[PoliceCheck]:
+    police_checks = db_session.query(PoliceCheck).order_by(PoliceCheck.certificate_application_date).all()
+    return police_checks
+
+
+def get_police_checks_for_user(user_id):
+    police_checks = db_session.query(PoliceCheck).filter(PoliceCheck.user_id == user_id).all()
+    return police_checks
+
+
+def get_police_check_single(user_id, certificate_table_id) -> PoliceCheck:
+    police_check = db_session.query(PoliceCheck).filter(PoliceCheck.user_id == user_id, PoliceCheck.certificate_table_id == certificate_table_id).first()
+    return police_check
+
+
+def update_police_check(user: LoginUser, certificate_table_id, certificate_type, certificate_application_date, certificate_reference, certificate_issue_date, certificate_expiry_date):
+    police_check: PoliceCheck = db_session.query(PoliceCheck).filter(PoliceCheck.certificate_table_id == certificate_table_id).first()
+    if police_check:
+        if police_check.user_id != user.user_id:
+            return False
+    else:
+        police_check = PoliceCheck()
+
+    police_check.user_id = user.user_id
+    police_check.certificate_type = str(certificate_type)
+    police_check.certificate_application_date = certificate_application_date
+    police_check.certificate_reference = certificate_reference
+    police_check.certificate_issue_date = certificate_issue_date
+    police_check.certificate_expiry_date = certificate_expiry_date
+    police_check.certificate_update_service_safe = False
+    db_session.add(police_check)
+    db_session.commit()
+    if certificate_type == CertificateTypeEnum.DBS_Update_Service.value and certificate_reference and certificate_issue_date and certificate_expiry_date:
+        verify_dbs_update_service_certificate(user, police_check.certificate_table_id)
+
+
+def verify_dbs_update_service_certificate(user: LoginUser, certificate_table_id):
+    raw_cert = db_session.query(PoliceCheck).filter(PoliceCheck.certificate_table_id == certificate_table_id)
+    cert: PoliceCheck = raw_cert.first()
+
+    if cert and cert.user.date_of_birth and (cert.user_id == user.user_id or user.group.group_id >= LoginUserGroupEnum.trustee):
+        dbs_response = misc.check_dbs_certificate(cert.certificate_reference, cert.user.surname, cert.user.date_of_birth, user.first_name, user.surname, configuration.verify_config_item("general", "jam_organisation_name"))
+        cert.certificate_last_digital_checked = datetime.datetime.now()
+        if dbs_response:
+            cert.certificate_update_service_safe = True
+        else:
+            cert.certificate_update_service_safe = False
+        db_session.add(cert)
+        db_session.commit()
+
+
+def confirm_police_certificate_verified(user_id, certificate_table_id):
+    trustee: LoginUser = db_session.query(LoginUser).filter(LoginUser.user_id == user_id, LoginUser.group_id >= LoginUserGroupEnum.trustee).first()
+    if trustee:
+        cert: PoliceCheck = db_session.query(PoliceCheck).filter(PoliceCheck.certificate_table_id == certificate_table_id).first()
+        if cert:
+            cert.verified_in_person_by_user = trustee.user_id
+            cert.certificate_in_person_verified_on = datetime.datetime.now()
+            db_session.commit()
+
+
+def update_login_user_date_of_birth(user: LoginUser, date_of_birth):
+    user.date_of_birth = date_of_birth
+    db_session.add(user)
+    db_session.commit()
+
+
+def remove_police_check(user: LoginUser, certificate_table_id):
+    cert = db_session.query(PoliceCheck).filter(PoliceCheck.certificate_table_id == certificate_table_id, PoliceCheck.user_id == user.user_id).first()
+    if cert:
+        db_session.delete(cert)
+        db_session.commit()
+        return True
+    return False

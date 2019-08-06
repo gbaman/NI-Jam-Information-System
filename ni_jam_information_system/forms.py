@@ -7,7 +7,7 @@ from wtforms_components import TimeField
 from flask import g, Flask, current_app
 import datetime
 
-from database import get_volunteers_to_select, get_workshops_to_select, get_individual_time_slots_to_select, get_workshop_rooms, get_equipment_groups, get_all_equipment, get_all_badges, get_badge, get_workshop_from_workshop_id
+from database import get_volunteers_to_select, get_workshops_to_select, get_individual_time_slots_to_select, get_workshop_rooms, get_equipment_groups, get_all_equipment, get_all_badges, get_badge, get_workshop_from_workshop_id, CertificateTypeEnum
 
 
 
@@ -52,6 +52,7 @@ class RegisterUserForm(Form):
     first_name = StringField("First name", [validators.DataRequired()])
     surname = StringField("Surname", [validators.DataRequired()])
     access_code = StringField("Access code", [validators.DataRequired()])
+    dob = DateField("Date of Birth", [validators.DataRequired()])
     email = StringField("Email address - Note must be same used for Slack", [validators.DataRequired()])
 
     # Added ready to add to Login form itself on page.
@@ -193,3 +194,17 @@ class PasswordResetForm(Form):
 class ChangePasswordForm(Form):
     new_password = PasswordField("New password", [validators.DataRequired()])
     url_key = HiddenField()
+
+
+class PoliceCheckForm(Form):
+    certificate_type = SelectField("Select certificate type, default is DBS Update Service *", validators=[validators.DataRequired()], coerce=int)
+    certificate_application_date = DateField("Application submitted date *", [validators.DataRequired()])
+    certificate_reference = StringField("Certificate reference number")
+    certificate_issue_date = DateField("Certificate issue date", validators=[validators.Optional()])
+    certificate_expiry_date = DateField("Certificate Expiry date (usually 3 years after issue date)", validators=[validators.Optional()])
+    certificate_table_id = HiddenField()
+
+    def __init__(self, *args, **kwargs):
+        super(PoliceCheckForm, self).__init__(*args, **kwargs)
+        self.certificate_type.choices = CertificateTypeEnum.dropdown_view()
+

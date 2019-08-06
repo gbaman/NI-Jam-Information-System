@@ -1,7 +1,10 @@
 import datetime
 from typing import List
+import enum
+import database
+import math
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, BigInteger, Time, Boolean, text
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, BigInteger, Time, Boolean, text, Enum
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -17,6 +20,23 @@ db_session = scoped_session(sessionmaker(autocommit=False,
 Base = declarative_base()
 Base.query = db_session.query_property()
 metadata = Base.metadata
+
+
+class CertificateTypeEnum(enum.Enum):
+    DBS_Update_Service = 1
+    DBS_No_Update_Service = 2
+    Access_NI = 3
+    PVG = 4
+    Garda = 5
+    Other = 6
+
+    @classmethod
+    def dropdown_view(cls):
+        to_return = []
+        for item in CertificateTypeEnum:
+            to_return.append([item.value, item.name])
+        return to_return
+
 
 class Attendee(Base):
     __tablename__ = 'attendees'
@@ -91,11 +111,70 @@ class LoginUser(Base):
     active = Column(Integer)
     forgotten_password_url = Column(String(100), nullable=True, unique=True)
     forgotten_password_expiry = Column(DateTime, nullable=True)
+    date_of_birth = Column(DateTime, nullable=True)
 
     attending = relationship("VolunteerAttendance")
     group = relationship('Group')
     login_cookie = relationship('LoginCookie')
     workshop_runs = relationship('RaspberryJamWorkshop', secondary='workshop_volunteers')
+    police_checks = relationship("PoliceCheck", foreign_keys="[PoliceCheck.user_id]", uselist=True)
+
+
+    @hybrid_property
+    def date_of_birth_str(self):
+        if self.date_of_birth:
+            return self.date_of_birth.strftime("%d-%m-%Y")
+        return None
+
+    @hybrid_property
+    def most_recent_dbs_update_cert_or_other(self):
+        most_recent_dbs = None
+        most_recent_other = None
+
+        # TODO : Section below needs completed
+        for cert in self.police_checks:
+            if cert.update_service:
+                if not most_recent_dbs:
+                    most_recent_dbs = cert
+                    continue
+                else:
+                    if most_recent_dbs.time_delta_till_expiry.days < cert.time_delta_till_expiry.days:
+                        most_recent_dbs = cert
+            else:
+                if cert.update_service:
+                    if not most_recent_other:
+                        most_recent_other = cert
+                        continue
+                    else:
+                        if most_recent_other.time_delta_till_expiry.days < cert.time_delta_till_expiry.days:
+                            most_recent_other = cert
+
+        if self.police_checks:
+            return self.police_checks[:0]
+
+    @hybrid_property
+    def police_cert_status(self):
+        if self.date_of_birth:
+            days_since_dob = (datetime.datetime.now() - self.date_of_birth).days
+            if days_since_dob < 6205:  # Number of days in 17 years
+                return f"Not required, {math.floor(days_since_dob / 365)} years old", database.light_grey
+            for cert in self.police_checks:
+                if cert.is_valid:
+                    return cert._status
+        else:
+            return "No DoB", database.lighter_blue
+        return "No certificate", database.orange
+    
+    @hybrid_property
+    def police_check_required_message(self):
+        if self.date_of_birth:
+            days_since_dob = (datetime.datetime.now() - self.date_of_birth).days
+            if days_since_dob > 6205:  # Number of days in 17 years
+                return f"<b>Yes</b> as you are {math.floor(days_since_dob / 365)} years old. A police check is required at age 17 and above."
+            else:
+                return f"<b>No</b> as you are only {math.floor(days_since_dob / 365)} years old. A police check is only required at age 17 and above."
+        else:
+            return "<b>Unknown</b> - No DoB in the system..."
 
 
 class PagePermission(Base):
@@ -373,6 +452,106 @@ class AlertConfig(Base):
     workshop_id = Column(ForeignKey('workshop.workshop_id'), primary_key=True, nullable=True, index=True)
     ticket_type = Column(String(45), nullable=True)
     slot_id = Column(ForeignKey('workshop_slots.workshop_id'), primary_key=True, nullable=True, index=True)
+
+
+class PoliceCheck(Base):
+    __tablename__ = "police_checks"
+    certificate_table_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
+    user_id = Column(ForeignKey('login_users.user_id'), primary_key=False, nullable=False, index=True)
+
+    certificate_reference = Column(String(45), nullable=True)
+    certificate_issue_date = Column(DateTime, nullable=True)
+    certificate_type = Column(Enum(CertificateTypeEnum), nullable=False)
+    certificate_expiry_date = Column(DateTime, nullable=True)
+    certificate_last_digital_checked = Column(DateTime, nullable=True)
+
+    certificate_application_date = Column(DateTime, nullable=False)
+
+    certificate_update_service_safe = Column(Boolean, nullable=False)
+
+    certificate_in_person_verified_on = Column(DateTime, nullable=True)
+    verified_in_person_by_user = Column(ForeignKey('login_users.user_id'), primary_key=False, nullable=True, index=True)
+
+    user = relationship("LoginUser", foreign_keys=user_id, uselist=False)
+    verified_by_user = relationship("LoginUser", foreign_keys=verified_in_person_by_user, uselist=False)
+
+    @hybrid_property
+    def _status(self):
+        if self.certificate_issue_date and self.certificate_expiry_date and self.certificate_application_date and self.certificate_type and self.certificate_reference:
+            if self.time_delta_till_expiry.days < 0:
+                return "Certificate has now expired!", database.red 
+            elif self.time_delta_till_expiry.days < 60:
+                return f"Expires in {self.time_delta_till_expiry.days} days!", database.orange 
+            
+            elif self.certificate_type == CertificateTypeEnum.DBS_Update_Service:
+                if self.certificate_update_service_safe and self.certificate_in_person_verified_on:
+                    return "Valid and verified", database.green
+                elif self.certificate_update_service_safe:
+                    return "Verified online, awaiting in person verification", database.yellow
+                elif not self.user.date_of_birth:
+                    return "No DoB in the system", database.red
+                elif self.certificate_last_digital_checked:
+                    return "Invalid or Warning", database.red
+                else:
+                    return "Not verified", database.orange
+            else:
+                if self.certificate_in_person_verified_on:
+                    return "Valid and verified", database.green
+                else:
+                    return "Awaiting in person verification", database.yellow
+        else:
+            return "Incomplete certificate", "#ffffff"
+
+    @hybrid_property
+    def status(self):
+        return self._status[0]
+
+    @hybrid_property
+    def status_colour(self):
+        return self._status[1]
+
+    @hybrid_property
+    def update_service(self):
+        if self.certificate_type == CertificateTypeEnum.DBS_Update_Service:
+            return True
+        return False
+
+    @hybrid_property
+    def verify_button_status(self):
+        if self.certificate_type == CertificateTypeEnum.DBS_Update_Service and self.certificate_expiry_date and self.certificate_issue_date and self.certificate_reference:
+            return "", ""
+        elif not self.user.date_of_birth:
+            return 'disabled', "User has no date of birth on the system"
+        else:
+            return 'disabled', "Missing either certificate reference, issue date or expiry date"
+
+    @hybrid_property
+    def certificate_issue_date_str(self):
+        if self.certificate_issue_date:
+            return self.certificate_issue_date.strftime("%d-%m-%Y")
+        return None
+
+    @hybrid_property
+    def certificate_expiry_date_str(self):
+        if self.certificate_expiry_date:
+            return self.certificate_expiry_date.strftime("%d-%m-%Y")
+        return None
+
+    @hybrid_property
+    def certificate_last_digital_checked_str(self):
+        if self.certificate_last_digital_checked:
+            return self.certificate_last_digital_checked.strftime("%d-%m-%Y")
+        return None
+
+    @hybrid_property
+    def time_delta_till_expiry(self):
+        return self.certificate_expiry_date - datetime.datetime.today()
+
+    @hybrid_property
+    def is_valid(self):
+        if self.certificate_expiry_date and self.time_delta_till_expiry.days > 0:
+            return True
+        return False
 
 
 t_workshop_volunteers = Table(

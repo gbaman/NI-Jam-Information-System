@@ -10,6 +10,7 @@ from datetime import datetime
 
 import emails
 import forms as forms
+import misc
 from decorators import *
 import configuration
 if configuration.verify_modules_enabled().module_finance:
@@ -240,6 +241,34 @@ def volunteer_stats():
         jams.append(jam)
     volunteers = sorted(database.get_login_users(), key=lambda x: x.surname.lower(), reverse=False)
     return render_template("trustee/volunteer_stats.html", jams=jams[::-1], volunteers=volunteers)
+
+
+@trustee_routes.route("/police_checks_admin")
+@trustee_required
+@module_police_check_required
+def police_checks_admin():
+    login_users = database.get_login_users(include_archived=False)
+    police_checks = database.get_all_police_checks()
+    return render_template("trustee/police_checks_admin.html", police_checks=police_checks, login_users=login_users)
+
+
+@trustee_routes.route("/police_checks_admin_confirm/<certificate_table_id>")
+@trustee_required
+@module_police_check_required
+def police_checks_admin_confirm(certificate_table_id):
+    database.confirm_police_certificate_verified(request.logged_in_user.user_id, certificate_table_id)
+    return redirect(misc.redirect_url())
+
+
+@trustee_routes.route("/police_checks_admin_verify_all")
+@trustee_required
+@module_police_check_required
+def police_checks_admin_verify_all():
+    certs = database.get_all_police_checks()
+    for cert in certs:
+        if cert.update_service:
+            database.verify_dbs_update_service_certificate(request.logged_in_user, cert.certificate_table_id)
+    return redirect(misc.redirect_url())
 
 # -------------- AJAX routes -------------
 

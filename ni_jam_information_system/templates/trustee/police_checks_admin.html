@@ -1,0 +1,74 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h1>Police Checks Admin</h1>
+<p>Below is a list of police checks in the system.</p>
+{%include '_message_flash_helper.html'%}
+    
+<br>
+<h2>Police Certificates</h2>
+    
+<a href="police_checks_admin_verify_all" id="submit_button" class="btn btn-info" role="button">Re-verify all certificates</a>
+    
+<div>
+    <table class="table table-hover, table-bordered">
+        <tr bgcolor="#d3d3d3">
+            <th>First name</th>
+            <th>Surname</th>
+            <th>Type</th>
+            <th>Reference</th>
+            <th>Application date</th>
+            <th>Issue date</th>
+            <th>Expiry date</th>
+            <th>Last digtal check</th>
+            <th>Status</th>
+            <th>Confirm in person check</th>
+            <th>Re-verify</th>
+        </tr>
+        {% for cert in police_checks %}
+            <tr bgcolor="{{ cert.status_colour }}">
+                <td>{{ cert.user.first_name }}</td>
+                <td>{{ cert.user.surname }}</td>
+                <td>{{ cert.certificate_type.name}}</td>
+                <td>{{ cert.certificate_reference }}</td>
+                <td>{{ cert.certificate_application_date.strftime("%d-%m-%Y") }}</td>
+                <td>{{ cert.certificate_issue_date_str}}</td>
+                <td>{{ cert.certificate_expiry_date_str }}</td>
+                <td>{{ cert.certificate_last_digital_checked_str }}</td>
+                <td><b>{{ cert.status }}</b></td>
+                {% if cert.certificate_in_person_verified_on %}
+                    <td>{{ cert.verified_by_user.first_name }} {{ cert.verified_by_user.surname }} ({{ cert.certificate_in_person_verified_on.strftime("%d-%m-%Y") }})</td>
+                {% else %}
+                    <td><a href="police_checks_admin_confirm/{{ cert.certificate_table_id }}" class="btn btn-info  {% if cert.user_id == logged_in_user.user_id %} disabled {% endif %}" role="button">Confirmed</a></td>
+                {% endif %}
+                {% if cert.update_service %}
+                    <td><a href="/admin/verify_police_check/{{ cert.certificate_table_id }}" class="btn btn-info" role="button">Re-verify</a></td>
+                {% else %}
+                    <td>N/A</td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+    
+<h2>Volunteers</h2>
+    
+<div>
+    <table class="table table-hover, table-bordered">
+        <tr bgcolor="#d3d3d3">
+            <th>First name</th>
+            <th>Surname</th>
+            <th>Status</th>
+        </tr>
+        {% for user in login_users %}
+            <tr bgcolor="{{ user.police_cert_status[1] }}">
+                <td>{{ user.first_name }}</td>
+                <td>{{ user.surname }}</td>
+                <td>{{ user.police_cert_status[0] }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+    
+    
+{% endblock %}

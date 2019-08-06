@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <script>
+    checkDobInSystem()
+    </script> 
+    
+<h1>Police checks</h1>
+<p>As part of being a volunteer, we ask all the team to maintain a police background check. Once you have got your check submitted, fill in the details below.</p>
+{%include '_message_flash_helper.html'%}
+    <h3>Do I require a police check?</h3>
+<p>{{ logged_in_user.police_check_required_message|safe }}</p>
+
+<hr>
+<h2>New/Update current police check</h2>
+<form method="POST" enctype="multipart/form-data" style="max-width: 220px">
+<dl>
+    {{ render_field(form.certificate_type, class = "form-control") }}
+    {{ render_field(form.certificate_application_date, class = "form-control") }}
+    {{ render_field(form.certificate_reference, class = "form-control") }}
+    {{ render_field(form.certificate_issue_date, class = "form-control") }}
+    {{ render_field(form.certificate_expiry_date, class = "form-control") }}
+    {{ form.certificate_table_id }}
+</dl>
+<p><input class="btn btn-primary" type=submit value="Add/update">
+</form>
+    
+<br>
+<h2>Police Certificates</h2>
+<div>
+    <table class="table table-hover, table-bordered">
+        <tr bgcolor="#d3d3d3">
+            <th>Type</th>
+            <th>Reference</th>
+            <th>Application date</th>
+            <th>Issue date</th>
+            <th>Expiry date</th>
+            <th>Status</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </tr>
+        {% for cert in police_checks %}
+            <tr bgcolor="{{ cert.status_colour }}">
+                <td>{{ cert.certificate_type.name}}</td>
+                <td>{{ cert.certificate_reference }}</td>
+                <td>{{ cert.certificate_application_date.strftime("%d-%m-%Y") }}</td>
+                <td>{{ cert.certificate_issue_date_str }}</td>
+                <td>{{ cert.certificate_expiry_date_str }}</td>
+                <td><b>{{ cert.status }}</b></td>
+                <td><a href="/admin/police_checks/{{ cert.certificate_table_id }}" class="btn btn-info" role="button">Edit</a></td>
+                <td><a href="/admin/remove_police_check/{{ cert.certificate_table_id }}" class="btn btn-danger" role="button">Delete</a></td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
