@@ -44,8 +44,8 @@
                 <td>{{ cert.certificate_issue_date_str }}</td>
                 <td>{{ cert.certificate_expiry_date_str }}</td>
                 <td><b>{{ cert.status }}</b></td>
-                <td><a href="police_checks/{{ cert.certificate_table_id }}" class="btn btn-info" role="button">Edit</a></td>
-                <td><a href="police_checks/{{ cert.certificate_table_id }}" class="btn btn-danger" role="button">Delete</a></td>
+                <td><a href="/admin/police_checks/{{ cert.certificate_table_id }}" class="btn btn-info" role="button">Edit</a></td>
+                <td><a href="/admin/remove_police_check/{{ cert.certificate_table_id }}" class="btn btn-danger" role="button">Delete</a></td>
             </tr>
         {% endfor %}
     </table>

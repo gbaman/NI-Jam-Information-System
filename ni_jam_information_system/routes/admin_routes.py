@@ -535,6 +535,14 @@ def verify_police_check(certificate_table_id):
     return redirect(misc.redirect_url())
 
 
+@admin_routes.route("/admin/remove_police_check/<certificate_table_id>")
+@volunteer_required
+@module_police_check_required
+def remove_police_check(certificate_table_id):
+    database.remove_police_check(request.logged_in_user, certificate_table_id)
+    return redirect(misc.redirect_url())
+
+
 ####################################### AJAX Routes #######################################
 
 
