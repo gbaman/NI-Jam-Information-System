@@ -43,7 +43,7 @@ def send_expenses_paid_email(login_user: models.LoginUser, expense: google_sheet
 
     """
 
-    send_email(login_user, "NIJIS expense rejected", email_body)
+    send_email(login_user, "NIJIS expense repaid", email_body)
 
 
 def send_password_reset_email(login_user: models.LoginUser):
