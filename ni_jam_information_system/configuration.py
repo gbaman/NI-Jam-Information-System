@@ -16,6 +16,7 @@ class Modules:
     module_badge = ["module_core", "module_badge", "module_workshops"]
     module_finance = ["module_core", "module_finance"]
     module_email = ["module_core", "module_email"]
+    module_police_check = ["module_core", "module_police_check"]
 
 
 def _get_config_file():

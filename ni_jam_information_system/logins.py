@@ -69,7 +69,7 @@ def create_new_user(group_id=1):
     surname = input("Surname: ")
     email = input("Email: ")
     salt, bcrypt_password = create_password_salt(password)
-    database.create_user(username, bcrypt_password, salt, first_name, surname, email, group_id)
+    database.create_user(username, bcrypt_password, salt, first_name, surname, email, None, group_id)
 
 
 # Methods from http://flask.pocoo.org/snippets/62/

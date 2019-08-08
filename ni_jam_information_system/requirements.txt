@@ -10,3 +10,4 @@ wtforms-components
 gspread
 oauth2client
 flask_mail
+beautifulsoup4

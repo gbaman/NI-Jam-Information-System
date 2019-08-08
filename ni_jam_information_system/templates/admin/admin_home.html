@@ -24,9 +24,16 @@
 <a href="/admin/volunteer_attendance" class="btn btn-primary" role="button">Volunteer Attendance</a> <br>
 <br>
 {% endif %}
-
 {% if modules_enabled.module_volunteer_signup %}
 <a href="/admin/wrangler_overview" class="btn btn-primary" role="button">Wrangler Overview</a> <br>
+<br>
+{% endif %}
+{% if modules_enabled.module_finance %}
+<a href="/admin/expenses_claim" class="btn btn-primary" role="button">Expenses Claims</a> <br>
+<br>
+{% endif %}
+{% if modules_enabled.module_police_check %}
+<a href="/admin/police_checks" class="btn btn-primary" role="button">Police Checks</a> <br>
 <br>
 {% endif %}
 
