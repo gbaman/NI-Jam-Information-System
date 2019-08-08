@@ -1,6 +1,6 @@
 import datetime
-import time
 import threading
+import time
 
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -8,7 +8,6 @@ from oauth2client.service_account import ServiceAccountCredentials
 import database
 import models
 from secrets.config import finance_google_sheet_id
-
 
 scope = ['https://spreadsheets.google.com/feeds']
 creds = ServiceAccountCredentials.from_json_keyfile_name('secrets/client_secret.json', scope)
@@ -20,13 +19,13 @@ EXPENSE_SHEET = None
 CATEGORIES_SHEET = None
 
 BANK_TEXT_AUTO_FILL = {
-    "GSUITE_nir CC@GOOGLE.COM":"Google",
-    "RS COMPONENTS":"RS Components",
-    "LITTLE WING":"Little Wings",
-    "TESCO STORES":"Tescos",
-    "Amazon.co.uk":"Amazon",
-    "AMZ*":"Amazon",
-    "HSBC":"HSBC"
+    "GSUITE_nir CC@GOOGLE.COM": "Google",
+    "RS COMPONENTS": "RS Components",
+    "LITTLE WING": "Little Wings",
+    "TESCO STORES": "Tescos",
+    "Amazon.co.uk": "Amazon",
+    "AMZ*": "Amazon",
+    "HSBC": "HSBC"
 }
 
 
@@ -72,7 +71,7 @@ class E():
 
 class Transaction():
     user_id = None
-    
+
     def __init__(self, raw_row, offset=1, bank=False):
         row = raw_row[offset:]
         self.transaction_id = row[0]
@@ -92,7 +91,7 @@ class Transaction():
         self.verified_by = row[14]
         self.category = row[15]
         self.treasurer_notes = row[16]
-        
+
         self.offset = offset
         self.editing = False
 
@@ -107,7 +106,7 @@ class Transaction():
         if self.paid_in:
             return f"+£{self.paid_in}"
         return ""
-    
+
     @property
     def button_disabled(self):
         self.user_id = int(self.user_id)
@@ -116,26 +115,24 @@ class Transaction():
                 or (self.secondary_approved_by_id and int(self.secondary_approved_by_id) == self.user_id):
             return 'disabled'
         return ""
-    
+
     @property
     def verified_by_button_disabled(self):
         if self.button_disabled == "disabled" or not self.receipt_url:
             return "disabled"
         return ""
-    
-    
+
     def update_names(self, trustees):
         for trustee in trustees:
             if self.payment_by_id and int(self.payment_by_id) == int(trustee.user_id):
                 self.payment_by = f"{trustee.first_name} {trustee.surname}"
-            
+
             if self.secondary_approved_by_id and int(self.secondary_approved_by_id) == int(trustee.user_id):
                 self.secondary_approved_by = f"{trustee.first_name} {trustee.surname}"
-                
+
             if self.verified_by_id and int(self.verified_by_id) == int(trustee.user_id):
                 self.verified_by = f"{trustee.first_name} {trustee.surname}"
-    
-    
+
     def get_row(self):
         offset = []
         for i in range(0, self.offset):
@@ -144,16 +141,16 @@ class Transaction():
             bank_date = self.bank_date.strftime("%d/%m/%Y")
         else:
             bank_date = None
-        
+
         if self.receipt_date:
             receipt_date = self.receipt_date.strftime("%d/%m/%Y")
         else:
             receipt_date = None
 
-        
-        return offset + [self.transaction_id, bank_date, receipt_date, self.supplier, self.bank_text, self.description, 
-                self.receipt_url, self.paid_out, self.paid_in, self.payment_by_id, self.payment_by, self.secondary_approved_by_id, 
-                self.secondary_approved_by, self.verified_by_id, self.verified_by, self.category, self.treasurer_notes]
+        return offset + [self.transaction_id, bank_date, receipt_date, self.supplier, self.bank_text, self.description,
+                         self.receipt_url, self.paid_out, self.paid_in, self.payment_by_id, self.payment_by, self.secondary_approved_by_id,
+                         self.secondary_approved_by, self.verified_by_id, self.verified_by, self.category, self.treasurer_notes]
+
 
 class Expense():
     user_id = None
@@ -180,7 +177,7 @@ class Expense():
         self.paid_by_object: models.LoginUser = models.LoginUser()
         self.rejected_reason = row[14]
         self.payment_made_date = None
-        
+
         if row[15]:
             self.payment_made_date = datetime.datetime.strptime(row[15], "%d/%m/%Y").date()
 
@@ -196,14 +193,14 @@ class Expense():
         if (self.approved_by_id and int(self.approved_by_id) == int(self.user_id)) or (self.secondary_approved_by_id and int(self.secondary_approved_by_id) == self.user_id) or (self.volunteer_id and int(self.volunteer_id) == self.user_id):
             return 'disabled'
         return ""
-    
+
     @property
     def paid_button_disabled(self):
         self.user_id = int(self.user_id)
         if self.approved_by_id and self.secondary_approved_by_id:
             return ""
         return "disabled"
-    
+
     @property
     def status(self):
         if self.rejected_reason:
@@ -216,7 +213,7 @@ class Expense():
             return "1/2 approvals complete"
         else:
             return "Awaiting approvals"
-    
+
     @property
     def status_colour(self):
         if self.rejected_reason:
@@ -273,13 +270,13 @@ def _check_oauth_token():
 
 def import_bank_csv(csv_path):
     import csv
-    
+
     transactions = []
     _check_oauth_token()
     with open(csv_path) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         for line in list(csv_reader)[1:]:
-            transactions.append(Transaction((None, line[0], None, None, line[2], None, None, line[3], line[4], None, None, None, None, None, None, None, None, None),offset=0, bank=True))
+            transactions.append(Transaction((None, line[0], None, None, line[2], None, None, line[3], line[4], None, None, None, None, None, None, None, None, None), offset=0, bank=True))
     logins = database.get_users(include_inactive=True)
     current_transactions = get_transaction_table(logins)
     new_transactions = []
@@ -289,12 +286,12 @@ def import_bank_csv(csv_path):
             if new_transaction.bank_date == current_transaction.bank_date:
                 if new_transaction.bank_text.strip() == current_transaction.bank_text.strip():
                     if new_transaction.paid_in == current_transaction.paid_in and new_transaction.paid_out == current_transaction.paid_out:
-                        #print("Duplicate found... {}".format(new_transaction))
+                        # print("Duplicate found... {}".format(new_transaction))
                         duplicate = True
                         break
                     else:
                         print("Money doesn't match for a transaction {} - {} vs {}".format(new_transaction.bank_text, new_transaction.paid_out, current_transaction.paid_out))
-                        #raise Exception ("Money doesn't match for a transaction {} - {} vs {}".format(new_transaction.bank_text, new_transaction.paid_out, current_transaction.paid_out))
+                        # raise Exception ("Money doesn't match for a transaction {} - {} vs {}".format(new_transaction.bank_text, new_transaction.paid_out, current_transaction.paid_out))
         if duplicate:
             continue
         new_transactions.append(new_transaction)
@@ -306,16 +303,56 @@ def import_bank_csv(csv_path):
         MAIN_SHEET.append_row(new_transaction.get_row(), value_input_option='USER_ENTERED')
 
 
-def get_transaction_table(logins, offset=3):
+def get_all_values_for_table(table, return_data):
+    return_data.append(table.get_all_values())
+    return return_data
+
+
+def get_table_data_from_sheets(main_transactions=True, volunteer_expenses=True, categories=True):
+    main_sheet_data = []
+    if main_transactions:
+        main_sheet_data_thread = threading.Thread(target=get_all_values_for_table, args=(MAIN_SHEET, main_sheet_data))
+    expenses_sheet_data = []
+    if volunteer_expenses:
+        expenses_sheet_data_thread = threading.Thread(target=get_all_values_for_table, args=(EXPENSE_SHEET, expenses_sheet_data))
+    categories_data = []
+    if categories:
+        categories_data_thread = threading.Thread(target=get_all_values_for_table, args=(CATEGORIES_SHEET, categories_data))
+
+    if main_transactions:
+        main_sheet_data_thread.start()
+    if volunteer_expenses:
+        expenses_sheet_data_thread.start()
+    if categories:
+        categories_data_thread.start()
+
+    if main_transactions:
+        main_sheet_data_thread.join()
+        main_sheet_data = main_sheet_data[0]
+    if volunteer_expenses:
+        expenses_sheet_data_thread.join()
+        expenses_sheet_data = expenses_sheet_data[0]
+    if categories:
+        categories_data_thread.join()
+        categories_data = categories_data[0]
+
+    return main_sheet_data, expenses_sheet_data, categories_data
+
+
+def get_transaction_table(logins, offset=3, main_sheet_data=None, categories_data=None):
     _check_oauth_token()
     transaction_data = []
-    data = MAIN_SHEET.get_all_values()[offset:]
-    categories_data = CATEGORIES_SHEET.get_all_values()[2:]
+
+    if not main_sheet_data or not categories_data:
+        main_sheet_data, volunteer_expenses, categories_data = get_table_data_from_sheets(main_transactions=True, volunteer_expenses=False, categories=True)
+
+    main_sheet_data = main_sheet_data[offset:]
+    categories_data = categories_data[2:]
     categories = []
     for line in categories_data:
         if line[1]:
             categories.append(line[1])
-    for line in data:
+    for line in main_sheet_data:
         t = Transaction(line)
         t.categories = categories
         t.update_names(logins)
@@ -323,12 +360,14 @@ def get_transaction_table(logins, offset=3):
     return transaction_data
 
 
-def get_volunteer_expenses_table(offset=3):
+def get_volunteer_expenses_table(offset=3, volunteer_expenses=None):
     expense_data = []
     _check_oauth_token()
-    data = EXPENSE_SHEET.get_all_values()[offset:]
+    if not volunteer_expenses:
+        main_transactions, volunteer_expenses, categories = get_table_data_from_sheets(main_transactions=False, volunteer_expenses=True, categories=False)
+    volunteer_expenses = volunteer_expenses[offset:]
     login_users = database.get_users(include_inactive=True)
-    for line in data:
+    for line in volunteer_expenses:
         expense = Expense(line)
         expense.update_users(login_users)
         expense_data.append(expense)
