@@ -1,4 +1,5 @@
 import datetime
+import enum
 from typing import List
 import enum
 import database
@@ -20,6 +21,11 @@ db_session = scoped_session(sessionmaker(autocommit=False,
 Base = declarative_base()
 Base.query = db_session.query_property()
 metadata = Base.metadata
+
+
+class EventSourceEnum(enum.Enum):
+    eventbrite = 1
+    standalone = 2
 
 
 class CertificateTypeEnum(enum.Enum):
@@ -195,6 +201,7 @@ class RaspberryJam(Base):
     date = Column(DateTime, nullable=False)
     food_after = Column(Integer)
     jam_password = Column(String(45), nullable=True)
+    event_source = Column(Enum(EventSourceEnum))
     volunteer_attendance = relationship('VolunteerAttendance')
 
     @hybrid_property

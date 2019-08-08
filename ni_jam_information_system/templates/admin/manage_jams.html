@@ -2,8 +2,35 @@
 
 {% block content %}
 
-<div class="container">
-  <h2>Raspberry Jams</h2>
+     <div class="container">
+    
+   <h2>Raspberry Jams</h2>
+     
+<h3>Add new Eventbrite Jam</h3>
+    <p>Select a Raspberry Jam from the list below to add to the system.</p>
+  <div class="dropdown">
+    <button class="btn btn-default dropdown-toggle" type="button" id="menu1" data-toggle="dropdown">Add new Jam
+    <span class="caret"></span></button>
+    <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
+        {% for jam in jams %}
+      <li role="presentation"><a role="menuitem" tabindex="-1" href=/admin/add_jam/{{jam.id}}>{{jam.name}}</a></li>
+        {% endfor %}
+    </ul>
+  </div>
+
+<hr>
+<h3>Add new standalone event</h3>
+<form method=post style="max-width: 220px">
+    <dl>
+        {{ render_field(form.event_name, class = "form-control") }}
+        {{ render_field(form.event_date, class = "form-control") }}
+    </dl>
+    <p><input class="btn btn-primary" type=submit value="Add standalone event">
+</form>
+
+<hr>
+
+<h3>Current events in the system</h3>
   <p>Currently added Jams can be seen below.</p>
     <table class="table table-hover, table-bordered">
         <tr bgcolor="#d3d3d3">
@@ -11,6 +38,7 @@
             <th>Jam Name</th>
             <th>Jam Date</th>
             <th>Password</th>
+            <th>Source</th>
             <th>Select</th>
             <th>Delete</th>
             <th>Attendee data</th>
@@ -26,6 +54,7 @@
             <td>{{ jam_in_db.name }}</td>
             <td>{{ jam_in_db.date }}</td>
             <td onclick='editJamPassword("{{ jam_in_db.jam_id }}", this.textContent, this)'>{{ jam_in_db.jam_password }}</td>
+            <td>{{ jam_in_db.event_source.name | capitalize }}</td>
             <td>
                 <button id="select_jam_button" data-id="{{jam_in_db.jam_id}}" class="btn btn-success"
                         onclick="selectJam({{jam_in_db.jam_id}})" value="val_1" name="but1">Select
@@ -40,16 +69,6 @@
         </tr>
         {% endfor %}
     </table>
-    <p>Select a Raspberry Jam from the list below to add to the system.</p>
-  <div class="dropdown">
-    <button class="btn btn-default dropdown-toggle" type="button" id="menu1" data-toggle="dropdown">Add new Jam
-    <span class="caret"></span></button>
-    <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
-        {% for jam in jams %}
-      <li role="presentation"><a role="menuitem" tabindex="-1" href=/admin/add_jam/{{jam.id}}>{{jam.name}}</a></li>
-        {% endfor %}
-    </ul>
-  </div>
 </div>
 
 {% endblock %}

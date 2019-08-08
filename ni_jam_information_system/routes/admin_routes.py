@@ -33,11 +33,15 @@ def admin_home():
     return render_template("admin/admin_home.html", selected_jam = database.get_jam_details(database.get_current_jam_id()))
 
 
-@admin_routes.route("/admin/manage_jams")
+@admin_routes.route("/admin/manage_jams", methods=['POST', 'GET'])
 @trustee_required
 @module_core_required
 def manage_jams():
-    return render_template("admin/manage_jams.html", jams=eventbrite_interactions.get_eventbrite_events_name_id(), jams_in_db=database.get_jams_in_db(), current_jam_id=database.get_current_jam_id())
+    form = forms.NewEventForm(request.form)
+    if request.method == 'POST' and form.validate():
+        database.add_standalone_event(form.event_name.data, form.event_date.data)
+        return redirect(url_for("admin_routes.manage_jams"))
+    return render_template("admin/manage_jams.html", form=form, jams=eventbrite_interactions.get_eventbrite_events_name_id(), jams_in_db=database.get_jams_in_db(), current_jam_id=database.get_current_jam_id())
 
 
 @admin_routes.route("/admin/add_jam/<eventbrite_id>")
@@ -45,7 +49,7 @@ def manage_jams():
 @module_core_required
 def add_jam_id(eventbrite_id):
     eventbrite_jam = eventbrite_interactions.get_eventbrite_event_by_id(eventbrite_id)
-    database.add_jam(eventbrite_id, eventbrite_jam["name"]["text"], eventbrite_jam["start"]["local"].replace("T", " "))
+    database.add_eventbrite_jam(eventbrite_id, eventbrite_jam["name"]["text"], eventbrite_jam["start"]["local"].replace("T", " "))
     return redirect("/admin/manage_jams", code=302)
 
 
@@ -157,16 +161,21 @@ def volunteer():
 
 
 @admin_routes.route("/admin/volunteer_attendance", methods=['GET', 'POST'])
+@admin_routes.route("/admin/volunteer_attendance/<event_id>", methods=['GET', 'POST'])
 @volunteer_required
 @module_volunteer_signup_required
-def volunteer_attendance():
-    volunteer_attendances = database.get_attending_volunteers(database.get_current_jam_id())
+def volunteer_attendance(event_id=None):
+    if event_id:
+        event_id = database.get_jam_details(event_id).jam_id
+    else:
+        event_id = database.get_current_jam_id()
+    volunteer_attendances = database.get_attending_volunteers(event_id)
     form = forms.VolunteerAttendance(request.form)
     if request.method == 'POST' and form.validate():
-        database.add_volunteer_attendance(database.get_current_jam_id(), request.logged_in_user.user_id, int(literal_eval(form.attending_jam.data)), int(literal_eval(form.attending_setup.data)), int(literal_eval(form.attending_packdown.data)), int(literal_eval(form.attending_food.data)), form.notes.data, form.arrival_time.data)
+        database.add_volunteer_attendance(event_id, request.logged_in_user.user_id, int(literal_eval(form.attending_jam.data)), int(literal_eval(form.attending_setup.data)), int(literal_eval(form.attending_packdown.data)), int(literal_eval(form.attending_food.data)), form.notes.data, form.arrival_time.data)
 
-        return redirect(("/admin/volunteer_attendance"), code=302)
-    return render_template("admin/volunteer_attendance.html", form=form, volunteer_attendances=volunteer_attendances, user_id=request.logged_in_user.user_id, selected_jam = database.get_jam_details(database.get_current_jam_id()))
+        return redirect((f"/admin/volunteer_attendance{ f'/{event_id}' if event_id else ''}"), code=302)
+    return render_template("admin/volunteer_attendance.html", form=form, volunteer_attendances=volunteer_attendances, user_id=request.logged_in_user.user_id, selected_jam = database.get_jam_details(event_id))
 
 
 @admin_routes.route("/admin/manage_attendees")

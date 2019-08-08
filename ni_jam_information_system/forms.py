@@ -196,6 +196,11 @@ class ChangePasswordForm(Form):
     url_key = HiddenField()
 
 
+class NewEventForm(Form):
+    event_name = StringField("Event Name", [validators.DataRequired()])
+    event_date = DateField("Event Date", [validators.DataRequired()])
+
+
 class PoliceCheckForm(Form):
     certificate_type = SelectField("Select certificate type, default is DBS Update Service *", validators=[validators.DataRequired()], coerce=int)
     certificate_application_date = DateField("Application submitted date *", [validators.DataRequired()])
@@ -207,4 +212,3 @@ class PoliceCheckForm(Form):
     def __init__(self, *args, **kwargs):
         super(PoliceCheckForm, self).__init__(*args, **kwargs)
         self.certificate_type.choices = CertificateTypeEnum.dropdown_view()
-
