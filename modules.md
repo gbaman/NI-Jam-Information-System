@@ -9,7 +9,7 @@ NIJIS is split into a set of modules that can be enabled/disabled via the config
  - Home page
  - Admin home page
  - Login/register/forgot password
- - Add Jam
+ - Add Jam/event
  - User management
 
 ## Attendee management
@@ -62,9 +62,28 @@ Depends on Core and Workshops being enabled.
  - Inventories
  
  
+## Badges
+#### module_badge   
+Depends on Core and Workshops being enabled.
+- Digital badges
+ 
  ## Finance
  #### module_finance   
  Depends on Core being enabled.  
  Note this module is not recommended for use outside of the NI Raspberry Jam, as it is heavily customised to the working processes we use.   
  - Volunteer expenses
  - Organisation ledger
+
+
+## Email
+#### module_email  
+Depends on Core only. Optional module_finance.
+- Forgot my password (reset via email)
+- Expense paid out / rejected notifications (if module_finance enabled)
+
+
+## Police/Background checks
+#### module_police_checks   
+Depends on Core only.
+- Volunteer police check submissions
+- Trustee police check review
