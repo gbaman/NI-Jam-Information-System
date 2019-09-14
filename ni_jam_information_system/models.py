@@ -48,6 +48,7 @@ class FileTypeEnum(enum.Enum):
     Teacher_Guide = 1
     Worksheet = 2
     Code = 3
+    Other = 4
 
     @classmethod
     def dropdown_view(cls):
