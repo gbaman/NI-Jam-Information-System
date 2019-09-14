@@ -70,9 +70,13 @@ function addInventoryEquipmentEntry(inventory_id, equipment_entry_id, entry_quan
             getInventoryEquipment(inventory_id);
             document.getElementById('barcodeEntry').value='';
             alertify.success('Item with ID {0} added (or quantity updated)'.format(equipment_entry_id));
+            var audio = new Audio('/static/audio/scan_success.mp3');
+            audio.play()
         },
         error: function (result) {
             alertify.error('Failed to add item. May not exist or already been added');
+            var audio = new Audio('/static/audio/scan_failed.mp3');
+            audio.play()
 
         }
     });

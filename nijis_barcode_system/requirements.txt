@@ -1,2 +1,6 @@
 requests
 flask
+brother_ql
+pillow
+qrcode
+python-barcode
