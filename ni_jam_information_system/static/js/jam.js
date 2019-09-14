@@ -265,7 +265,11 @@ function updateAttendeeInfo() {
         type: "POST",
         url: "/admin/update_attendee_info_ajax",
         success: function (result) {
-            alert("Attendee info updated");
+            if (result === " ") {
+                alert("Attendee info updated");
+            } else{
+                alert(result)
+            }
             window.location.reload();
         },
         error: function (result) {

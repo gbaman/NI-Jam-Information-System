@@ -150,8 +150,9 @@ def get_workshops_for_jam_old(jam_id):
 
 def update_attendees_from_eventbrite(event_id):
     event = get_jam_details(event_id)
+    print(event.jam_id)
     if event.event_source != EventSourceEnum.eventbrite:  # Only import users if it is an Eventbrite event
-        return
+        return False
     attendees = get_eventbrite_attendees_for_event(event_id)
     for attendee in attendees["attendees"]:
 
@@ -164,7 +165,7 @@ def update_attendees_from_eventbrite(event_id):
 
         try:
             school = attendee["answers"][2]["answer"]
-        except KeyError:
+        except:
             school = None
         if found_attendee:
             new_attendee = found_attendee
@@ -221,6 +222,7 @@ def update_attendees_from_eventbrite(event_id):
             db_session.add(new_attendee)
 
     db_session.commit()
+    return True
 
 
 def get_attendee_login(pinet_username):

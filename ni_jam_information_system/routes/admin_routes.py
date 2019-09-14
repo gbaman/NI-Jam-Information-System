@@ -649,8 +649,10 @@ def update_volunteer():
 @module_core_required
 def update_attendee_info():
     current_jam = database.get_current_jam_id()
-    database.update_attendees_from_eventbrite(current_jam)
-    return " "
+    if database.update_attendees_from_eventbrite(current_jam):
+        return " "
+    else:
+        return "Jam not enabled for Eventbrite, so no attendees to import."
 
 
 @admin_routes.route("/admin/select_inventory_ajax", methods=['GET', 'POST'])
