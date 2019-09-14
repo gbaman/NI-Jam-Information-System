@@ -250,7 +250,7 @@ def workshop_details(workshop_id):
                 file_title = request.form['file_title']
             else:
                 file_title = secure_filename(f.filename)
-            database.add_workshop_file(file_title, file_path, request.form['file_permission'], workshop_id)
+            database.add_workshop_file(file_title, file_path, request.form['file_permission'], request.form['file_type'], workshop_id)
             flash("File upload successful.", "success")
         else:
             flash("Failed to upload - File of same name already exists.", "danger")

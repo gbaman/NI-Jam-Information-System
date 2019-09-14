@@ -69,6 +69,7 @@
 <table>
     <tr>
         <th>File title</th>
+        <th>File type</th>
         <th>Upload date</th>
         <th>Visibility</th>
         <th>Path</th>
@@ -79,11 +80,12 @@
     {% for workshop_file in workshop.workshop_files %}
         <tr>
         <td>{{workshop_file.file_title}}</td>
+        <td>{{workshop_file.file_type.name}}</td>
         <td>{{workshop_file.file_edit_date}}</td>
         <td>{{workshop_file.file_permission}}</td>
         <td>{{workshop_file.file_path}}</td>
         <td><a href="/{{workshop_file.file_path}}" class="btn btn-primary" role="button">Download</a><br></td>
-        <td><a href="/admin/delete_workshop_files/{{workshop_file.file_id}}" class="btn btn-danger" role="button">Delete</a><br></td>
+        <td><a href="/admin/delete_workshop_file/{{workshop_file.file_id}}" class="btn btn-danger" role="button">Delete</a><br></td>
         </tr>
     {% endfor %}
 
@@ -95,6 +97,7 @@
 <form method="POST" enctype="multipart/form-data" style="max-width: 220px">
   <dl>
     {{ render_field(file_form.file_title, class = "form-control") }}
+    {{ render_field(file_form.file_type, class = "form-control") }}
     {{ render_field(file_form.file_permission, class = "form-control") }}
     {{ render_field(file_form.upload) }}
   </dl>

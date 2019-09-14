@@ -8,7 +8,7 @@ from flask import g, Flask, current_app
 import datetime
 
 from database import get_volunteers_to_select, get_workshops_to_select, get_individual_time_slots_to_select, get_workshop_rooms, get_equipment_groups, get_all_equipment, get_all_badges, get_badge, get_workshop_from_workshop_id, CertificateTypeEnum
-
+from models import FileTypeEnum
 
 
 class CreateWorkshopForm(Form):
@@ -31,7 +31,7 @@ class AddWorkshopToJam(Form):
 
     def __init__(self, *args, **kwargs):
         super(AddWorkshopToJam, self).__init__(*args, **kwargs)
-        self.workshop.choices = [(workshop.workshop_id, workshop.workshop_title) for workshop in get_workshops_to_select()]
+        self.workshop.choices = [(workshop.workshop_id, workshop.workshop_name_file_status) for workshop in get_workshops_to_select()]
         self.volunteer.choices = [(-1, "None")] + get_volunteers_to_select()
         self.room.choices = get_workshop_rooms()
 
@@ -77,11 +77,16 @@ class UploadFileForm(FlaskForm):
     class Meta:
         csrf = False
     file_title = StringField("File title (optional)",)
+    file_type = SelectField("Type of file being uploaded", validators=[validators.DataRequired()], coerce=int)
     file_permission = SelectField("Visibility level", choices=[("Public", "Public"), ("Jam team only", "Jam team only")])
     upload = FileField('File', validators=[
         FileRequired(),
         FileAllowed(("pdf", "ppt", "pptx", "py"), 'Should be a PDF or Powerpoint file!')
     ])
+    
+    def __init__(self, *args, **kwargs):
+        super(UploadFileForm, self).__init__(*args, **kwargs)
+        self.file_type.choices = FileTypeEnum.dropdown_view()
 
 
 class InventoryForm(Form):
