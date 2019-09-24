@@ -672,3 +672,64 @@ function checkDobInSystem(){
     });
     
 }
+
+
+function updateLedgerButton(clicked_button, transaction_id){
+    var url;
+    if (clicked_button.dataset.buttontype === "claim_payment"){
+        url = "ledger/payment_by_ajax";
+    } else if (clicked_button.dataset.buttontype === "secondary_approval"){
+        url = "ledger/secondary_approved_by_ajax";
+    } else if (clicked_button.dataset.buttontype === "verified_by"){
+        url = "ledger/verified_by_ajax";
+    }
+    
+    
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: {
+            transaction_id: transaction_id
+        },
+        success: function (result) {
+            
+            var claim_payment_td = $("#td-claim_payment-" + transaction_id);
+            var secondary_approval_td = $("#td-secondary_approval-" + transaction_id);
+            var verified_by_td = $("#td-verified_by-" + transaction_id);
+            if (clicked_button.dataset.buttontype === "claim_payment"){
+                secondary_approval_button_found = $(secondary_approval_td).closest("td").find('#td-secondary_approval-btn-' + transaction_id);
+                if (secondary_approval_button_found.length > 0){ secondary_approval_button_found[0].disabled = true; }
+
+                verified_approval_button_found = $(verified_by_td).closest("td").find('#td-verified_by-btn-' + transaction_id);
+                if (verified_approval_button_found.length > 0){ verified_approval_button_found[0].disabled = true; }
+                
+            } else if (clicked_button.dataset.buttontype === "secondary_approval"){
+                
+                claim_payment_button_found = $(claim_payment_td).closest("td").find('#td-claim_payment-btn-' + transaction_id);
+                if (claim_payment_button_found.length > 0){ claim_payment_button_found[0].disabled = true; }
+                
+                verified_approval_button_found = $(verified_by_td).closest("td").find('#td-verified_by-btn-' + transaction_id);
+                if (verified_approval_button_found.length > 0){ verified_approval_button_found[0].disabled = true; }
+                
+            } else if (clicked_button.dataset.buttontype === "verified_by"){
+                claim_payment_button_found = $(claim_payment_td).closest("td").find('#td-claim_payment-btn-' + transaction_id);
+                if (claim_payment_button_found.length > 0){ claim_payment_button_found[0].disabled = true; }
+                
+                secondary_approval_button_found = $(secondary_approval_td).closest("td").find('#td-secondary_approval-btn-' + transaction_id);
+                if (secondary_approval_button_found.length > 0){ secondary_approval_button_found[0].disabled = true; }
+            }
+            alertify.success('Updated ledger');
+            
+            var td_object = $("#td-" + clicked_button.dataset.buttontype + "-" + transaction_id);
+            td_object.text(result);
+            td_object.attr("bgcolor","#e0e0e0");
+        },
+        error: function (result) {
+            alertify.alert("Unable to update ledger, refreshing",
+                function(){
+                    window.location.reload();
+                });
+        }
+    });
+    
+}
