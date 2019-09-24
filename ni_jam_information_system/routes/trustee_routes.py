@@ -153,8 +153,7 @@ def ledger_upload_link(transaction_id):
             t = transaction
             break
     else:
-        return "Transaction not found..."   
-
+        return "Transaction not found..."
 
     if request.method == 'POST' and form.validate():
         f = form.receipt.data
@@ -220,6 +219,21 @@ def ledger_upload_link_expense(transaction_id, expense_id):
     flash("Transactions successfully linked", "success")
     return redirect(url_for("trustee_routes.ledger"))
 
+
+@trustee_routes.route("/finance/ledger_upload_link_next/<transaction_id>")
+@trustee_required
+@module_finance_required
+def ledger_upload_link_expense_next(transaction_id):
+    volunteers = database.get_users(include_inactive=True)
+    trasactions = google_sheets.get_transaction_table(logins=volunteers)
+    located_transaction = False
+    for transaction in trasactions:
+        if located_transaction and not transaction.receipt_url:
+            return redirect(f"/trustee/finance/ledger_upload_link/{transaction.transaction_id}")
+        elif transaction.transaction_id == transaction_id:
+            located_transaction = True
+    flash("No more transactions to link", "success")
+    return redirect(url_for("trustee_routes.ledger"))
 
 
 @trustee_routes.route("/static/files/receipts/<folder>/<filename>")

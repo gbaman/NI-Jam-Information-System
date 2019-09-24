@@ -2,6 +2,7 @@
 
 {% block content %}
 <h1>Upload / Link</h1>
+<a href="/trustee/finance/ledger" class="btn btn-info" role="button">Return to ledger</a> <br>
 <h3>Selected transaction</h3>
 <table>
     <tr>
@@ -26,6 +27,7 @@
             <th>Receipt</th>
             <th>Value</th>
             <th>Link</th>
+            <th>Link & next</th>
         </tr>
         {% for expense in expenses %}
             <tr>
@@ -35,6 +37,7 @@
                 <td><a href="{{ expense.receipt_url }}" class="btn btn-info" role="button">Receipt</a></td>
                 <td>{{ expense.value_symbol }}</td>
                 <td><a href="{{ transaction.transaction_id }}/link/{{ expense.expense_id }}" class="btn btn-info" role="button">Link</a></td>
+                <td><a href="/trustee/finance/ledger_upload_link_next/{{ transaction.transaction_id }}" class="btn btn-info" role="button">Link & next</a></td>
             </tr>
         {% endfor %}
     </table>
