@@ -154,6 +154,7 @@ def update_attendees_from_eventbrite(event_id):
     if event.event_source != EventSourceEnum.eventbrite:  # Only import users if it is an Eventbrite event
         return False
     attendees = get_eventbrite_attendees_for_event(event_id)
+    print(f"Number of attendees to import - {len(attendees['attendees'])}")
     for attendee in attendees["attendees"]:
 
         found_attendee = db_session.query(Attendee).filter(Attendee.attendee_id == int(attendee["id"])).first()
@@ -172,12 +173,14 @@ def update_attendees_from_eventbrite(event_id):
         else:
             new_attendee = Attendee()
 
-        new_attendee.attendee_id = attendee["id"],
-        new_attendee.first_name = attendee["profile"]["first_name"],
-        new_attendee.surname = attendee["profile"]["last_name"],
-        new_attendee.email_address = "Unknown",
-        new_attendee.gender = attendee["profile"]["gender"],
-        new_attendee.order_id = attendee["order_id"],
+        new_attendee.attendee_id = int(attendee["id"])
+        new_attendee.first_name = attendee["profile"]["first_name"]
+        new_attendee.surname = attendee["profile"]["last_name"]
+        new_attendee.email_address = "Unknown"
+        #if "gender" not in attendee["profile"]:
+        #    print("")
+        #new_attendee.gender = attendee["profile"]["gender"],
+        new_attendee.order_id = int(attendee["order_id"])
         new_attendee.ticket_type = attendee["ticket_class_name"]
         new_attendee.jam_id = int(event_id)
         new_attendee.checked_in = attendee["checked_in"]
@@ -188,8 +191,12 @@ def update_attendees_from_eventbrite(event_id):
                     if len(pinet_username) >= 3:
                         attendee_login = get_attendee_login(pinet_username)
                         if attendee_login:
-                            new_attendee.attendee_login = attendee_login
-                            db_session.commit()
+                            new_attendee.attendee_login_id = attendee_login.attendee_login_id
+                            try:
+                                db_session.commit()
+                            except:
+                                db_session.rollback()
+                                raise
                 except:
                     traceback.print_exc()
                 
@@ -220,8 +227,12 @@ def update_attendees_from_eventbrite(event_id):
 
         if not found_attendee:
             db_session.add(new_attendee)
-
-    db_session.commit()
+    try:
+        db_session.commit()
+    except:
+        db_session.rollback()
+        print("Had to rollback import of users...")
+        raise
     return True
 
 
