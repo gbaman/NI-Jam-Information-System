@@ -37,7 +37,7 @@
                 <td><a href="{{ expense.receipt_url }}" class="btn btn-info" role="button">Receipt</a></td>
                 <td>{{ expense.value_symbol }}</td>
                 <td><a href="{{ transaction.transaction_id }}/link/{{ expense.expense_id }}" class="btn btn-info" role="button">Link</a></td>
-                <td><a href="/trustee/finance/ledger_upload_link_next/{{ transaction.transaction_id }}" class="btn btn-info" role="button">Link & next</a></td>
+                <td><a href="/trustee/finance/ledger_upload_link_next/{{ transaction.transaction_id }}/{{ expense.expense_id }}" class="btn btn-info" role="button">Link & next</a></td>
             </tr>
         {% endfor %}
     </table>

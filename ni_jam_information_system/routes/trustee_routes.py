@@ -193,15 +193,16 @@ def ledger_upload_link_expense(transaction_id, expense_id):
     return redirect(url_for("trustee_routes.ledger"))
 
 
-@trustee_routes.route("/finance/ledger_upload_link_next/<transaction_id>")
+@trustee_routes.route("/finance/ledger_upload_link_next/<transaction_id>/<expense_id>")
 @trustee_required
 @module_finance_required
-def ledger_upload_link_expense_next(transaction_id):
+def ledger_upload_link_expense_next(transaction_id, expense_id):
     volunteers = database.get_users(include_inactive=True)
     trasactions = google_sheets.get_transaction_table(logins=volunteers)
     located_transaction = False
     for transaction in trasactions:
         if located_transaction and not transaction.receipt_url:
+            ledger_upload_link_expense(transaction_id, expense_id)
             return redirect(f"/trustee/finance/ledger_upload_link/{transaction.transaction_id}")
         elif transaction.transaction_id == transaction_id:
             located_transaction = True
