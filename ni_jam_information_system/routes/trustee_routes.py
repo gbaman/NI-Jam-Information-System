@@ -198,9 +198,9 @@ def ledger_upload_link_expense(transaction_id, expense_id):
 @module_finance_required
 def ledger_upload_link_expense_next(transaction_id, expense_id):
     volunteers = database.get_users(include_inactive=True)
-    trasactions = google_sheets.get_transaction_table(logins=volunteers)
+    transactions = google_sheets.get_transaction_table(logins=volunteers)
     located_transaction = False
-    for transaction in trasactions:
+    for transaction in transactions:
         if located_transaction and not transaction.receipt_url:
             ledger_upload_link_expense(transaction_id, expense_id)
             return redirect(f"/trustee/finance/ledger_upload_link/{transaction.transaction_id}")
