@@ -484,7 +484,7 @@ class AlertConfig(Base):
     jam_id = Column(ForeignKey('raspberry_jam.jam_id'), primary_key=True, nullable=True, index=True)
     workshop_id = Column(ForeignKey('workshop.workshop_id'), primary_key=True, nullable=True, index=True)
     ticket_type = Column(String(45), nullable=True)
-    slot_id = Column(ForeignKey('workshop_slots.workshop_id'), primary_key=True, nullable=True, index=True)
+    slot_id = Column(ForeignKey('workshop_slots.slot_id'), primary_key=True, nullable=True, index=True)
 
 
 class PoliceCheck(Base):
