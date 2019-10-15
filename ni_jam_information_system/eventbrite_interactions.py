@@ -53,6 +53,8 @@ def get_eventbrite_event_by_id(id):
 
 
 def get_eventbrite_events_name_id():
+    if not eventbrite_key:
+        return []
     events = eventbrite.get_user_owned_events(eventbrite.get_user()["id"])
     jam_event_names = []
     for event in events["events"]:
