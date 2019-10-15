@@ -164,7 +164,7 @@ class ExpensesClaimForm(FlaskForm):
     class Meta:
         csrf = False
     paypal_email_address = StringField("PayPal email address", [validators.Email(), validators.DataRequired()])
-    requested_value = FloatField("Total cost being claimed for", [validators.DataRequired(), validators.NumberRange(min=0.01, max=20, message="Expense claims can only be up to £20")])
+    requested_value = FloatField("Total cost being claimed for", [validators.DataRequired(), validators.NumberRange(min=0.01, max=100, message="Expense claims can only be up to £100")])
     receipt_date = DateField("Date on receipt", [validators.DataRequired()])
     receipt = FileField('Receipt', validators=[
         FileRequired(),
