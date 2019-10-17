@@ -250,7 +250,7 @@ def workshop_details(workshop_id):
                 file_title = request.form['file_title']
             else:
                 file_title = secure_filename(f.filename)
-            database.add_workshop_file(file_title, file_path, request.form['file_permission'], workshop_id)
+            database.add_workshop_file(file_title, file_path, request.form['file_permission'], request.form['file_type'], workshop_id)
             flash("File upload successful.", "success")
         else:
             flash("Failed to upload - File of same name already exists.", "danger")
@@ -649,8 +649,10 @@ def update_volunteer():
 @module_core_required
 def update_attendee_info():
     current_jam = database.get_current_jam_id()
-    database.update_attendees_from_eventbrite(current_jam)
-    return " "
+    if database.update_attendees_from_eventbrite(current_jam):
+        return " "
+    else:
+        return "Jam not enabled for Eventbrite, so no attendees to import."
 
 
 @admin_routes.route("/admin/select_inventory_ajax", methods=['GET', 'POST'])

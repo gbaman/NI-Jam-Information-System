@@ -1,6 +1,8 @@
 import database
 import models
-import google_sheets
+import configuration
+if configuration.verify_modules_enabled().module_finance:
+    import google_sheets
 
 import flask_mail
 
@@ -17,7 +19,7 @@ def send_email(login_user: models.LoginUser, subject, body):
         conn.send(m)
 
 
-def send_expenses_rejected_email(login_user: models.LoginUser, expense: google_sheets.Expense):
+def send_expenses_rejected_email(login_user: models.LoginUser, expense):
     email_body = f"""
     Hey {login_user.first_name},
 
@@ -33,7 +35,7 @@ def send_expenses_rejected_email(login_user: models.LoginUser, expense: google_s
     send_email(login_user, "NIJIS expense rejected", email_body)
     
     
-def send_expenses_paid_email(login_user: models.LoginUser, expense: google_sheets.Expense):
+def send_expenses_paid_email(login_user: models.LoginUser, expense):
     email_body = f"""
     Hey {login_user.first_name},
 

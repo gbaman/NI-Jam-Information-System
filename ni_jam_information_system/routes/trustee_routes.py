@@ -61,34 +61,7 @@ def ledger():
     return render_template("trustee/ledger.html", transactions=transactions, trustees=volunteers, container_name="container-wide", form=form)
 
 
-@trustee_routes.route("/finance/ledger/payment_by/<transaction_id>")
-@trustee_required
-@module_finance_required
-def ledger_payment_by_transaction(transaction_id):
-    status, cookie = logins.validate_cookie(request.cookies.get('jam_login'))
-    google_sheets.update_transaction_cell(transaction_id, google_sheets.T.PAYMENT_BY_ID, cookie.user.user_id)
-    google_sheets.update_transaction_cell(transaction_id, google_sheets.T.PAYMENT_BY, f"{cookie.user.first_name} {cookie.user.surname}")
-    return redirect(url_for("trustee_routes.ledger"))
 
-
-@trustee_routes.route("/finance/ledger/secondary_approved_by/<transaction_id>")
-@trustee_required
-@module_finance_required
-def ledger_secondary_approved_by_transaction(transaction_id):
-    status, cookie = logins.validate_cookie(request.cookies.get('jam_login'))
-    google_sheets.update_transaction_cell(transaction_id, google_sheets.T.SECONDARY_APPROVED_ID, cookie.user.user_id)
-    google_sheets.update_transaction_cell(transaction_id, google_sheets.T.SECONDARY_APPROVED, f"{cookie.user.first_name} {cookie.user.surname}")
-    return redirect(url_for("trustee_routes.ledger"))
-
-
-@trustee_routes.route("/finance/ledger/verified_by/<transaction_id>")
-@trustee_required
-@module_finance_required
-def ledger_verified_by_transaction(transaction_id):
-    status, cookie = logins.validate_cookie(request.cookies.get('jam_login'))
-    google_sheets.update_transaction_cell(transaction_id, google_sheets.T.VERIFIED_BY_ID, cookie.user.user_id)
-    google_sheets.update_transaction_cell(transaction_id, google_sheets.T.VERIFIED_BY, f"{cookie.user.first_name} {cookie.user.surname}")
-    return redirect(url_for("trustee_routes.ledger"))
 
 
 @trustee_routes.route("/finance/expenses_list")
@@ -153,8 +126,7 @@ def ledger_upload_link(transaction_id):
             t = transaction
             break
     else:
-        return "Transaction not found..."   
-
+        return "Transaction not found..."
 
     if request.method == 'POST' and form.validate():
         f = form.receipt.data
@@ -202,14 +174,14 @@ def ledger_upload_link(transaction_id):
 @module_finance_required
 def ledger_upload_link_expense(transaction_id, expense_id):
     expenses = google_sheets.get_volunteer_expenses_table()
-    
+
     for expense in expenses:
         if int(expense.expense_id) == int(expense_id):
             expense_object = expense
             break
     else:
         return "Unable to find expense"
-    
+
     id_column_data = google_sheets.update_transaction_cell(transaction_id, google_sheets.T.RECEIPT_DATE, expense.receipt_date.strftime("%d/%m/%Y"))
     google_sheets.update_transaction_cell(transaction_id, google_sheets.T.RECEIPT_URL, expense.receipt_url, id_column_data=id_column_data)
     google_sheets.update_transaction_cell(transaction_id, google_sheets.T.SUPPLIER, "Volunteer Expense", id_column_data=id_column_data)
@@ -220,6 +192,22 @@ def ledger_upload_link_expense(transaction_id, expense_id):
     flash("Transactions successfully linked", "success")
     return redirect(url_for("trustee_routes.ledger"))
 
+
+@trustee_routes.route("/finance/ledger_upload_link_next/<transaction_id>/<expense_id>")
+@trustee_required
+@module_finance_required
+def ledger_upload_link_expense_next(transaction_id, expense_id):
+    volunteers = database.get_users(include_inactive=True)
+    transactions = google_sheets.get_transaction_table(logins=volunteers)
+    located_transaction = False
+    for transaction in transactions:
+        if located_transaction and not transaction.receipt_url:
+            ledger_upload_link_expense(transaction_id, expense_id)
+            return redirect(f"/trustee/finance/ledger_upload_link/{transaction.transaction_id}")
+        elif transaction.transaction_id == transaction_id:
+            located_transaction = True
+    flash("No more transactions to link", "success")
+    return redirect(url_for("trustee_routes.ledger"))
 
 
 @trustee_routes.route("/static/files/receipts/<folder>/<filename>")
@@ -327,3 +315,36 @@ def expenses_list_rejection_reason():
                 emails.send_expenses_rejected_email(expense.volunteer_object, expense)
                 break
     return ""
+
+
+@trustee_routes.route("/finance/ledger/payment_by_ajax", methods=['GET', 'POST'])
+@trustee_required
+@module_finance_required
+def ledger_payment_by_transaction():
+    transaction_id = int(request.form['transaction_id'])
+    status, cookie = logins.validate_cookie(request.cookies.get('jam_login'))
+    google_sheets.update_transaction_cell(transaction_id, google_sheets.T.PAYMENT_BY_ID, cookie.user.user_id)
+    google_sheets.update_transaction_cell(transaction_id, google_sheets.T.PAYMENT_BY, f"{cookie.user.first_name} {cookie.user.surname}")
+    return f"{cookie.user.first_name} {cookie.user.surname}"
+
+
+@trustee_routes.route("/finance/ledger/secondary_approved_by_ajax", methods=['GET', 'POST'])
+@trustee_required
+@module_finance_required
+def ledger_secondary_approved_by_transaction():
+    transaction_id = int(request.form['transaction_id'])
+    status, cookie = logins.validate_cookie(request.cookies.get('jam_login'))
+    google_sheets.update_transaction_cell(transaction_id, google_sheets.T.SECONDARY_APPROVED_ID, cookie.user.user_id)
+    google_sheets.update_transaction_cell(transaction_id, google_sheets.T.SECONDARY_APPROVED, f"{cookie.user.first_name} {cookie.user.surname}")
+    return f"{cookie.user.first_name} {cookie.user.surname}"
+
+
+@trustee_routes.route("/finance/ledger/verified_by_ajax", methods=['GET', 'POST'])
+@trustee_required
+@module_finance_required
+def ledger_verified_by_transaction():
+    transaction_id = int(request.form['transaction_id'])
+    status, cookie = logins.validate_cookie(request.cookies.get('jam_login'))
+    google_sheets.update_transaction_cell(transaction_id, google_sheets.T.VERIFIED_BY_ID, cookie.user.user_id)
+    google_sheets.update_transaction_cell(transaction_id, google_sheets.T.VERIFIED_BY, f"{cookie.user.first_name} {cookie.user.surname}")
+    return f"{cookie.user.first_name} {cookie.user.surname}"

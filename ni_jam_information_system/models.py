@@ -44,6 +44,20 @@ class CertificateTypeEnum(enum.Enum):
         return to_return
 
 
+class FileTypeEnum(enum.Enum):
+    Teacher_Guide = 1
+    Worksheet = 2
+    Code = 3
+    Other = 4
+
+    @classmethod
+    def dropdown_view(cls):
+        to_return = []
+        for item in FileTypeEnum:
+            to_return.append([item.value, item.name])
+        return to_return
+
+
 class Attendee(Base):
     __tablename__ = 'attendees'
 
@@ -298,6 +312,17 @@ class Workshop(Base):
     workshop_equipment = relationship('WorkshopEquipment')
     badges = relationship('BadgeLibrary', secondary='workshop_badge')
     workshop_badge = relationship('BadgeLibrary', uselist=False)
+    
+    @hybrid_property
+    def workshop_name_file_status(self):
+        teacher = ""
+        worksheet = ""
+        for file in self.workshop_files:
+            if file.file_type == FileTypeEnum.Teacher_Guide:
+                teacher = " 🍎"
+            elif file.file_type == FileTypeEnum.Worksheet:
+                worksheet = " 📝️"
+        return f"{self.workshop_title}{worksheet}{teacher}"
 
 
 class WorkshopAttendee(Base):
@@ -341,6 +366,7 @@ class WorkshopFile(Base):
     file_path = Column(String(150), nullable=False)
     file_permission = Column(String(45), nullable=False)
     file_edit_date = Column(DateTime, nullable=False)
+    file_type = Column(Enum(FileTypeEnum), nullable=False)
     workshop_id = Column(ForeignKey('workshop.workshop_id'), primary_key=True, nullable=False, index=True)
 
 
@@ -458,7 +484,7 @@ class AlertConfig(Base):
     jam_id = Column(ForeignKey('raspberry_jam.jam_id'), primary_key=True, nullable=True, index=True)
     workshop_id = Column(ForeignKey('workshop.workshop_id'), primary_key=True, nullable=True, index=True)
     ticket_type = Column(String(45), nullable=True)
-    slot_id = Column(ForeignKey('workshop_slots.workshop_id'), primary_key=True, nullable=True, index=True)
+    slot_id = Column(ForeignKey('workshop_slots.slot_id'), primary_key=True, nullable=True, index=True)
 
 
 class PoliceCheck(Base):
