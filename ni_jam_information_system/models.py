@@ -12,6 +12,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from secrets.config import db_user, db_pass, db_name, db_host
 from sqlalchemy.ext.hybrid import hybrid_property
 
+import zenkit
+
 
 engine = create_engine('mysql+pymysql://{}:{}@{}/{}?charset=utf8'.format(db_user, db_pass, db_host, db_name))
 db_session = scoped_session(sessionmaker(autocommit=False,
@@ -313,13 +315,17 @@ class Workshop(Base):
     workshop_url = Column(String(300))
     workshop_volunteer_requirements = Column(Integer)
     workshop_archived = Column(Integer)
+    workshop_shortid = Column(String(45), nullable=False)
 
     workshop_files = relationship('WorkshopFile')
     #workshop_equipment = relationship("Equipment", secondary="workshop_equipment")
     workshop_equipment = relationship('WorkshopEquipment')
     badges = relationship('BadgeLibrary', secondary='workshop_badge')
     workshop_badge = relationship('BadgeLibrary', uselist=False)
-    
+    workshop_runs = relationship('RaspberryJamWorkshop')
+
+    session: zenkit.CollectionRowYZ = None
+
     @hybrid_property
     def workshop_name_file_status(self):
         teacher = ""
@@ -358,6 +364,8 @@ class WorkshopSlot(Base):
     slot_id = Column(Integer, primary_key=True)
     slot_time_start = Column(Time, nullable=False)
     slot_time_end = Column(Time, nullable=False)
+    slot_day = Column(String(90), nullable=False)
+    slot_str = Column(String(90), nullable=False)
     workshops_in_slot = relationship("RaspberryJamWorkshop")
     
     @property
