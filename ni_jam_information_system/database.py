@@ -274,7 +274,7 @@ def get_volunteers_to_select():
     return to_return
 
 
-def get_workshops_to_select(show_archived=False):
+def get_workshops_to_select(show_archived=False) -> List[Workshop]:
     workshops = db_session.query(Workshop)
     if show_archived:
         return workshops
@@ -1379,3 +1379,26 @@ def remove_police_check(user: LoginUser, certificate_table_id):
         db_session.commit()
         return True
     return False
+
+
+def add_time_slot(start, end, day, slot_str):
+    slot = WorkshopSlot(slot_time_start=start, slot_time_end=end, slot_day=day, slot_str=slot_str)
+    db_session.add(slot)
+    db_session.commit()
+
+
+def add_workshop_run(workshop_id, slot_str, room_str):
+    slot = db_session.query(WorkshopSlot).filter(WorkshopSlot.slot_str == slot_str).first()
+    room = db_session.query(WorkshopRoom).filter(WorkshopRoom.room_name == room_str).first()
+    if slot and room:
+        workshop_run: RaspberryJamWorkshop = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.workshop_id == workshop_id).first()
+        if not workshop_run:
+            workshop_run = RaspberryJamWorkshop(jam_id=database.get_current_jam_id(), workshop_id=workshop_id)
+        else:
+            for user in workshop_run.users:
+                print(f"User {user.first_name} {user.surname} is being removed from {workshop_run.workshop.workshop_title}")
+            workshop_run.users = []
+        workshop_run.slot_id = slot.slot_id
+        workshop_run.workshop_room_id=room.room_id
+        db_session.add(workshop_run)
+        db_session.commit()

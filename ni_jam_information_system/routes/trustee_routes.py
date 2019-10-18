@@ -258,6 +258,43 @@ def police_checks_admin_verify_all():
             database.verify_dbs_update_service_certificate(request.logged_in_user, cert.certificate_table_id)
     return redirect(misc.redirect_url())
 
+
+@trustee_routes.route("/sync_zenkit")
+@trustee_required
+@module_core_required
+def sync_zenkit_data():
+    from datetime import datetime
+    import zenkit
+    collection = zenkit.build_yz_table(collection_yz=[], collection_shortid=zenkit.PUBLIC_SCHEDULE_TABLE_SHORT_ID)
+    """
+    time_slots = set()
+    for session in collection.entities:
+        if session.time_slot_str:
+            time_slots.add(session.time_slot_str)
+    for slot in sorted(time_slots):
+        if "Sat" in slot:
+            day = "Saturday"
+        elif "Sun" in slot:
+            day = "Sunday"
+        else:
+            continue
+        if ":" in slot:
+            start = slot.split(" - ")[1].split("-")[0]
+            end = slot.split(" - ")[1].split("-")[1].split(" (")[0]
+            
+            database.add_time_slot(datetime.strptime(start, "%H:%M"), datetime.strptime(end, "%H:%M"), day, slot)"""
+            
+    workshops = zenkit.link_workshops_to_yz_sessions(collection)
+    for workshop in workshops:
+        if not workshop.workshop_runs or True:
+            if not workshop.session:
+                pass
+                print(workshop.workshop_title)
+            if workshop.session and workshop.session.time_slot_str and workshop.session.room_str:
+                database.add_workshop_run(workshop_id=workshop.workshop_id, slot_str=workshop.session.time_slot_str, room_str=workshop.session.room_str)
+                #workshop.workshop_runs.workshop_time_slot.slot_str
+    return "Import done!"
+
 # -------------- AJAX routes -------------
 
 
