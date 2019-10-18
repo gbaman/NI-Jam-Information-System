@@ -196,6 +196,13 @@ class LoginUser(Base):
         else:
             return "<b>Unknown</b> - No DoB in the system..."
 
+    @hybrid_property
+    def surname_dbs(self):
+        for cert in self.police_checks:
+            if cert.is_valid:
+                return f"{self.surname} ✅"
+        return f"{self.surname}"
+
 
 class PagePermission(Base):
     __tablename__ = 'page_permissions'
