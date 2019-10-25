@@ -21,8 +21,9 @@ BASE_DIR = "~/Documents/jam_labels"
 
 app = Flask(__name__)
 
-#dev_url_prefix = "http://127.0.0.1:5000"
-url_prefix = "https://workshops.niraspberryjam.com"
+#url_prefix = "http://127.0.0.1:5000"
+#url_prefix = "https://workshops.niraspberryjam.com"
+url_prefix = "https://s.youthzone.xyz"
 
 equipment_url = url_prefix + "/api/equipment/" + str(config.nijis_api_key)
 equipment_groups_url = url_prefix + "/api/equipment_groups/" + str(config.nijis_api_key)
@@ -32,6 +33,7 @@ add_equipment_url =url_prefix + "/api/add_equipment/"
 
 @app.route("/")
 def home():
+    print(equipment_url)
     equipment = requests.get(equipment_url).json()
     equipment_groups = requests.get(equipment_groups_url).json()
     return render_template("index.html", equipment=equipment, equipment_groups=equipment_groups, equipment_json=json.dumps(equipment))
