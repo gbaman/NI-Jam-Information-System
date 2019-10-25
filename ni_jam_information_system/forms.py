@@ -217,3 +217,8 @@ class PoliceCheckForm(Form):
     def __init__(self, *args, **kwargs):
         super(PoliceCheckForm, self).__init__(*args, **kwargs)
         self.certificate_type.choices = CertificateTypeEnum.dropdown_view()
+
+
+class MagicLoginForm(Form):
+    email = StringField("Email address", [validators.DataRequired()])
+    maths = StringField("What is 5+13?", [validators.DataRequired()])

@@ -81,3 +81,17 @@ def send_password_reset_complete_email(login_user: models.LoginUser):
     """
 
     send_email(login_user, "NIJIS password reset complete", email_body)
+
+
+def send_cookie_login_email(login_user: models.LoginUser, cookie):
+    email_body = f"""
+    Hey,
+
+    A login link for your email address has been requested for the {configuration.verify_config_item("general", "short_jam_organisation_name")} volunteer system.
+    If you requested this login link, click the link below. If you didn't request this login, please ignore this messsage.
+
+    {configuration.verify_config_item("general", "base_url")}/magic/{cookie}
+
+    -- {configuration.verify_config_item("general", "short_jam_organisation_name")} team
+    """
+    send_email(login_user, "NIJIS login link", email_body)

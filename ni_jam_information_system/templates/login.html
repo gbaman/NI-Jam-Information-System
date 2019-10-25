@@ -11,6 +11,8 @@
                 </dl>
                 <p><input class="btn btn-primary" type=submit value="Login">  {% if modules_enabled.module_email %}<a href="/forgotten_password" class="btn btn-warning" role="button">Forgotten password</a>{% endif %}</p>
                 <p><a href="/reset_password_with_reset_code" class="btn btn-danger" role="button">Reset password with reset code</a></p>
+                <br>    
+                <p><a href="/magic_login" class="btn btn-info" role="button">Magic Login (no password login)</a></p>
                 <input type=hidden value="{{ next or '' }}" name=next>
             </form>
             {%include '_message_flash_helper.html'%}

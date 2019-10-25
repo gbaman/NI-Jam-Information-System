@@ -75,6 +75,36 @@ def login():
     return render_template("login.html", next=next, form=form)
 
 
+@public_routes.route("/magic_login", methods=['GET', 'POST'])
+def magic_login():
+    form = forms.MagicLoginForm(request.form)
+    if request.method == 'POST' and form.validate():
+        email_address = form.email.data
+        maths = form.maths.data
+        if maths.lower() == "18" or maths.lower == "eighteen":
+            user = database.get_login_user_from_email(email_address)
+            time.sleep(random.uniform(0, 3))
+            if user and user.active and (user.group_id == 3 or user.group_id == 4):
+                cookie = database.new_cookie_for_user(user.user_id)
+                emails.send_cookie_login_email(user, cookie)
+            flash("If this email address exists, a login link has been sent to it.", "success")
+
+        return render_template("magic_login.html", form=form)
+    return render_template("magic_login.html", next=next, form=form)
+
+
+@public_routes.route("/magic/<cookie>")
+def magic_link(cookie):
+    if logins.validate_cookie(cookie):
+        resp = make_response(redirect('/admin/admin_home'))
+        resp.set_cookie("jam_login", cookie)
+        return resp
+
+        #return redirect('admin/admin_home')
+    else:
+        flash("Error, login token invalid. It may have expired or timed out, please request another link", "danger")
+
+
 @public_routes.route("/register", methods=['POST', 'GET'])
 @module_core_required
 def register():
