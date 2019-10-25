@@ -520,10 +520,13 @@ def link_workshops_to_yz_sessions(collection_yz: CollectionYZ):
         if session.schedule_type == "Youth Zone":
             sessions_dict[session.old_shortid] = session
     print(f"Length is {len(sessions_dict)}")
-    for session in sessions_dict.keys():
-        print(session)
+    #for session in sessions_dict.keys():
+        #print(session)
     for workshop in workshops:
-        workshop.session = sessions_dict[workshop.workshop_shortid]
+        if workshop.workshop_shortid in sessions_dict:
+            workshop.session = sessions_dict[workshop.workshop_shortid]
+        else:
+            print(f"Unable to find {workshop.workshop_title} in Zenkit import!")
     return workshops
 
 

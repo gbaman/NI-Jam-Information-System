@@ -670,6 +670,7 @@ def select_inventory():
 def get_inventory_equipment():
     inventory_id = int(request.form['inventory_id'])
     equipment = database.get_equipment_in_inventory(inventory_id)
+    equipment = sorted(equipment, key=lambda x: x.equipment_name.lower(), reverse=False)
     to_send = ([dict(equipment_id=e.equipment_id, equipment_name=e.equipment_name, equipment_code=e.equipment_code, total_quantity=e.total_quantity, equipment_entries=[dict(equipment_entry_id=ee.equipment_entry_id, equipment_entry_number=str(ee.equipment_entry_number).zfill(3), equipment_quantity=ee.equipment_quantity) for ee in e.equipment_entries]) for e in equipment])
     return json.dumps(to_send)
 

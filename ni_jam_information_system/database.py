@@ -840,7 +840,7 @@ def get_configuration_item(configuration_key):
     return None
 
 
-def get_equipment_in_inventory(inventory_id):
+def get_equipment_in_inventory(inventory_id) -> List[Equipment]:
     equipment_entries = db_session.query(EquipmentEntry).filter(InventoryEquipmentEntry.inventory_id == inventory_id,
                                                    Equipment.equipment_id == EquipmentEntry.equipment_id,  # Link the tables up
                                                    EquipmentEntry.equipment_entry_id == InventoryEquipmentEntry.equipment_entry_id).all()  # Link the tables up
@@ -862,7 +862,7 @@ def get_equipment_in_inventory(inventory_id):
     return equipment
 
 
-def get_all_equipment(manual_add_only=False):
+def get_all_equipment(manual_add_only=False) -> List[Equipment]:
     """
     :param manual_add_only: If is set for manual adding, don't return any equipment that has multiple entries in the system
     """
@@ -1395,8 +1395,12 @@ def add_workshop_run(workshop_id, slot_str, room_str):
         if not workshop_run:
             workshop_run = RaspberryJamWorkshop(jam_id=database.get_current_jam_id(), workshop_id=workshop_id)
         else:
+            if workshop_run.slot_id == slot.slot_id and workshop_run.workshop_room_id == room.room_id:
+                # If the workshop doesn't need changed
+                return
             for user in workshop_run.users:
                 print(f"User {user.first_name} {user.surname} is being removed from {workshop_run.workshop.workshop_title}")
+                #print(f"This is because (workshop_slot) {workshop_run.slot_id} - {slot.slot_id} ---- (workshop_room) - {workshop_run.workshop_room_id} - {room.room_id}")
             workshop_run.users = []
         workshop_run.slot_id = slot.slot_id
         workshop_run.workshop_room_id=room.room_id
