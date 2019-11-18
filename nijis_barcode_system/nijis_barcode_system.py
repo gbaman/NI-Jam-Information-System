@@ -96,7 +96,8 @@ def create_label_image(equipment_entry_id, equipment_entry_number):
     name_font = ImageFont.truetype("arial.ttf", 30)
     jam_font = ImageFont.truetype("arial.ttf", 27)
     qr_font = ImageFont.truetype("arial.ttf", 22)
-    img = Image.new('L', (500, 306), color='white')
+    #img = Image.new('L', (500, 306), color='white') # Continuous labels
+    img = Image.new('L', (991, 306), color='white') # 29x90 labels
 
     d = ImageDraw.Draw(img)
     d.text((190, 215), equipment_entry_number, fill="black", font=name_font)
@@ -118,7 +119,8 @@ def print_label_2(equipment_entry_id, equipment_entry_number):
 
 def send_to_printer(path):
     printer = BrotherQLRaster('QL-570')
-    print_data = brother_ql.brother_ql_create.convert(printer, [path], '29', dither=True, rotate="90", hq=True)
+    #print_data = brother_ql.brother_ql_create.convert(printer, [path], '29', dither=True, rotate="90", hq=True)   # Continuous labels
+    print_data = brother_ql.brother_ql_create.convert(printer, [path], '29x90', dither=True, rotate="90", hq=True) # 29x90 labels
     send(print_data, PRINTER_IDENTIFIER)
     
 
