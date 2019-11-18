@@ -169,13 +169,13 @@ def volunteer_attendance(event_id=None):
         event_id = database.get_jam_details(event_id).jam_id
     else:
         event_id = database.get_current_jam_id()
-    volunteer_attendances = database.get_attending_volunteers(event_id)
+    volunteer_attendances, stats = database.get_attending_volunteers(event_id)
     form = forms.VolunteerAttendance(request.form)
     if request.method == 'POST' and form.validate():
         database.add_volunteer_attendance(event_id, request.logged_in_user.user_id, int(literal_eval(form.attending_jam.data)), int(literal_eval(form.attending_setup.data)), int(literal_eval(form.attending_packdown.data)), int(literal_eval(form.attending_food.data)), form.notes.data, form.arrival_time.data)
 
         return redirect((f"/admin/volunteer_attendance{ f'/{event_id}' if event_id else ''}"), code=302)
-    return render_template("admin/volunteer_attendance.html", form=form, volunteer_attendances=volunteer_attendances, user_id=request.logged_in_user.user_id, selected_jam = database.get_jam_details(event_id))
+    return render_template("admin/volunteer_attendance.html", form=form, volunteer_attendances=volunteer_attendances, user_id=request.logged_in_user.user_id, selected_jam=database.get_jam_details(event_id), stats=stats)
 
 
 @admin_routes.route("/admin/manage_attendees")
@@ -184,7 +184,7 @@ def volunteer_attendance(event_id=None):
 def manage_attendees():
     # Getting names of users and also volunteers that are down as attending this Jam
     jam_attendees = database.get_all_attendees_for_jam(database.get_current_jam_id())
-    volunteer_attendances = database.get_attending_volunteers(database.get_current_jam_id(), only_attending_volunteers=True)
+    volunteer_attendances, stats = database.get_attending_volunteers(database.get_current_jam_id(), only_attending_volunteers=True)
     for volunteer_attendee in volunteer_attendances:
 
         for volunteer_attendee_record in volunteer_attendee.attending:
@@ -214,7 +214,7 @@ def manage_attendees():
 @module_attendees_required
 def fire_list():
     jam_attendees = database.get_all_attendees_for_jam(database.get_current_jam_id())
-    volunteer_attendances = database.get_attending_volunteers(database.get_current_jam_id(),
+    volunteer_attendances, stats = database.get_attending_volunteers(database.get_current_jam_id(),
                                                               only_attending_volunteers=True)
     for volunteer_attendee in volunteer_attendances:
 

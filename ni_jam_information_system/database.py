@@ -425,7 +425,7 @@ def remove_attendee_to_workshop(jam_id, attendee_id, workshop_run_id):
     return False
 
 
-def get_users(include_inactive=False):
+def get_users(include_inactive=False) -> List[LoginUser]:
     users = db_session.query(LoginUser)
     if include_inactive:
         return users.all()
@@ -669,14 +669,24 @@ def get_attending_volunteers(jam_id, only_attending_volunteers=False):  # Get al
         volunteer.current_jam_workshops_involved_in = sorted(volunteer.current_jam_workshops_involved_in)
 
     all_volunteers = all_volunteers
-
-    attending = db_session.query(VolunteerAttendance).filter(VolunteerAttendance.jam_id == jam_id).all()
+    Stats = collections.namedtuple("Stats", "attending_main_jam attending_setup attending_packdown attending_food")
+    stats = Stats([], [], [], [])
+    attending : List[VolunteerAttendance] = db_session.query(VolunteerAttendance).filter(VolunteerAttendance.jam_id == jam_id).all()
     for attend in attending:  # Matches volunteer attendance to users
         for volunteer in all_volunteers:
             if volunteer.user_id == attend.user.user_id:
                 volunteer.attend = attend
+                if volunteer.attend.volunteer_attending:
+                    stats.attending_main_jam.append(volunteer)
+                if volunteer.attend.setup_attending:
+                    stats.attending_setup.append(volunteer)
+                if volunteer.attend.packdown_attending:
+                    stats.attending_packdown.append(volunteer)
+                if volunteer.attend.food_attending:
+                    stats.attending_food.append(volunteer)
+                
     sorted_volunteers = sorted(sorted(all_volunteers, key=lambda x: x.surname, reverse=False), key=lambda x: hasattr(x, "attend"), reverse=True)
-    return sorted_volunteers
+    return sorted_volunteers, stats
 
 
 def add_volunteer_attendance(jam_id, user_id, attending_jam, attending_setup, attending_packdown, attending_food, notes, arrival_time):

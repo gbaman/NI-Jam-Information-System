@@ -12,10 +12,10 @@
         <tr bgcolor="#d3d3d3">
             <th>First name</th>
             <th>Surname</th>
-            <th>Attending Main Jam</th>
-            <th>Attending Setup</th>
-            <th>Attending Packdown</th>
-            <th>Attending Food After</th>
+            <th>Attending Main Jam <br> ({{ stats.attending_main_jam | length }} / {{ volunteer_attendances | length }})</th>
+            <th>Attending Setup <br> ({{ stats.attending_setup | length }} / {{ volunteer_attendances | length }})</th>
+            <th>Attending Packdown <br> ({{ stats.attending_packdown | length }} / {{ volunteer_attendances | length }})</th>
+            <th>Attending Food After <br> ({{ stats.attending_food | length }} / {{ volunteer_attendances | length }})</th>
             <th>Arrival time</th>
             <th style="width: 30%">Notes</th>
             <th>Last edited</th>
