@@ -686,7 +686,7 @@ def get_attending_volunteers(jam_id, only_attending_volunteers=False) -> Tuple[L
                 if volunteer.attend.food_attending:
                     stats.attending_food.append(volunteer)
                 
-    sorted_volunteers = sorted(sorted(all_volunteers, key=lambda x: x.surname, reverse=False), key=lambda x: hasattr(x, "attend"), reverse=True)
+    sorted_volunteers = sorted(sorted(all_volunteers, key=lambda x: x.surname, reverse=False), key=lambda x: bool(x.attend), reverse=True)
     return sorted_volunteers, stats
 
 
