@@ -189,6 +189,14 @@ def module_police_check_required(f):
 
     return decorated_function
 
+
+def module_slack_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        return _module_required(f, configuration.Modules.module_slack, *args, **kwargs)
+
+    return decorated_function
+
 # --------------------------------------------- APIs --------------------------------------------- #
 
 

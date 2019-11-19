@@ -16,6 +16,8 @@ import configuration
 if configuration.verify_modules_enabled().module_finance:
     import google_sheets
 
+import slack_messages
+
 
 trustee_routes = Blueprint('trustee_routes', __name__,
                            template_folder='templates')
@@ -257,6 +259,20 @@ def police_checks_admin_verify_all():
         if cert.update_service:
             database.verify_dbs_update_service_certificate(request.logged_in_user, cert.certificate_table_id)
     return redirect(misc.redirect_url())
+
+
+@trustee_routes.route("/volunteer_attendance_remind_slack")
+@trustee_required
+@module_slack_required
+@module_volunteer_attendance_required
+def volunteer_attendance_remind_slack():
+    user_triggered_by = database.get_user_from_cookie(request.cookies.get('jam_login'))
+    users = database.get_users_not_responded_to_attendance(database.get_current_jam_id())
+    jam_info = database.get_jam_details(database.get_current_jam_id())
+    slack_messages.send_slack_direct_message(users, f"Please update your Jam attendance for the next Raspberry Jam in {(jam_info.date - datetime.now()).days} days! Click the following link to bring you to the Volunteer attendance screen. {configuration.verify_config_item('general', 'base_url')}/admin/volunteer_attendance -  (Sent by {user_triggered_by.first_name.capitalize()})")
+    database.set_configuration_item("slack_reminder_sent", database.convert_to_mysql_datetime(datetime.now()))
+    flash("Notification sent out to all users who have not responded, with a linked Slack account", "success")
+    return redirect("/admin/volunteer_attendance")
 
 # -------------- AJAX routes -------------
 
