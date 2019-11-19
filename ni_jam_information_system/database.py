@@ -7,6 +7,7 @@ import uuid
 import os
 
 import math
+from typing import Tuple, Any
 
 import misc
 from models import *
@@ -652,7 +653,7 @@ def select_jam(jam_id):
     db_session.commit()
 
 
-def get_attending_volunteers(jam_id, only_attending_volunteers=False):  # Get all the volunteers
+def get_attending_volunteers(jam_id, only_attending_volunteers=False) -> Tuple[List[LoginUser], Any]:  # Get all the volunteers
     if only_attending_volunteers:
         attending_volunteers = db_session.query(VolunteerAttendance).filter(VolunteerAttendance.jam_id == jam_id,
                                                                             VolunteerAttendance.volunteer_attending).all()

@@ -1,6 +1,11 @@
 {% extends "layout.html" %}
 
 {% block content %}
+    {% if not user_filled_in %}
+        <script>
+        alertify.alert("No entry found!", "No volunteer attendance entry has been found for this Jam, please add one ASAP below.");
+        </script>
+    {% endif %}
 
 <h1>Volunteer Attendance</h1>
 

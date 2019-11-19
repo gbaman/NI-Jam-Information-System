@@ -170,12 +170,18 @@ def volunteer_attendance(event_id=None):
     else:
         event_id = database.get_current_jam_id()
     volunteer_attendances, stats = database.get_attending_volunteers(event_id)
+    user = database.get_user_from_cookie(request.cookies.get('jam_login'))
+    user_filled_in = True
+    for checking_user in volunteer_attendances:
+        if checking_user.user_id == user.user_id and not checking_user.attend:
+            user_filled_in = False
+            break
     form = forms.VolunteerAttendance(request.form)
     if request.method == 'POST' and form.validate():
         database.add_volunteer_attendance(event_id, request.logged_in_user.user_id, int(literal_eval(form.attending_jam.data)), int(literal_eval(form.attending_setup.data)), int(literal_eval(form.attending_packdown.data)), int(literal_eval(form.attending_food.data)), form.notes.data, form.arrival_time.data)
 
         return redirect((f"/admin/volunteer_attendance{ f'/{event_id}' if event_id else ''}"), code=302)
-    return render_template("admin/volunteer_attendance.html", form=form, volunteer_attendances=volunteer_attendances, user_id=request.logged_in_user.user_id, selected_jam=database.get_jam_details(event_id), stats=stats, last_slack_reminder=database.get_configuration_item("slack_reminder_sent"))
+    return render_template("admin/volunteer_attendance.html", form=form, volunteer_attendances=volunteer_attendances, user_id=request.logged_in_user.user_id, selected_jam=database.get_jam_details(event_id), stats=stats, last_slack_reminder=database.get_configuration_item("slack_reminder_sent"), user_filled_in=user_filled_in)
 
 
 @admin_routes.route("/admin/manage_attendees")

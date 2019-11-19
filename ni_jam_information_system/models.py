@@ -138,6 +138,7 @@ class LoginUser(Base):
     login_cookie = relationship('LoginCookie')
     workshop_runs = relationship('RaspberryJamWorkshop', secondary='workshop_volunteers')
     police_checks = relationship("PoliceCheck", foreign_keys="[PoliceCheck.user_id]", uselist=True)
+    attend = None
 
 
     @hybrid_property
