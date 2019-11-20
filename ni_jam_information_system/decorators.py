@@ -197,6 +197,14 @@ def module_slack_required(f):
 
     return decorated_function
 
+
+def module_notification_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        return _module_required(f, configuration.Modules.module_notification, *args, **kwargs)
+
+    return decorated_function
+
 # --------------------------------------------- APIs --------------------------------------------- #
 
 
