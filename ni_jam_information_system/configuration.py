@@ -1,4 +1,5 @@
 import configparser
+import json
 
 config_file_location = "configs/config.ini"
 
@@ -44,6 +45,14 @@ def verify_config_item_bool(section, config_key):
                 return True
             elif config_item.lower() == "false":
                 return False
+    return None
+
+
+def verify_config_item_list(section, config_key):
+    config_item = verify_config_item(section, config_key)
+    if config_item:
+        if type(config_item) == str:
+            return json.loads(config_item)
     return None
 
 
