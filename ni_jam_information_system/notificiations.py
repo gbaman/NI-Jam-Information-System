@@ -26,3 +26,4 @@ def send_latecomer_workshop_signup_reminder():
         if volunteer.attend and volunteer.attend.arrival_time and volunteer.attend.arrival_time > datetime.datetime.strptime('12:00', '%H:%M').time():
             users_to_message.append(volunteer)
     slack_messages.send_slack_direct_message(users_to_message, "A quick reminder, as you are due to arrive *after* the Jam briefing at 11:45am, please make sure you have signed up to the workshops you want to help with before 11:30am on the Saturday of the Jam! \n It should only take 30s. \n https://workshops.niraspberryjam.com/admin/volunteer")
+    return "Sent"

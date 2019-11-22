@@ -26,6 +26,7 @@ def send_slack_direct_message(users: List[models.LoginUser], message):
             # c = client.conversations_open(users=[user_id]) # Not sure if this is actually needed anymore?
             try:
                 client.chat_postMessage(channel=user_id, text=message, as_user="true")
+                print(f"Slack Message sent to {user.first_name} {user.surname} with message of \"{message[:40]}\"...")
             except Exception as e:
                 print(e)
                 print(f"Unable to send Slack message to {user.first_name} {user.surname}.")
