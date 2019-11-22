@@ -27,3 +27,8 @@ def send_latecomer_workshop_signup_reminder():
             users_to_message.append(volunteer)
     slack_messages.send_slack_direct_message(users_to_message, "A quick reminder, as you are due to arrive *after* the Jam briefing at 11:45am, please make sure you have signed up to the workshops you want to help with before 11:30am on the Saturday of the Jam! \n It should only take 30s. \n https://workshops.niraspberryjam.com/admin/volunteer")
     return "Sent"
+
+
+def send_workshop_signup_notification(user: models.LoginUser, user_signing_them_up: models.LoginUser):
+    message = f"Just so you know, {user_signing_them_up.first_name} {user_signing_them_up.surname} has modified your volunteer signups. Please check what you are now signed up to over at https://workshops.niraspberryjam.com/admin/volunteer"
+    slack_messages.send_slack_direct_message([user, ], message)

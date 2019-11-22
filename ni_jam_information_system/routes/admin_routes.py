@@ -10,9 +10,11 @@ from werkzeug.utils import secure_filename
 import database
 import forms as forms
 import eventbrite_interactions
+import notificiations
 from ast import literal_eval
 
 import misc
+import slack_messages
 from decorators import *
 
 admin_routes = Blueprint('admin_routes', __name__, template_folder='templates')
@@ -153,11 +155,20 @@ def attendee_list():
 
 
 @admin_routes.route("/admin/volunteer")
+@admin_routes.route("/admin/volunteer/<user_id>")
 @volunteer_required
 @module_volunteer_signup_required
-def volunteer():
-    time_slots, workshop_rooms_in_use = database.get_volunteer_data(database.get_current_jam_id(), request.logged_in_user)
-    return render_template("admin/volunteer_signup.html", time_slots = time_slots, workshop_rooms_in_use = workshop_rooms_in_use, current_selected = ",".join(str(x.workshop_run_id) for x in request.logged_in_user.workshop_runs) +",")
+def volunteer(user_id=None):
+    validated_user = request.logged_in_user
+    if user_id and not request.logged_in_user.user_id == user_id:
+        if request.logged_in_user.group_id >=4:
+            validated_user = database.get_login_user_from_user_id(user_id)
+            if not validated_user:
+                return "Error, user not found..."
+
+    time_slots, workshop_rooms_in_use = database.get_volunteer_data(database.get_current_jam_id(), validated_user)
+    users = database.get_users(include_inactive=False)
+    return render_template("admin/volunteer_signup.html", time_slots = time_slots, workshop_rooms_in_use = workshop_rooms_in_use, current_selected = ",".join(str(x.workshop_run_id) for x in validated_user.workshop_runs) +",", user=validated_user, users=users)
 
 
 @admin_routes.route("/admin/volunteer_attendance", methods=['GET', 'POST'])
@@ -637,16 +648,21 @@ def check_in_attendee_ajax():
     return " "
 
 
-@admin_routes.route("/admin/volunteer_update_ajax", methods=['GET', 'POST'])
+@admin_routes.route("/admin/volunteer_update_ajax/<user_id>", methods=['GET', 'POST'])
 @volunteer_required
 @module_volunteer_signup_required
-def update_volunteer():
+def update_volunteer(user_id):
     new_sessions = request.json
     sessions = []
+    validated_user = request.logged_in_user
+    if user_id != str(request.logged_in_user) and request.logged_in_user.group_id >= 4:
+        validated_user = database.get_login_user_from_user_id(user_id)
     for session in new_sessions:
         if len(session) > 0:
             sessions.append(int(session))
-    if database.set_user_workshop_runs_from_ids(request.logged_in_user, database.get_current_jam_id(), sessions):
+    if database.set_user_workshop_runs_from_ids(validated_user, database.get_current_jam_id(), sessions):
+        if validated_user != request.logged_in_user:
+            notificiations.send_workshop_signup_notification(validated_user, request.logged_in_user)
         return "True"
 
 

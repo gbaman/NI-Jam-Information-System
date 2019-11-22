@@ -130,7 +130,7 @@ def trigger_notifications(): # Currently just sends a Jam summery
     volunteers = database.get_attending_volunteers(jam_id=database.get_current_jam_id())[0]
     for volunteer in volunteers:
         notificiations.send_jam_sessions_summery(volunteer)
-    return True
+    return "Sent"
 
 
 @api_routes.route("/api/trigger_notifications_latecomers", methods=['GET'])

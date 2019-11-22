@@ -10,7 +10,7 @@
 <h1>Volunteer Attendance</h1>
 
 <h4>The current selected Jam is - {{ selected_jam.name }} - {{ selected_jam.date.strftime('%d/%m/%Y') }} - {{ selected_jam.event_source.name | capitalize }} Event</h4>
-{%  if logged_in_user.group_id >= 5 %}
+{%  if logged_in_user.group_id >= 4 %}
     {% if modules_enabled.module_slack %}
          <a href="/trustee/volunteer_attendance_remind_slack" class="btn btn-success">Send Slack reminder</a>
          <p>The most recent slack reminder was sent on {{ last_slack_reminder }}.</p>
