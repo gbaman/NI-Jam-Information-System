@@ -1,3 +1,4 @@
+werkzeug == 0.16.1 # Required due to https://github.com/maxcountryman/flask-uploads/issues/29
 flask
 flask_mysql
 flask_wtf
