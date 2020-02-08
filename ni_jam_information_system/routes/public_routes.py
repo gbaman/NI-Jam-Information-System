@@ -10,6 +10,7 @@ from secrets.config import *
 import forms as forms
 from decorators import *
 import configuration
+import ics
 
 
 public_routes = Blueprint('public_routes', __name__,
@@ -177,3 +178,24 @@ def files_download(workshop_id, filename):
         return send_file(file.file_path)
     else:
         abort(404)
+
+
+@public_routes.route("/ics/<ics_uuid>/<jam_id>")
+@public_routes.route("/ics/<ics_uuid>")
+@module_volunteer_signup_required
+def ics_generate(ics_uuid, jam_id=None):
+    user = database.get_user_from_ics_uuid(ics_uuid)
+    cal = ics.Calendar()
+    if user:
+        volunteer_workshops = database.get_volunteer_signup_workshops_for_jam(jam_id, user)
+        for workshop in volunteer_workshops:
+            event = ics.Event()
+            event.begin = datetime.strptime(f"{str(workshop.jam.date.date())} {workshop.slot.slot_time_start}", "%Y-%m-%d %H:%M:%S")
+            event.end = datetime.strptime(f"{str(workshop.jam.date.date())} {workshop.slot.slot_time_end}", "%Y-%m-%d %H:%M:%S")
+            event.name = f"Jam - {workshop.workshop.workshop_title}"
+            cal.events.add(event)
+        response = make_response(str(cal))
+        response.headers["Content-Disposition"] = "attachment; filename=calendar.ics"
+        response.headers["Content-Type"] = "text/calendar"
+        return response
+    return abort(404)

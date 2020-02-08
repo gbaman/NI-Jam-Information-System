@@ -12,3 +12,4 @@ oauth2client
 flask_mail
 beautifulsoup4
 slackclient
+ics

@@ -1,5 +1,4 @@
 import datetime
-import json
 import os
 import uuid
 
@@ -165,10 +164,11 @@ def volunteer(user_id=None):
             validated_user = database.get_login_user_from_user_id(user_id)
             if not validated_user:
                 return "Error, user not found..."
-
+    if not validated_user.ics_uuid:
+        database.reset_login_user_ics_uuid(validated_user)
     time_slots, workshop_rooms_in_use = database.get_volunteer_data(database.get_current_jam_id(), validated_user)
     users = database.get_users(include_inactive=False)
-    return render_template("admin/volunteer_signup.html", time_slots = time_slots, workshop_rooms_in_use = workshop_rooms_in_use, current_selected = ",".join(str(x.workshop_run_id) for x in validated_user.workshop_runs) +",", user=validated_user, users=users)
+    return render_template("admin/volunteer_signup.html", time_slots = time_slots, workshop_rooms_in_use = workshop_rooms_in_use, current_selected = ",".join(str(x.workshop_run_id) for x in validated_user.workshop_runs) +",", user=validated_user, users=users, jam_id=database.get_current_jam_id())
 
 
 @admin_routes.route("/admin/volunteer_attendance", methods=['GET', 'POST'])
