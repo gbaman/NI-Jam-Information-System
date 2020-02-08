@@ -7,6 +7,7 @@ import uuid
 import os
 
 import math
+from typing import Tuple, Any
 
 import misc
 from models import *
@@ -652,7 +653,7 @@ def select_jam(jam_id):
     db_session.commit()
 
 
-def get_attending_volunteers(jam_id, only_attending_volunteers=False):  # Get all the volunteers
+def get_attending_volunteers(jam_id, only_attending_volunteers=False) -> Tuple[List[LoginUser], Any]:  # Get all the volunteers
     if only_attending_volunteers:
         attending_volunteers = db_session.query(VolunteerAttendance).filter(VolunteerAttendance.jam_id == jam_id,
                                                                             VolunteerAttendance.volunteer_attending).all()
@@ -685,7 +686,7 @@ def get_attending_volunteers(jam_id, only_attending_volunteers=False):  # Get al
                 if volunteer.attend.food_attending:
                     stats.attending_food.append(volunteer)
                 
-    sorted_volunteers = sorted(sorted(all_volunteers, key=lambda x: x.surname, reverse=False), key=lambda x: hasattr(x, "attend"), reverse=True)
+    sorted_volunteers = sorted(sorted(all_volunteers, key=lambda x: x.surname, reverse=False), key=lambda x: bool(x.attend), reverse=True)
     return sorted_volunteers, stats
 
 

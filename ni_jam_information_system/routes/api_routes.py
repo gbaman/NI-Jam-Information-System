@@ -6,6 +6,7 @@ import eventbrite_interactions
 from datetime import datetime
 from secrets.config import *
 from decorators import *
+import notificiations
 
 api_routes = Blueprint('api_routes', __name__,
                         template_folder='templates')
@@ -119,6 +120,25 @@ def get_jam_day_password():
         "jam_day_password": database.get_jam_password(jam_id),
     }
     return json.dumps(data_to_return)
+
+
+@api_routes.route("/api/trigger_notifications", methods=['GET'])
+@module_api_required
+@module_notification_required
+@api_key_required
+def trigger_notifications(): # Currently just sends a Jam summery
+    volunteers = database.get_attending_volunteers(jam_id=database.get_current_jam_id())[0]
+    for volunteer in volunteers:
+        notificiations.send_jam_sessions_summery(volunteer)
+    return "Sent"
+
+
+@api_routes.route("/api/trigger_notifications_latecomers", methods=['GET'])
+@module_api_required
+@module_notification_required
+@api_key_required
+def trigger_notifications_latecomers(): 
+    return notificiations.send_latecomer_workshop_signup_reminder()
 
 
 @api_routes.route("/api/eventbrite_webhook/<webhook_key>", methods=['POST'])

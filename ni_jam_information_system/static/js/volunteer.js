@@ -12,7 +12,7 @@ window.onload = function(){
         submit_button.addEventListener('click', function() {
             data = JSON.stringify(list_of_stuff);
             $.ajax({
-                url: '/admin/volunteer_update_ajax',
+                url: '/admin/volunteer_update_ajax/' + submit_button.dataset.userId,
                 type: 'POST',
                 data: data,
                 contentType: 'application/json;charset=UTF-8',

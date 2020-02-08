@@ -138,7 +138,7 @@ class LoginUser(Base):
     login_cookie = relationship('LoginCookie')
     workshop_runs = relationship('RaspberryJamWorkshop', secondary='workshop_volunteers')
     police_checks = relationship("PoliceCheck", foreign_keys="[PoliceCheck.user_id]", uselist=True)
-
+    attend = None
 
     @hybrid_property
     def date_of_birth_str(self):
@@ -195,6 +195,15 @@ class LoginUser(Base):
                 return f"<b>No</b> as you are only {math.floor(days_since_dob / 365)} years old. A police check is only required at age 17 and above."
         else:
             return "<b>Unknown</b> - No DoB in the system..."
+
+    @hybrid_property
+    def workshop_runs_current_jam(self) -> List['RaspberryJamWorkshop']:
+        workshop_runs_return = []
+        jam_id = database.get_current_jam_id()
+        for workshop_return in self.workshop_runs:
+            if workshop_return.jam_id == jam_id:
+                workshop_runs_return.append(workshop_return)
+        return workshop_runs_return
 
 
 class PagePermission(Base):

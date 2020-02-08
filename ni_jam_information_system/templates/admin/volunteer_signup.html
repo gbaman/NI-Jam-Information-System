@@ -5,8 +5,20 @@
 <script src="/static/js/volunteer.js"></script>
 
 <h1>Volunteer Signup</h1>
+<h3>{{ user.first_name }} {{ user.surname }}</h3>
 <p>Select sessions you would like to volunteer with by simply clicking on them. Once you have made any changes, make sure to hit the save button!</p>
-
+{%  if logged_in_user.group_id >= 4 %}
+<br>
+  <div class="dropdown">
+    <button class="btn btn-default dropdown-toggle" type="button" id="menu1" data-toggle="dropdown">Select a volunteer
+    <span class="caret"></span></button>
+    <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
+        {% for volunteer in users %}
+      <li role="presentation"><a role="menuitem" tabindex="-1" href=/admin/volunteer/{{volunteer.user_id}}>{{volunteer.first_name}} {{volunteer.surname}}</a></li>
+        {% endfor %}
+    </ul>
+  </div>
+{% endif %}
 <br>
 
 <table class="volunteer_key">
@@ -21,7 +33,7 @@
 </table>
 
 <br>
-<button type="button" class="btn btn-primary" id="submit_button" >Save</button>
+<button type="button" class="btn btn-primary" id="submit_button" data-user-id="{{ user.user_id }}">Save</button>
 <br>
 
 <table class="volunteer_table">
