@@ -195,7 +195,7 @@ def ics_generate(ics_uuid, jam_id=None):
             event.name = f"Jam - {workshop.workshop.workshop_title}"
             cal.events.add(event)
         response = make_response(str(cal))
-        response.headers["Content-Disposition"] = "attachment; filename=calendar.ics"
+        response.headers["Content-Disposition"] = "attachment; filename=jam.ics"
         response.headers["Content-Type"] = "text/calendar"
         return response
     return abort(404)
