@@ -60,5 +60,11 @@
 </table>
 <br>
 <div id="current_selected" data-current-selected="{{ current_selected }}"></div>
+<h2>Calendar feed</h2>
+<p>To sync this <b>single Jam</b> with your calendar, use the following custom iCal feed link with your calendar software.</p>
+<input class="form-control" type="text" size="100" value="{{ base_url }}/ics/{{ user.ics_uuid }}/{{ jam_id }}.ics" id="ics_url">
+<br>
+<p>To sync this and <b>all past/future Jams</b> with your calendar, use the following custom iCal feed link with your calendar software.</p>
+<input class="form-control" type="text" size="100" value="{{ base_url }}/ics/{{ user.ics_uuid }}.ics" id="ics_url_all">
 
 {% endblock %}

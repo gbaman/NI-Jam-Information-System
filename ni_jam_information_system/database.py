@@ -437,7 +437,7 @@ def get_user_details_from_username(username) -> LoginUser:
     return db_session.query(LoginUser).filter(LoginUser.username == username).first()
 
 
-def get_user_from_cookie(cookie_value):
+def get_user_from_cookie(cookie_value) -> LoginUser:
     cookie = db_session.query(LoginCookie).filter(LoginCookie.cookie_value == cookie_value).first()
     if cookie:
         return cookie.user
@@ -461,7 +461,7 @@ def create_user(username, password_hash, password_salt, first_name, surname, ema
     db_session.commit()
 
 
-def add_workshop_to_jam_from_catalog(jam_id, workshop_id, volunteer_id, slot_id, room_id, pilot, pair):
+def add_workshop_to_jam_from_catalog(jam_id, workshop_id, volunteer_id, slot_id, room_id, pilot, pair) -> RaspberryJamWorkshop:
     # TODO : Add a whole pile of checks here including if the volunteer is double booked, room is double booked etc.
     workshop = RaspberryJamWorkshop()
     workshop.jam_id = jam_id
@@ -480,6 +480,7 @@ def add_workshop_to_jam_from_catalog(jam_id, workshop_id, volunteer_id, slot_id,
     db_session.add(workshop)
     db_session.flush()
     db_session.commit()
+    return workshop
 
 
 def remove_workshop_from_jam(workshop_run_id):
@@ -1390,3 +1391,25 @@ def remove_police_check(user: LoginUser, certificate_table_id):
         db_session.commit()
         return True
     return False
+
+def get_user_from_ics_uuid(ics_uuid) -> LoginUser:
+    user = db_session.query(LoginUser).filter(LoginUser.ics_uuid == ics_uuid).first()
+    return user
+
+
+def get_volunteer_signup_workshops_for_jam(jam_id, login_user:LoginUser) -> List[RaspberryJamWorkshop]:
+    if jam_id:
+        workshops = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.jam_id == jam_id).all()
+    else:
+        workshops = db_session.query(RaspberryJamWorkshop).all()
+    user_workshops = []
+    for workshop in workshops:
+        if login_user in workshop.users:
+            user_workshops.append(workshop)
+    return user_workshops
+
+
+def reset_login_user_ics_uuid(user:LoginUser):
+    user.ics_uuid = str(uuid.uuid4())
+    db_session.commit()
+    return user.ics_uuid

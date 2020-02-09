@@ -102,7 +102,7 @@
                                 <li><a href="/trustee/police_checks_admin">Police checks admin</a></li>
                             {% endif %}
                             <li><a href="/admin/manage_jams">Manage/Add Jams</a></li>
-                            {%  if logged_in_user.group_id >= 5 %}
+                            {%  if logged_in_user.group_id >= 4 %}
                                 {% if modules_enabled.module_core %}
                                     <li><a href="/admin/manage_users">User Management</a></li>
                                     <li><a href="/admin/jam_setup">Jam Setup</a></li>

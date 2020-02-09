@@ -1,5 +1,4 @@
 import datetime
-import json
 import os
 import uuid
 
@@ -109,7 +108,11 @@ def add_workshop_to_catalog(workshop_id = None):
 def add_workshop_to_jam():
     form = forms.AddWorkshopToJam(request.form)
     if request.method == 'POST':# and form.validate():
-        database.add_workshop_to_jam_from_catalog(database.get_current_jam_id(), form.workshop.data, form.volunteer.data, form.slot.data, form.room.data, int(literal_eval(form.pilot.data)), int(literal_eval(form.pair.data)))
+        workshop = database.add_workshop_to_jam_from_catalog(database.get_current_jam_id(), form.workshop.data, form.volunteer.data, form.slot.data, form.room.data, int(literal_eval(form.pilot.data)), int(literal_eval(form.pair.data)))
+        if form.volunteer.data:
+            user = database.get_login_user_from_user_id(form.volunteer.data)
+            if user != request.logged_in_user:
+                notificiations.send_workshop_signup_full_notification(user, request.logged_in_user, workshop)
         return redirect("/admin/add_workshop_to_jam", code=302)
     return render_template('admin/add_workshop_to_jam_form.html', form=form, workshop_slots=database.get_schedule_by_time_slot(database.get_current_jam_id(), 0, admin=True))
 
@@ -138,7 +141,7 @@ def admin_workshops():
 
 
 @admin_routes.route("/admin/manage_users", methods=['GET', 'POST'])
-@super_admin_required
+@trustee_required
 @module_core_required
 def manage_users():
     users = database.get_users(include_inactive=True)
@@ -165,10 +168,11 @@ def volunteer(user_id=None):
             validated_user = database.get_login_user_from_user_id(user_id)
             if not validated_user:
                 return "Error, user not found..."
-
+    if not validated_user.ics_uuid:
+        database.reset_login_user_ics_uuid(validated_user)
     time_slots, workshop_rooms_in_use = database.get_volunteer_data(database.get_current_jam_id(), validated_user)
     users = database.get_users(include_inactive=False)
-    return render_template("admin/volunteer_signup.html", time_slots = time_slots, workshop_rooms_in_use = workshop_rooms_in_use, current_selected = ",".join(str(x.workshop_run_id) for x in validated_user.workshop_runs) +",", user=validated_user, users=users)
+    return render_template("admin/volunteer_signup.html", time_slots = time_slots, workshop_rooms_in_use = workshop_rooms_in_use, current_selected = ",".join(str(x.workshop_run_id) for x in validated_user.workshop_runs) +",", user=validated_user, users=users, jam_id=database.get_current_jam_id())
 
 
 @admin_routes.route("/admin/volunteer_attendance", methods=['GET', 'POST'])

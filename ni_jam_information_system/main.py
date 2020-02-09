@@ -79,7 +79,8 @@ def page_not_found(e):
 def inject_config_data():
     return dict(modules_enabled=configuration.verify_modules_enabled(),
                 jam_organisation_name=configuration.verify_config_item("general", "jam_organisation_name"),
-                short_jam_organisation_name=configuration.verify_config_item("general", "short_jam_organisation_name"))
+                short_jam_organisation_name=configuration.verify_config_item("general", "short_jam_organisation_name"),
+                base_url=configuration.verify_config_item("general", "base_url"))
 
 
 @app.context_processor

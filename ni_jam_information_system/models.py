@@ -132,6 +132,7 @@ class LoginUser(Base):
     forgotten_password_url = Column(String(100), nullable=True, unique=True)
     forgotten_password_expiry = Column(DateTime, nullable=True)
     date_of_birth = Column(DateTime, nullable=True)
+    ics_uuid = Column(String(36), unique=True)
 
     attending = relationship("VolunteerAttendance")
     group = relationship('Group')

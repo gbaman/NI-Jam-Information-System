@@ -30,5 +30,12 @@ def send_latecomer_workshop_signup_reminder():
 
 
 def send_workshop_signup_notification(user: models.LoginUser, user_signing_them_up: models.LoginUser):
-    message = f"Just so you know, {user_signing_them_up.first_name} {user_signing_them_up.surname} has modified your volunteer signups. Please check what you are now signed up to over at https://workshops.niraspberryjam.com/admin/volunteer"
+    base_url = configuration.verify_config_item("general", "base_url")
+    message = f"Just so you know, {user_signing_them_up.first_name} {user_signing_them_up.surname} has modified your volunteer signups. Please check what you are now signed up to over at {base_url}/admin/volunteer"
+    slack_messages.send_slack_direct_message([user, ], message)
+
+
+def send_workshop_signup_full_notification(user: models.LoginUser, user_signing_them_up: models.LoginUser, workshop : models.RaspberryJamWorkshop):
+    base_url = configuration.verify_config_item("general", "base_url")
+    message = f"Just so you know, {user_signing_them_up.first_name} {user_signing_them_up.surname} has modified your volunteer signups, adding you to {workshop.workshop.workshop_title} at {workshop.slot.slot_time_start} as part of {workshop.jam.name}. You can check this over at {base_url}/admin/volunteer"
     slack_messages.send_slack_direct_message([user, ], message)
