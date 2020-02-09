@@ -196,6 +196,14 @@ def ics_generate(ics_uuid, jam_id=None):
             event.description = f"{workshop.workshop.workshop_description}\n\n Current volunteers\n {', '.join(' '.join((o.first_name, o.surname)) for o in workshop.users)}"
             event.location = workshop.workshop_room.room_name
             cal.events.add(event)
+        jams = database.get_jams_in_db()
+        for jam in jams:
+            if not jam_id or (jam_id and jam.jam_id == jam_id):
+                event = ics.Event()
+                event.begin = jam.date
+                event.make_all_day()
+                event.name = jam.name
+                cal.events.add(event)
         response = make_response(str(cal))
         response.headers["Content-Disposition"] = "attachment; filename=jam.ics"
         response.headers["Content-Type"] = "text/calendar"
