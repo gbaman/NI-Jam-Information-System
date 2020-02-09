@@ -108,7 +108,11 @@ def add_workshop_to_catalog(workshop_id = None):
 def add_workshop_to_jam():
     form = forms.AddWorkshopToJam(request.form)
     if request.method == 'POST':# and form.validate():
-        database.add_workshop_to_jam_from_catalog(database.get_current_jam_id(), form.workshop.data, form.volunteer.data, form.slot.data, form.room.data, int(literal_eval(form.pilot.data)), int(literal_eval(form.pair.data)))
+        workshop = database.add_workshop_to_jam_from_catalog(database.get_current_jam_id(), form.workshop.data, form.volunteer.data, form.slot.data, form.room.data, int(literal_eval(form.pilot.data)), int(literal_eval(form.pair.data)))
+        if form.volunteer.data:
+            user = database.get_login_user_from_user_id(form.volunteer.data)
+            if user != request.logged_in_user:
+                notificiations.send_workshop_signup_full_notification(user, request.logged_in_user, workshop)
         return redirect("/admin/add_workshop_to_jam", code=302)
     return render_template('admin/add_workshop_to_jam_form.html', form=form, workshop_slots=database.get_schedule_by_time_slot(database.get_current_jam_id(), 0, admin=True))
 

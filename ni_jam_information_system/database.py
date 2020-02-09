@@ -461,7 +461,7 @@ def create_user(username, password_hash, password_salt, first_name, surname, ema
     db_session.commit()
 
 
-def add_workshop_to_jam_from_catalog(jam_id, workshop_id, volunteer_id, slot_id, room_id, pilot, pair):
+def add_workshop_to_jam_from_catalog(jam_id, workshop_id, volunteer_id, slot_id, room_id, pilot, pair) -> RaspberryJamWorkshop:
     # TODO : Add a whole pile of checks here including if the volunteer is double booked, room is double booked etc.
     workshop = RaspberryJamWorkshop()
     workshop.jam_id = jam_id
@@ -480,6 +480,7 @@ def add_workshop_to_jam_from_catalog(jam_id, workshop_id, volunteer_id, slot_id,
     db_session.add(workshop)
     db_session.flush()
     db_session.commit()
+    return workshop
 
 
 def remove_workshop_from_jam(workshop_run_id):
