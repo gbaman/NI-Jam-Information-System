@@ -180,8 +180,8 @@ def files_download(workshop_id, filename):
         abort(404)
 
 
-@public_routes.route("/ics/<ics_uuid>/<jam_id>")
-@public_routes.route("/ics/<ics_uuid>")
+@public_routes.route("/ics/<ics_uuid>/<jam_id>.ics")
+@public_routes.route("/ics/<ics_uuid>.ics")
 @module_volunteer_signup_required
 def ics_generate(ics_uuid, jam_id=None):
     user = database.get_user_from_ics_uuid(ics_uuid)
