@@ -122,6 +122,24 @@ class Transaction():
             return "disabled"
         return ""
 
+    @property
+    def supplier_colour(self):
+        if not self.supplier:
+            return "#ff928a"
+        return "#ffffff"
+
+    @property
+    def description_colour(self):
+        if not self.description:
+            return "#ff928a"
+        return "#ffffff"
+
+    @property
+    def category_colour(self):
+        if not self.category:
+            return "#ff928a"
+        return "#ffffff"
+
     def update_names(self, trustees):
         for trustee in trustees:
             if self.payment_by_id and int(self.payment_by_id) == int(trustee.user_id):
