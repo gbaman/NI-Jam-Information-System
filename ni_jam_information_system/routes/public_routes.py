@@ -193,6 +193,8 @@ def ics_generate(ics_uuid, jam_id=None):
             event.begin = datetime.strptime(f"{str(workshop.jam.date.date())} {workshop.slot.slot_time_start}", "%Y-%m-%d %H:%M:%S")
             event.end = datetime.strptime(f"{str(workshop.jam.date.date())} {workshop.slot.slot_time_end}", "%Y-%m-%d %H:%M:%S")
             event.name = f"Jam - {workshop.workshop.workshop_title}"
+            event.description = f"{workshop.workshop.workshop_description}\n\n Current volunteers\n {', '.join(' '.join((o.first_name, o.surname)) for o in workshop.users)}"
+            event.location = workshop.workshop_room.room_name
             cal.events.add(event)
         response = make_response(str(cal))
         response.headers["Content-Disposition"] = "attachment; filename=jam.ics"
