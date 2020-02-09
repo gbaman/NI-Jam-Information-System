@@ -141,7 +141,7 @@ def admin_workshops():
 
 
 @admin_routes.route("/admin/manage_users", methods=['GET', 'POST'])
-@super_admin_required
+@trustee_required
 @module_core_required
 def manage_users():
     users = database.get_users(include_inactive=True)
