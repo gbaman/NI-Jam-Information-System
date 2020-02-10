@@ -111,7 +111,7 @@ def add_workshop_to_jam():
         workshop = database.add_workshop_to_jam_from_catalog(database.get_current_jam_id(), form.workshop.data, form.volunteer.data, form.slot.data, form.room.data, int(literal_eval(form.pilot.data)), int(literal_eval(form.pair.data)))
         if form.volunteer.data:
             user = database.get_login_user_from_user_id(form.volunteer.data)
-            if user != request.logged_in_user:
+            if user and user != request.logged_in_user:
                 notificiations.send_workshop_signup_full_notification(user, request.logged_in_user, workshop)
         return redirect("/admin/add_workshop_to_jam", code=302)
     return render_template('admin/add_workshop_to_jam_form.html', form=form, workshop_slots=database.get_schedule_by_time_slot(database.get_current_jam_id(), 0, admin=True))
@@ -485,7 +485,7 @@ def expenses_claim():
         if not os.path.isfile(file_path):
             f.save(file_path)
             flash("File upload successful.", "success")
-            expense = google_sheets.Expense(["", datetime.datetime.today().strftime("%d/%m/%Y"), form.receipt_date.data.strftime("%d/%m/%Y"), user.user_id, f"{user.first_name} {user.surname}", form.paypal_email_address.data, f"/{file_path}", form.requested_value.data, None, None, None, None, None, None, None, None], offset=0)
+            expense = google_sheets.Expense(["", datetime.datetime.today().strftime("%d/%m/%Y"), form.receipt_date.data.strftime("%d/%m/%Y"), user.user_id, f"{user.first_name} {user.surname}", form.paypal_email_address.data, f"/{file_path}", form.requested_value.data, None, None, None, None, None, None, None, None, form.expenses_type.data], offset=0)
             google_sheets.create_expense_row(expense)
         else:
             flash("Failed to upload - File of same name already exists.", "danger")

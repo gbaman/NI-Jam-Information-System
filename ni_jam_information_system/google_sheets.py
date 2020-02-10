@@ -56,6 +56,7 @@ class T():
     VERIFIED_BY = 16
     CATEGORY = 17
     NOTES = 18
+    EXPENSE_ID = 19
 
 
 class E():
@@ -67,6 +68,7 @@ class E():
     PAID_BY = 15
     REJECTION_REASON = 16
     PAYMENT_DATE = 17
+    EXPENSE_TYPE = 18
 
 
 class Transaction():
@@ -91,6 +93,7 @@ class Transaction():
         self.verified_by = row[14]
         self.category = row[15]
         self.treasurer_notes = row[16]
+        self.expense_id = row[17]
 
         self.offset = offset
         self.editing = False
@@ -195,6 +198,7 @@ class Expense():
         self.paid_by_object: models.LoginUser = models.LoginUser()
         self.rejected_reason = row[14]
         self.payment_made_date = None
+        self.expense_type = row[16]
 
         if row[15]:
             self.payment_made_date = datetime.datetime.strptime(row[15], "%d/%m/%Y").date()
@@ -294,7 +298,7 @@ def import_bank_csv(csv_path):
     with open(csv_path) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         for line in list(csv_reader)[1:]:
-            transactions.append(Transaction((None, line[0], None, None, line[2], None, None, line[3], line[4], None, None, None, None, None, None, None, None, None), offset=0, bank=True))
+            transactions.append(Transaction((None, line[0], None, None, line[2], None, None, line[3], line[4], None, None, None, None, None, None, None, None, None, None), offset=0, bank=True))
     logins = database.get_users(include_inactive=True)
     current_transactions = get_transaction_table(logins)
     new_transactions = []
@@ -430,7 +434,7 @@ def create_expense_row(e: Expense):
         e.expense_id = int(expenses[-1].expense_id) + 1
     else:
         e.expense_id = 0
-    EXPENSE_SHEET.append_row([e.expense_id, e.expense_submit_date.strftime("%d/%m/%Y"), e.receipt_date.strftime("%d/%m/%Y"), e.volunteer_id, e.volunteer_name, e.paypal_email, e.receipt_url, e.value], value_input_option='USER_ENTERED')
+    EXPENSE_SHEET.append_row([e.expense_id, e.expense_submit_date.strftime("%d/%m/%Y"), e.receipt_date.strftime("%d/%m/%Y"), e.volunteer_id, e.volunteer_name, e.paypal_email, e.receipt_url, e.value, None, None, None, None, None, None, None, None, e.expense_type], value_input_option='USER_ENTERED')
 
 
 def auto_fill_expense_data(transaction):

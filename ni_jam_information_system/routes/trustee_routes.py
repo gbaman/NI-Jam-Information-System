@@ -186,11 +186,14 @@ def ledger_upload_link_expense(transaction_id, expense_id):
 
     id_column_data = google_sheets.update_transaction_cell(transaction_id, google_sheets.T.RECEIPT_DATE, expense.receipt_date.strftime("%d/%m/%Y"))
     google_sheets.update_transaction_cell(transaction_id, google_sheets.T.RECEIPT_URL, expense.receipt_url, id_column_data=id_column_data)
-    google_sheets.update_transaction_cell(transaction_id, google_sheets.T.SUPPLIER, "Volunteer Expense", id_column_data=id_column_data)
-    google_sheets.update_transaction_cell(transaction_id, google_sheets.T.DESCRIPTION, f"Expense ID = {expense.expense_id}", id_column_data=id_column_data)
+    if "Translink" in expense.expense_type: 
+        google_sheets.update_transaction_cell(transaction_id, google_sheets.T.SUPPLIER, "Translink", id_column_data=id_column_data)
+    if "Travel" in expense.expense_type:
+        google_sheets.update_transaction_cell(transaction_id, google_sheets.T.DESCRIPTION, f"Travel expense", id_column_data=id_column_data)
+        google_sheets.update_transaction_cell(transaction_id, google_sheets.T.CATEGORY, "Travel expenses", id_column_data=id_column_data)
     google_sheets.update_transaction_cell(transaction_id, google_sheets.T.PAYMENT_BY_ID, expense.volunteer_id, id_column_data=id_column_data)
     google_sheets.update_transaction_cell(transaction_id, google_sheets.T.PAYMENT_BY, expense.volunteer_name, id_column_data=id_column_data)
-    google_sheets.update_transaction_cell(transaction_id, google_sheets.T.CATEGORY, "Travel expenses", id_column_data=id_column_data)
+    google_sheets.update_transaction_cell(transaction_id, google_sheets.T.EXPENSE_ID, expense.expense_id, id_column_data=id_column_data)
     flash("Transactions successfully linked", "success")
     return redirect(url_for("trustee_routes.ledger"))
 
