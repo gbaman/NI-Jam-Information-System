@@ -533,15 +533,17 @@ def database_reset():
 
 
 def get_volunteer_data(jam_id, current_user):
-    time_slots = db_session.query(WorkshopSlot).all()
+    time_slots: List[WorkshopSlot] = db_session.query(WorkshopSlot).all()
 
-    workshop_data = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.jam_id == jam_id).all()
+    workshop_data: List[RaspberryJamWorkshop] = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.jam_id == jam_id).all()
 
-    workshop_rooms_in_use = db_session.query(WorkshopRoom).filter(RaspberryJamWorkshop.workshop_room_id == WorkshopRoom.room_id,
+    workshop_rooms_in_use: List[WorkshopRoom] = db_session.query(WorkshopRoom).filter(RaspberryJamWorkshop.workshop_room_id == WorkshopRoom.room_id,
                                                                   RaspberryJamWorkshop.jam_id == jam_id
                                                                   ).order_by(WorkshopRoom.room_name).all()
 
     for time_slot in time_slots:
+        time_slot.total_volunteers_required = 0
+        time_slot.total_volunteers_signed_up = 0
         time_slot.rooms = []
         for workshop_room in workshop_rooms_in_use:
             room = deepcopy(workshop_room)
@@ -563,6 +565,8 @@ def get_volunteer_data(jam_id, current_user):
                             workshop.workshop_needed_volunteers = max(workshop.workshop_room.room_volunteers_needed, volunteers_needed_from_attendees)  # Set volunteers needed to the calculated figure based on attendees, unless room minimum is greater.
                         else:  # and does not have attendees for the workshop (for example, car parking etc)
                             workshop.workshop_needed_volunteers = workshop.workshop.workshop_volunteer_requirements
+                        time_slot.total_volunteers_required = time_slot.total_volunteers_required + workshop.workshop_needed_volunteers
+                        time_slot.total_volunteers_signed_up = time_slot.total_volunteers_signed_up + len(workshop.users)
 
                     if not room.workshop.workshop_room:
                         room.workshop.bg_colour = grey

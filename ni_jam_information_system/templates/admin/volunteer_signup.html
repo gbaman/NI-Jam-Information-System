@@ -46,7 +46,7 @@
 
     {% for time_slot in time_slots %}
         <tr>
-        <th>{{time_slot.slot_time_start}} - {{time_slot.slot_time_end}}</th>
+        <th>{{time_slot.slot_time_start}} - {{time_slot.slot_time_end}} <br> ({{ time_slot.total_volunteers_signed_up }} / {{ time_slot.total_volunteers_required }})</th>
         {% for room in time_slot.rooms %}
             {% if room.workshop.dummy %}
                 <td bgcolor="#d3d3d3">None</td>
