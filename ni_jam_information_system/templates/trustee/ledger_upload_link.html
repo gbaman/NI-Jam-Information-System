@@ -24,6 +24,7 @@
             <th>Paid made date</th>
             <th>Volunteer name</th>
             <th>Paypal email address</th>
+            <th>Expense type</th>
             <th>Receipt</th>
             <th>Value</th>
             <th>Link</th>
@@ -34,6 +35,7 @@
                 <td>{{ expense.payment_made_date }}</td>
                 <td>{{ expense.volunteer_name }}</td>
                 <td>{{ expense.paypal_email }}</td>
+                <td>{{ expense.expense_type }}</td>
                 <td><a href="{{ expense.receipt_url }}" class="btn btn-info" role="button">Receipt</a></td>
                 <td>{{ expense.value_symbol }}</td>
                 <td><a href="{{ transaction.transaction_id }}/link/{{ expense.expense_id }}" class="btn btn-info" role="button">Link</a></td>

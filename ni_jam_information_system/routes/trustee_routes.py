@@ -154,9 +154,9 @@ def ledger_upload_link(transaction_id):
     if "PAYPAL" in t.bank_text:
         already_matched_expenses = []
         for checking_transaction in transactions:
-            if checking_transaction.description and "Expense ID = " in checking_transaction.description:
+            if checking_transaction.description and checking_transaction.expense_id: # "Expense ID = " in checking_transaction.description:
                 try:
-                    already_matched_expenses.append(int(checking_transaction.description.split("Expense ID = ")[1]))
+                    already_matched_expenses.append(int(checking_transaction.expense_id))
                 except:
                     continue
         expenses = google_sheets.get_volunteer_expenses_table(volunteer_expenses=expenses)
