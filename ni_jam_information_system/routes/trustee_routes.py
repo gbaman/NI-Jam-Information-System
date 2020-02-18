@@ -236,6 +236,40 @@ def volunteer_stats():
     return render_template("trustee/volunteer_stats.html", jams=jams[::-1], volunteers=volunteers)
 
 
+@trustee_routes.route("/volunteer_stats/export")
+@trustee_routes.route("/volunteer_stats/export/<filter>")
+@trustee_required
+@module_volunteer_attendance_required
+def volunteer_stats_export(filter=None):
+    all_jams = database.get_jams_in_db()
+    jams: List[database.RaspberryJam] = []
+    for jam_count_id, jam in enumerate(all_jams[::-1]):
+        if jam_count_id > 11:
+            break
+        jams.append(jam)
+    volunteers = sorted(database.get_login_users(), key=lambda x: x.surname.lower(), reverse=False)
+    csv_file = []
+    jam_names = ["Name"]
+    jam_dates = ["Date"]
+    for jam in jams[::-1]:
+        jam_names.append(jam.name)
+        jam_dates.append(jam.date.strftime("%d/%m/%Y"))
+    csv_file.append(",".join(jam_names))
+    csv_file.append(",".join(jam_dates))
+    for volunteer in volunteers:
+        if not filter or (filter and "stemnet" in filter and volunteer.police_cert_status[0] == "Valid and verified"):
+            volunteer_line = [f"{volunteer.first_name} {volunteer.surname}"]
+            for jam in jams[::-1]:
+                if volunteer in jam.volunteers_attending_jam:
+                    volunteer_line.append("Volunteered")
+                else:
+                    volunteer_line.append("N/A")
+            csv_file.append(",".join(volunteer_line))
+    response = make_response(str("\n".join(csv_file)))
+    response.headers["Content-Disposition"] = "attachment; filename=volunteers.csv"
+    return response
+
+
 @trustee_routes.route("/police_checks_admin")
 @trustee_required
 @module_police_check_required
