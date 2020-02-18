@@ -162,6 +162,7 @@ def attendee_list():
 @volunteer_required
 @module_volunteer_signup_required
 def volunteer(user_id=None):
+    selected_jam = database.get_jam_details(database.get_current_jam_id())
     validated_user = request.logged_in_user
     if user_id and not request.logged_in_user.user_id == user_id:
         if request.logged_in_user.group_id >=4:
@@ -172,7 +173,7 @@ def volunteer(user_id=None):
         database.reset_login_user_ics_uuid(validated_user)
     time_slots, workshop_rooms_in_use = database.get_volunteer_data(database.get_current_jam_id(), validated_user)
     users = database.get_users(include_inactive=False)
-    return render_template("admin/volunteer_signup.html", time_slots = time_slots, workshop_rooms_in_use = workshop_rooms_in_use, current_selected = ",".join(str(x.workshop_run_id) for x in validated_user.workshop_runs) +",", user=validated_user, users=users, jam_id=database.get_current_jam_id())
+    return render_template("admin/volunteer_signup.html", time_slots = time_slots, workshop_rooms_in_use = workshop_rooms_in_use, current_selected = ",".join(str(x.workshop_run_id) for x in validated_user.workshop_runs) +",", user=validated_user, users=users, jam_id=selected_jam.jam_id, selected_jam=selected_jam)
 
 
 @admin_routes.route("/admin/volunteer_attendance", methods=['GET', 'POST'])

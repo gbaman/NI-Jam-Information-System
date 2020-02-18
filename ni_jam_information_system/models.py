@@ -361,11 +361,20 @@ class WorkshopSlot(Base):
     slot_id = Column(Integer, primary_key=True)
     slot_time_start = Column(Time, nullable=False)
     slot_time_end = Column(Time, nullable=False)
-    workshops_in_slot = relationship("RaspberryJamWorkshop")
-    
+    workshops_in_slot: List[RaspberryJamWorkshop] = relationship("RaspberryJamWorkshop")
+
     @property
     def title(self):
         return f"{self.slot_time_start} - {self.slot_time_end}"
+
+    @property
+    def volunteers_busy_in_slot(self):
+        jam_id = database.get_current_jam_id()
+        volunteers: List[LoginUser] = []
+        for workshop in self.workshops_in_slot:
+            if workshop.jam_id == jam_id:
+                volunteers = [*volunteers, *workshop.users] # Merge lists together
+        return volunteers
 
 
 class WorkshopFile(Base):
