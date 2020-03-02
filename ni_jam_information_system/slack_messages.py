@@ -1,4 +1,6 @@
 import slack
+
+import configuration
 from secrets import config
 import models
 from typing import List
@@ -18,6 +20,8 @@ def _get_user_id_from_email(users, email):
 
 
 def send_slack_direct_message(users: List[models.LoginUser], message):
+    if not configuration.verify_modules_enabled().module_slack:
+        return
     client = _setup_slack_client()
     slack_users = client.users_list()["members"]
     for user in users:
