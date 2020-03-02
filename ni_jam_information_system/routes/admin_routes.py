@@ -390,7 +390,7 @@ def jam_setup(slot_id=None, room_id=None):
             database.add_slot(slot_form.slot_id.data, slot_form.slot_time_start.data, slot_form.slot_time_end.data)
         else:
             flash("Error - Start time is after end time!", "danger")
-        return redirect(('admin/jam_setup'))
+        return redirect(('/admin/jam_setup'))
     elif request.method == 'POST' and room_form.validate():
         if not database.add_workshop_room(room_id, room_form.room_name.data, room_form.room_capacity.data, room_form.room_volunteers_needed.data):
             flash("Error - Unable to add new workshop room. Does a workshop already exist with that name?", "danger")
