@@ -403,7 +403,7 @@ def jam_setup(slot_id=None, room_id=None):
 def remove_slot(slot_id):
     database.remove_slot(slot_id)
     flash("Slot removed.", "success")
-    return redirect(('admin/jam_setup'))
+    return redirect(('/admin/jam_setup'))
 
 
 @admin_routes.route('/admin/jam_setup/remove_workshop_room/<room_id>', methods=['GET', 'POST'])
@@ -412,7 +412,7 @@ def remove_slot(slot_id):
 def remote_workshop_room(room_id):
     database.remove_room(room_id)
     flash("Room removed.", "success")
-    return redirect(('admin/jam_setup'))
+    return redirect(('/admin/jam_setup'))
 
 
 @admin_routes.route('/admin/badge', methods=['GET', 'POST'])
