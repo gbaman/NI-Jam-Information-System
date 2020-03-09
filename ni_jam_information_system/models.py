@@ -227,6 +227,7 @@ class RaspberryJam(Base):
     jam_password = Column(String(45), nullable=True)
     event_source = Column(Enum(EventSourceEnum))
     volunteer_attendance = relationship('VolunteerAttendance')
+    attendees = relationship('Attendee')
 
     @hybrid_property
     def volunteers_attending_jam(self):

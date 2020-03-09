@@ -150,6 +150,7 @@ def eventbrite_webhook(webhook_key):
             if "api_url" in data:
                 if "orders" in data["api_url"] or "attendee" in data["api_url"]:
                     current_jam = database.get_current_jam_id()
-                    database.update_attendees_from_eventbrite(current_jam)
+                    if data["config"] and data["config"]["action"] and data["config"]["action"] == "barcode.checked_in":
+                        database.update_single_attendee_check_in_from_eventbrite(current_jam, int(data["api_url"].split("attendees/")[1].split("/")[0]), True)
                     return ""
     abort(405)

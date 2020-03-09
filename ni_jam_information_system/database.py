@@ -149,9 +149,22 @@ def get_workshops_for_jam_old(jam_id):
     return workshops
 
 
+def update_single_attendee_check_in_from_eventbrite(event_id, attendee_id, check_in):
+    event = get_jam_details(event_id)
+    if event.event_source != EventSourceEnum.eventbrite:  # Only import users if it is an Eventbrite event
+        return False
+    if check_in:
+        for attendee in event.attendees:
+            if attendee_id == attendee.attendee_id:# and not attendee.checked_in:
+                attendee.checked_in = 1
+                attendee.current_location = "Checked in"
+                db_session.commit()
+                return True
+    return False
+
+
 def update_attendees_from_eventbrite(event_id):
     event = get_jam_details(event_id)
-    print(event.jam_id)
     if event.event_source != EventSourceEnum.eventbrite:  # Only import users if it is an Eventbrite event
         return False
     attendees = get_eventbrite_attendees_for_event(event_id)
