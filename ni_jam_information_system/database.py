@@ -3,6 +3,7 @@ import random
 import string
 import traceback
 import uuid
+import ldn_jam_importer
 
 import os
 
@@ -168,6 +169,8 @@ def update_attendees_from_eventbrite(event_id):
     if event.event_source != EventSourceEnum.eventbrite:  # Only import users if it is an Eventbrite event
         return False
     attendees = get_eventbrite_attendees_for_event(event_id)
+    attendees["attendees"] = ldn_jam_importer.ldn_jam_generate_ids(attendees['attendees'])
+    
     print(f"Number of attendees to import - {len(attendees['attendees'])}")
     for attendee in attendees["attendees"]:
 
