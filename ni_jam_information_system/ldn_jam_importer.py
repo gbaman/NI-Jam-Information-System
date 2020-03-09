@@ -16,4 +16,6 @@ def ldn_jam_generate_ids(attendees):
             attendees[1]["id"] = "10" + attendees[1]["id"][2:]
             attendees[2]["id"] = "11" + attendees[2]["id"][2:]
         new_attendees = new_attendees + attendees
+    for attendee in new_attendees:
+        attendee["ticket_class_name"] = "First-timer"
     return new_attendees
