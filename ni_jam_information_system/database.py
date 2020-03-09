@@ -155,7 +155,7 @@ def update_single_attendee_check_in_from_eventbrite(event_id, attendee_id, check
         return False
     if check_in:
         for attendee in event.attendees:
-            if attendee_id == attendee.attendee_id:# and not attendee.checked_in:
+            if attendee_id == attendee.attendee_id and not attendee.checked_in:
                 attendee.checked_in = 1
                 attendee.current_location = "Checked in"
                 db_session.commit()
