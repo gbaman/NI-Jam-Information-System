@@ -166,6 +166,7 @@ class ExpensesClaimForm(FlaskForm):
     paypal_email_address = StringField("PayPal email address", [validators.Email(), validators.DataRequired()])
     requested_value = FloatField("Total cost being claimed for", [validators.DataRequired(), validators.NumberRange(min=0.01, max=100, message="Expense claims can only be up to £100")])
     receipt_date = DateField("Date on receipt", [validators.DataRequired()])
+    expenses_type = SelectField("Expense type", [validators.DataRequired()], choices=[("Travel : Translink", "Travel : Translink"), ("Travel : Other", "Travel : Other"), ("Other Expense", "Other Expense")])
     receipt = FileField('Receipt', validators=[
         FileRequired(),
         FileAllowed(("pdf", "png", "jpg", "jpeg"), 'Should be a PDF, png, jpg or jpeg.')

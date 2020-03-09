@@ -383,17 +383,17 @@ function selectInventory(inventory_id) {
 
 function editLedgerDescription(transaction_id, description, item) {
     alertify.prompt( 'Edit description', '', description
-               , function(evt, value){ updateLedgerDescription(transaction_id, value); item.textContent = value}, function() {});
+               , function(evt, value){ updateLedgerDescription(transaction_id, value); item.textContent = value; item.bgColor = "#ffffff"}, function() {});
 }
 
 function editLedgerSupplier(transaction_id, supplier, item) {
     alertify.prompt( 'Edit supplier', '', supplier
-               , function(evt, value){ updateLedgerSupplier(transaction_id, value); item.textContent = value}, function() {});
+               , function(evt, value){ updateLedgerSupplier(transaction_id, value); item.textContent = value; item.bgColor = "#ffffff"}, function() {});
 }
 
 function editLedgerNotes(transaction_id, notes, item) {
     alertify.prompt( 'Edit notes', '', notes
-               , function(evt, value){ updateLedgerNotes(transaction_id, value); item.textContent = value}, function() {});
+               , function(evt, value){ updateLedgerNotes(transaction_id, value); item.textContent = value; item.bgColor = "#ffffff"}, function() {});
 }
 
 function updateLedgerDescription(transaction_id, description){
@@ -462,6 +462,8 @@ $(function() {
   $(".transaction-category-picker").on("changed.bs.select", function(e, clickedIndex, newValue, oldValue) {
 
       updateLedgerCategory(this.attributes["data-transaction"].value, this.value);
+      var cell = $(this).closest("td")[0];
+      cell.bgColor = '#ffffff';
       console.log(this.value, clickedIndex, newValue, oldValue)
   });
 

@@ -37,8 +37,8 @@
         <tr>
             <td bgcolor="#e0e0e0">{{ t.bank_date }}</td>
             <td bgcolor="#e0e0e0">{{ t.bank_text }}</td>
-            <td onclick='editLedgerSupplier("{{ t.transaction_id }}", this.textContent, this)'>{{ t.supplier }}</td>
-            <td onclick='editLedgerDescription("{{ t.transaction_id }}", this.textContent, this)'>{{ t.description }}</td>
+            <td bgcolor={{ t.supplier_colour }} onclick='editLedgerSupplier("{{ t.transaction_id }}", this.textContent, this)'>{{ t.supplier }}</td>
+            <td bgcolor={{ t.description_colour }} onclick='editLedgerDescription("{{ t.transaction_id }}", this.textContent, this)'>{{ t.description }}</td>
             {% if t.receipt_url %}
                 <td><a href="{{ t.receipt_url }}" target="_blank" class="btn btn-info" role="button">Receipt</a><br></td>
             {% else %}
@@ -85,7 +85,7 @@
                         </button>
             {% endif %} </td>
         
-            <td>
+            <td bgcolor={{ t.category_colour }}>
                 <label for="content-picker"></label><select data-live-search="true" data-transaction="{{ t.transaction_id }}" data-width="100%" class="selectpicker transaction-category-picker selectcontent" id="content-picker">
                 category is {{ t.category }}
                 {% if not t.category %}

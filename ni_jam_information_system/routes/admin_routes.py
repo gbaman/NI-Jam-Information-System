@@ -111,7 +111,7 @@ def add_workshop_to_jam():
         workshop = database.add_workshop_to_jam_from_catalog(database.get_current_jam_id(), form.workshop.data, form.volunteer.data, form.slot.data, form.room.data, int(literal_eval(form.pilot.data)), int(literal_eval(form.pair.data)))
         if form.volunteer.data:
             user = database.get_login_user_from_user_id(form.volunteer.data)
-            if user != request.logged_in_user:
+            if user and user != request.logged_in_user:
                 notificiations.send_workshop_signup_full_notification(user, request.logged_in_user, workshop)
         return redirect("/admin/add_workshop_to_jam", code=302)
     return render_template('admin/add_workshop_to_jam_form.html', form=form, workshop_slots=database.get_schedule_by_time_slot(database.get_current_jam_id(), 0, admin=True))
@@ -162,6 +162,7 @@ def attendee_list():
 @volunteer_required
 @module_volunteer_signup_required
 def volunteer(user_id=None):
+    selected_jam = database.get_jam_details(database.get_current_jam_id())
     validated_user = request.logged_in_user
     if user_id and not request.logged_in_user.user_id == user_id:
         if request.logged_in_user.group_id >=4:
@@ -172,7 +173,7 @@ def volunteer(user_id=None):
         database.reset_login_user_ics_uuid(validated_user)
     time_slots, workshop_rooms_in_use = database.get_volunteer_data(database.get_current_jam_id(), validated_user)
     users = database.get_users(include_inactive=False)
-    return render_template("admin/volunteer_signup.html", time_slots = time_slots, workshop_rooms_in_use = workshop_rooms_in_use, current_selected = ",".join(str(x.workshop_run_id) for x in validated_user.workshop_runs) +",", user=validated_user, users=users, jam_id=database.get_current_jam_id())
+    return render_template("admin/volunteer_signup.html", time_slots = time_slots, workshop_rooms_in_use = workshop_rooms_in_use, current_selected = ",".join(str(x.workshop_run_id) for x in validated_user.workshop_runs) +",", user=validated_user, users=users, jam_id=selected_jam.jam_id, selected_jam=selected_jam)
 
 
 @admin_routes.route("/admin/volunteer_attendance", methods=['GET', 'POST'])
@@ -389,7 +390,7 @@ def jam_setup(slot_id=None, room_id=None):
             database.add_slot(slot_form.slot_id.data, slot_form.slot_time_start.data, slot_form.slot_time_end.data)
         else:
             flash("Error - Start time is after end time!", "danger")
-        return redirect(('admin/jam_setup'))
+        return redirect(('/admin/jam_setup'))
     elif request.method == 'POST' and room_form.validate():
         if not database.add_workshop_room(room_id, room_form.room_name.data, room_form.room_capacity.data, room_form.room_volunteers_needed.data):
             flash("Error - Unable to add new workshop room. Does a workshop already exist with that name?", "danger")
@@ -402,7 +403,7 @@ def jam_setup(slot_id=None, room_id=None):
 def remove_slot(slot_id):
     database.remove_slot(slot_id)
     flash("Slot removed.", "success")
-    return redirect(('admin/jam_setup'))
+    return redirect(('/admin/jam_setup'))
 
 
 @admin_routes.route('/admin/jam_setup/remove_workshop_room/<room_id>', methods=['GET', 'POST'])
@@ -411,7 +412,7 @@ def remove_slot(slot_id):
 def remote_workshop_room(room_id):
     database.remove_room(room_id)
     flash("Room removed.", "success")
-    return redirect(('admin/jam_setup'))
+    return redirect(('/admin/jam_setup'))
 
 
 @admin_routes.route('/admin/badge', methods=['GET', 'POST'])
@@ -485,7 +486,7 @@ def expenses_claim():
         if not os.path.isfile(file_path):
             f.save(file_path)
             flash("File upload successful.", "success")
-            expense = google_sheets.Expense(["", datetime.datetime.today().strftime("%d/%m/%Y"), form.receipt_date.data.strftime("%d/%m/%Y"), user.user_id, f"{user.first_name} {user.surname}", form.paypal_email_address.data, f"/{file_path}", form.requested_value.data, None, None, None, None, None, None, None, None], offset=0)
+            expense = google_sheets.Expense(["", datetime.datetime.today().strftime("%d/%m/%Y"), form.receipt_date.data.strftime("%d/%m/%Y"), user.user_id, f"{user.first_name} {user.surname}", form.paypal_email_address.data, f"/{file_path}", form.requested_value.data, None, None, None, None, None, None, None, None, form.expenses_type.data], offset=0)
             google_sheets.create_expense_row(expense)
         else:
             flash("Failed to upload - File of same name already exists.", "danger")

@@ -88,6 +88,10 @@ def inject_user_data():
     return dict(logged_in_user=database.get_user_from_cookie(request.cookies.get('jam_login')))
 
 
+@app.template_filter("remove_duplicates")
+def remove_duplicates(list_one, list_two):
+    return list(set(list_one) - set(list_two))
+
 
 if __name__ == '__main__':
     app.run()

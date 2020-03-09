@@ -149,9 +149,22 @@ def get_workshops_for_jam_old(jam_id):
     return workshops
 
 
+def update_single_attendee_check_in_from_eventbrite(event_id, attendee_id, check_in):
+    event = get_jam_details(event_id)
+    if event.event_source != EventSourceEnum.eventbrite:  # Only import users if it is an Eventbrite event
+        return False
+    if check_in:
+        for attendee in event.attendees:
+            if attendee_id == attendee.attendee_id and not attendee.checked_in:
+                attendee.checked_in = 1
+                attendee.current_location = "Checked in"
+                db_session.commit()
+                return True
+    return False
+
+
 def update_attendees_from_eventbrite(event_id):
     event = get_jam_details(event_id)
-    print(event.jam_id)
     if event.event_source != EventSourceEnum.eventbrite:  # Only import users if it is an Eventbrite event
         return False
     attendees = get_eventbrite_attendees_for_event(event_id)
@@ -261,7 +274,7 @@ def get_attendees_in_order(order_id, current_jam=False, ignore_parent_tickets=Fa
 
 
 def get_time_slots_objects():
-    slots = db_session.query(WorkshopSlot).order_by(WorkshopSlot.slot_time_start)
+    slots = db_session.query(WorkshopSlot).order_by(WorkshopSlot.slot_time_start.asc())
     for slot in slots: 
         slot.slot_duration = 0 # TODO: Get slot duration working...
     return slots
@@ -289,7 +302,7 @@ def get_workshop_from_workshop_id(workshop_id):
 
 def get_individual_time_slots_to_select():
     to_return = []
-    for time_slots in db_session.query(WorkshopSlot):
+    for time_slots in db_session.query(WorkshopSlot).order_by(WorkshopSlot.slot_time_start.asc()):
         to_return.append((time_slots.slot_id, str(time_slots.slot_time_start)))
     return to_return
 
@@ -533,15 +546,17 @@ def database_reset():
 
 
 def get_volunteer_data(jam_id, current_user):
-    time_slots = db_session.query(WorkshopSlot).all()
+    time_slots: List[WorkshopSlot] = db_session.query(WorkshopSlot).order_by(WorkshopSlot.slot_time_start.asc()).all()
 
-    workshop_data = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.jam_id == jam_id).all()
+    workshop_data: List[RaspberryJamWorkshop] = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.jam_id == jam_id).all()
 
-    workshop_rooms_in_use = db_session.query(WorkshopRoom).filter(RaspberryJamWorkshop.workshop_room_id == WorkshopRoom.room_id,
+    workshop_rooms_in_use: List[WorkshopRoom] = db_session.query(WorkshopRoom).filter(RaspberryJamWorkshop.workshop_room_id == WorkshopRoom.room_id,
                                                                   RaspberryJamWorkshop.jam_id == jam_id
                                                                   ).order_by(WorkshopRoom.room_name).all()
 
     for time_slot in time_slots:
+        time_slot.total_volunteers_required = 0
+        time_slot.total_volunteers_signed_up = 0
         time_slot.rooms = []
         for workshop_room in workshop_rooms_in_use:
             room = deepcopy(workshop_room)
@@ -563,6 +578,8 @@ def get_volunteer_data(jam_id, current_user):
                             workshop.workshop_needed_volunteers = max(workshop.workshop_room.room_volunteers_needed, volunteers_needed_from_attendees)  # Set volunteers needed to the calculated figure based on attendees, unless room minimum is greater.
                         else:  # and does not have attendees for the workshop (for example, car parking etc)
                             workshop.workshop_needed_volunteers = workshop.workshop.workshop_volunteer_requirements
+                        time_slot.total_volunteers_required = time_slot.total_volunteers_required + workshop.workshop_needed_volunteers
+                        time_slot.total_volunteers_signed_up = time_slot.total_volunteers_signed_up + len(workshop.users)
 
                     if not room.workshop.workshop_room:
                         room.workshop.bg_colour = grey
@@ -581,7 +598,7 @@ def get_volunteer_data(jam_id, current_user):
 
 
 def get_workshop_timetable_data(jam_id):  # Similar to get_volunteer_data(), but for the large TV with different colouring.
-    time_slots = db_session.query(WorkshopSlot).all()[1:]
+    time_slots = db_session.query(WorkshopSlot).order_by(WorkshopSlot.slot_time_start.asc()).all()[1:]
 
     workshop_data = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.jam_id == jam_id, RaspberryJamWorkshop.workshop_id == Workshop.workshop_id, Workshop.workshop_hidden != 1).all()
 
@@ -982,7 +999,7 @@ def remove_equipment_entry_to_inventory(inventory_id, equipment_entry_id):
 
 
 def get_wrangler_overview(jam_id):
-    sessions_data = db_session.query(WorkshopSlot).filter(RaspberryJamWorkshop.jam_id == jam_id)
+    sessions_data = db_session.query(WorkshopSlot).filter(RaspberryJamWorkshop.jam_id == jam_id).order_by(WorkshopSlot.slot_time_start.asc())
     return sessions_data
 
 

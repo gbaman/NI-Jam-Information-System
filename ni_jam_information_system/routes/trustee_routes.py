@@ -154,9 +154,9 @@ def ledger_upload_link(transaction_id):
     if "PAYPAL" in t.bank_text:
         already_matched_expenses = []
         for checking_transaction in transactions:
-            if checking_transaction.description and "Expense ID = " in checking_transaction.description:
+            if checking_transaction.description and checking_transaction.expense_id: # "Expense ID = " in checking_transaction.description:
                 try:
-                    already_matched_expenses.append(int(checking_transaction.description.split("Expense ID = ")[1]))
+                    already_matched_expenses.append(int(checking_transaction.expense_id))
                 except:
                     continue
         expenses = google_sheets.get_volunteer_expenses_table(volunteer_expenses=expenses)
@@ -186,11 +186,14 @@ def ledger_upload_link_expense(transaction_id, expense_id):
 
     id_column_data = google_sheets.update_transaction_cell(transaction_id, google_sheets.T.RECEIPT_DATE, expense.receipt_date.strftime("%d/%m/%Y"))
     google_sheets.update_transaction_cell(transaction_id, google_sheets.T.RECEIPT_URL, expense.receipt_url, id_column_data=id_column_data)
-    google_sheets.update_transaction_cell(transaction_id, google_sheets.T.SUPPLIER, "Volunteer Expense", id_column_data=id_column_data)
-    google_sheets.update_transaction_cell(transaction_id, google_sheets.T.DESCRIPTION, f"Expense ID = {expense.expense_id}", id_column_data=id_column_data)
+    if "Translink" in expense.expense_type: 
+        google_sheets.update_transaction_cell(transaction_id, google_sheets.T.SUPPLIER, "Translink", id_column_data=id_column_data)
+    if "Travel" in expense.expense_type:
+        google_sheets.update_transaction_cell(transaction_id, google_sheets.T.DESCRIPTION, f"Travel expense", id_column_data=id_column_data)
+        google_sheets.update_transaction_cell(transaction_id, google_sheets.T.CATEGORY, "Travel expenses", id_column_data=id_column_data)
     google_sheets.update_transaction_cell(transaction_id, google_sheets.T.PAYMENT_BY_ID, expense.volunteer_id, id_column_data=id_column_data)
     google_sheets.update_transaction_cell(transaction_id, google_sheets.T.PAYMENT_BY, expense.volunteer_name, id_column_data=id_column_data)
-    google_sheets.update_transaction_cell(transaction_id, google_sheets.T.CATEGORY, "Travel expenses", id_column_data=id_column_data)
+    google_sheets.update_transaction_cell(transaction_id, google_sheets.T.EXPENSE_ID, expense.expense_id, id_column_data=id_column_data)
     flash("Transactions successfully linked", "success")
     return redirect(url_for("trustee_routes.ledger"))
 
@@ -231,6 +234,40 @@ def volunteer_stats():
         jams.append(jam)
     volunteers = sorted(database.get_login_users(), key=lambda x: x.surname.lower(), reverse=False)
     return render_template("trustee/volunteer_stats.html", jams=jams[::-1], volunteers=volunteers)
+
+
+@trustee_routes.route("/volunteer_stats/export")
+@trustee_routes.route("/volunteer_stats/export/<filter>")
+@trustee_required
+@module_volunteer_attendance_required
+def volunteer_stats_export(filter=None):
+    all_jams = database.get_jams_in_db()
+    jams: List[database.RaspberryJam] = []
+    for jam_count_id, jam in enumerate(all_jams[::-1]):
+        if jam_count_id > 11:
+            break
+        jams.append(jam)
+    volunteers = sorted(database.get_login_users(), key=lambda x: x.surname.lower(), reverse=False)
+    csv_file = []
+    jam_names = ["Name"]
+    jam_dates = ["Date"]
+    for jam in jams[::-1]:
+        jam_names.append(jam.name)
+        jam_dates.append(jam.date.strftime("%d/%m/%Y"))
+    csv_file.append(",".join(jam_names))
+    csv_file.append(",".join(jam_dates))
+    for volunteer in volunteers:
+        if not filter or (filter and "stemnet" in filter and volunteer.police_cert_status[0] == "Valid and verified"):
+            volunteer_line = [f"{volunteer.first_name} {volunteer.surname}"]
+            for jam in jams[::-1]:
+                if volunteer in jam.volunteers_attending_jam:
+                    volunteer_line.append("Volunteered")
+                else:
+                    volunteer_line.append("N/A")
+            csv_file.append(",".join(volunteer_line))
+    response = make_response(str("\n".join(csv_file)))
+    response.headers["Content-Disposition"] = "attachment; filename=volunteers.csv"
+    return response
 
 
 @trustee_routes.route("/police_checks_admin")
