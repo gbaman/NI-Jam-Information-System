@@ -597,8 +597,11 @@ def get_volunteer_data(jam_id, current_user):
     return time_slots, sorted(workshop_rooms_in_use, key=lambda x: x.room_name, reverse=False)
 
 
-def get_workshop_timetable_data(jam_id):  # Similar to get_volunteer_data(), but for the large TV with different colouring.
-    time_slots = db_session.query(WorkshopSlot).order_by(WorkshopSlot.slot_time_start.asc()).all()[1:]
+def get_workshop_timetable_data(jam_id, include_hidden_time_slots=False) -> Tuple[List[WorkshopSlot], List[WorkshopRoom]]:  # Similar to get_volunteer_data(), but for the large TV with different colouring.
+    if include_hidden_time_slots:
+        time_slots = db_session.query(WorkshopSlot).order_by(WorkshopSlot.slot_time_start.asc()).all()
+    else:
+        time_slots = db_session.query(WorkshopSlot).filter(WorkshopSlot.slot_hidden == False).order_by(WorkshopSlot.slot_time_start.asc()).all()
 
     workshop_data = db_session.query(RaspberryJamWorkshop).filter(RaspberryJamWorkshop.jam_id == jam_id, RaspberryJamWorkshop.workshop_id == Workshop.workshop_id, Workshop.workshop_hidden != 1).all()
 
@@ -1016,6 +1019,7 @@ def add_slot(slot_id, slot_time_start, slot_time_end):
         slot = WorkshopSlot()
     slot.slot_time_start = slot_time_start
     slot.slot_time_end = slot_time_end
+    slot.slot_hidden = False
     db_session.add(slot)
     db_session.commit()
 

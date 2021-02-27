@@ -318,7 +318,7 @@ class Workshop(Base):
     workshop_volunteer_requirements = Column(Integer)
     workshop_archived = Column(Integer)
 
-    workshop_files = relationship('WorkshopFile')
+    workshop_files: List["WorkshopFile"] = relationship('WorkshopFile')
     #workshop_equipment = relationship("Equipment", secondary="workshop_equipment")
     workshop_equipment = relationship('WorkshopEquipment')
     badges = relationship('BadgeLibrary', secondary='workshop_badge')
@@ -362,6 +362,7 @@ class WorkshopSlot(Base):
     slot_id = Column(Integer, primary_key=True)
     slot_time_start = Column(Time, nullable=False)
     slot_time_end = Column(Time, nullable=False)
+    slot_hidden = Column(Boolean, nullable=False)
     workshops_in_slot: List[RaspberryJamWorkshop] = relationship("RaspberryJamWorkshop")
 
     @property
