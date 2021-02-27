@@ -3,7 +3,9 @@ from flask import Blueprint, abort
 import database
 import json
 import eventbrite_interactions
-from datetime import datetime
+from datetime import datetime, time
+
+from models import FileTypeEnum
 from secrets.config import *
 from decorators import *
 import notificiations
@@ -154,3 +156,44 @@ def eventbrite_webhook(webhook_key):
                         database.update_single_attendee_check_in_from_eventbrite(current_jam, int(data["api_url"].split("attendees/")[1].split("/")[0]), True)
                     return ""
     abort(405)
+
+@api_routes.route("/api/get_schedule/<jam_id>", methods=['GET'])
+@api_routes.route("/api/get_schedule", methods=['GET'])
+@module_api_required
+@module_public_schedule_required
+@api_key_required
+def get_schedule(jam_id=None):
+    def custom_json_converter(o):
+        if isinstance(o, time):
+            return o.__str__()
+
+    if not jam_id:
+        jam_id = database.get_current_jam_id()
+    time_slots, workshop_rooms_in_use = database.get_workshop_timetable_data(jam_id, include_hidden_time_slots=True)
+    data_to_return = {"time_slots":{}}
+    for slot in time_slots:
+
+        workshops_runs = {}
+        for workshop in slot.workshops_in_slot:
+            workshop_files = {}
+            for workshop_file in workshop.workshop.workshop_files:
+                workshop_files[workshop_file.file_id] = {"file_path":workshop_file.file_path,
+                                                         "file_title": workshop_file.file_title,
+                                                         "file_type": workshop_file.file_type.name,
+                                                         "file_permission": workshop_file.file_permission}
+            workshops_runs[workshop.workshop_run_id] = {"pair": workshop.pair,
+                                                        "pilot":workshop.pilot,
+                                                        "workshop_id":workshop.workshop.workshop_id,
+                                                        "workshop_title":workshop.workshop.workshop_title,
+                                                        "workshop_description":workshop.workshop.workshop_description,
+                                                        "workshop_hidden": workshop.workshop.workshop_hidden,
+                                                        "workshop_url": workshop.workshop.workshop_url,
+                                                        "workshop_files": workshop_files,
+                                                        }
+        data_to_return["time_slots"][slot.slot_id] = {"slot_time_start":slot.slot_time_start,
+                                                      "slot_time_end":slot.slot_time_end,
+                                                      "slot_hidden":slot.slot_hidden,
+                                                      "workshops_run": workshops_runs}
+
+    return json.dumps(data_to_return, default=custom_json_converter)
+
