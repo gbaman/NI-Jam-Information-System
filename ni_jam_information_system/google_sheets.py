@@ -381,6 +381,8 @@ def get_transaction_table(logins, offset=3, main_sheet_data=None, categories_dat
             categories.append(line[1])
     for line_id, line in enumerate(main_sheet_data):
         try:
+            if line[0] == "#HEADING":
+                continue # Ignore any row with #HEADING in the 1st column
             t = Transaction(line)
             t.categories = categories
             t.update_names(logins)
