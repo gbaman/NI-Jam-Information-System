@@ -74,8 +74,13 @@ class E():
 class Transaction():
     user_id = None
 
-    def __init__(self, raw_row, offset=1, bank=False):
-        row = raw_row[offset:]
+    def __init__(self, raw_row=None, offset=1, bank=False):
+        if not raw_row:
+            row = [-1, "01/01/2000", "01/01/2000", "ERROR", "ERROR", "ERROR", "", "-1", "-1", None, None, None, None, None, None, "ERROR", "ERROR", None]
+            self.error = True
+        else:
+            row = raw_row[offset:]
+            self.error = False
         self.transaction_id = row[0]
         self.bank_date = _convert_date(row[1], bank)
         self.receipt_date = _convert_date(row[2], bank)
@@ -127,19 +132,19 @@ class Transaction():
 
     @property
     def supplier_colour(self):
-        if not self.supplier:
+        if not self.supplier or self.error:
             return "#ff928a"
         return "#ffffff"
 
     @property
     def description_colour(self):
-        if not self.description:
+        if not self.description or self.error:
             return "#ff928a"
         return "#ffffff"
 
     @property
     def category_colour(self):
-        if not self.category:
+        if not self.category or self.error:
             return "#ff928a"
         return "#ffffff"
 
@@ -374,11 +379,15 @@ def get_transaction_table(logins, offset=3, main_sheet_data=None, categories_dat
     for line in categories_data:
         if line[1]:
             categories.append(line[1])
-    for line in main_sheet_data:
-        t = Transaction(line)
-        t.categories = categories
-        t.update_names(logins)
-        transaction_data.append(t)
+    for line_id, line in enumerate(main_sheet_data):
+        try:
+            t = Transaction(line)
+            t.categories = categories
+            t.update_names(logins)
+            transaction_data.append(t)
+        except ValueError:
+            print(f"Unable in load value at row {line_id}!")
+            transaction_data.append(Transaction())
     return transaction_data
 
 
