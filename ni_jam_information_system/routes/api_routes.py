@@ -175,21 +175,22 @@ def get_schedule(jam_id=None):
 
         workshops_runs = {}
         for workshop in slot.workshops_in_slot:
-            workshop_files = {}
-            for workshop_file in workshop.workshop.workshop_files:
-                workshop_files[workshop_file.file_id] = {"file_path":workshop_file.file_path,
-                                                         "file_title": workshop_file.file_title,
-                                                         "file_type": workshop_file.file_type.name,
-                                                         "file_permission": workshop_file.file_permission}
-            workshops_runs[workshop.workshop_run_id] = {"pair": workshop.pair,
-                                                        "pilot":workshop.pilot,
-                                                        "workshop_id":workshop.workshop.workshop_id,
-                                                        "workshop_title":workshop.workshop.workshop_title,
-                                                        "workshop_description":workshop.workshop.workshop_description,
-                                                        "workshop_hidden": workshop.workshop.workshop_hidden,
-                                                        "workshop_url": workshop.workshop.workshop_url,
-                                                        "workshop_files": workshop_files,
-                                                        }
+            if workshop.jam_id == jam_id:
+                workshop_files = {}
+                for workshop_file in workshop.workshop.workshop_files:
+                    workshop_files[workshop_file.file_id] = {"file_path":workshop_file.file_path,
+                                                             "file_title": workshop_file.file_title,
+                                                             "file_type": workshop_file.file_type.name,
+                                                             "file_permission": workshop_file.file_permission}
+                workshops_runs[workshop.workshop_run_id] = {"pair": workshop.pair,
+                                                            "pilot":workshop.pilot,
+                                                            "workshop_id":workshop.workshop.workshop_id,
+                                                            "workshop_title":workshop.workshop.workshop_title,
+                                                            "workshop_description":workshop.workshop.workshop_description,
+                                                            "workshop_hidden": workshop.workshop.workshop_hidden,
+                                                            "workshop_url": workshop.workshop.workshop_url,
+                                                            "workshop_files": workshop_files,
+                                                            }
         data_to_return["time_slots"][slot.slot_id] = {"slot_time_start":slot.slot_time_start,
                                                       "slot_time_end":slot.slot_time_end,
                                                       "slot_hidden":slot.slot_hidden,
