@@ -2,8 +2,9 @@ from flask_wtf import FlaskForm
 from flask_wtf.file import FileRequired, FileAllowed
 from wtforms import Form, BooleanField, StringField, PasswordField, IntegerField, TextAreaField, RadioField, \
     SelectField, validators, HiddenField, FileField, DateTimeField, FloatField
-from wtforms.fields.html5 import DateField
+from wtforms.fields import DateField
 from wtforms_components import TimeField
+
 from flask import g, Flask, current_app
 import datetime
 
