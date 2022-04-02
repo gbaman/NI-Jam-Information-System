@@ -15,3 +15,4 @@ flask_mail
 beautifulsoup4
 slackclient
 ics
+cryptography

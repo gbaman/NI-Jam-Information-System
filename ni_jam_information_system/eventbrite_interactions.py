@@ -1,4 +1,6 @@
 from eventbrite import Eventbrite
+
+import configuration
 from secrets.config import eventbrite_key
 
 class MyEventbrite(Eventbrite):
@@ -55,7 +57,23 @@ def get_eventbrite_event_by_id(id):
 def get_eventbrite_events_name_id():
     if not eventbrite_key:
         return []
-    events = eventbrite.get_user_owned_events(eventbrite.get_user()["id"])
+    eventbrite_user = eventbrite.get_user()
+    organisations = eventbrite.get("/users/me/organizations/")["organizations"]
+    if organisations:
+        if len(organisations) > 1:
+            for organisation in organisations:
+                if organisation["name"] == configuration.verify_config_item("general", "jam_organisation_name"):
+                    eventbrite_organisation = organisation
+                    break
+            else:
+                return {}
+        else:
+            eventbrite_organisation = organisations[0]
+    else:
+        return {}
+
+
+    events = eventbrite.get(f"/organizations/{eventbrite_organisation['id']}/events/", data={"page_size":200})
     jam_event_names = []
     for event in events["events"]:
         jam_event_names.append({"name":event["name"]["text"], "id":event["id"]})
