@@ -61,7 +61,7 @@ class FileTypeEnum(enum.Enum):
 class Attendee(Base):
     __tablename__ = 'attendees'
 
-    attendee_id = Column(Integer, primary_key=True, nullable=False, unique=True)
+    attendee_id = Column(BigInteger, primary_key=True, nullable=False, unique=True)
     first_name = Column(String(45), nullable=False)
     surname = Column(String(45), nullable=False)
     age = Column(Integer)
@@ -532,9 +532,9 @@ class PoliceCheck(Base):
     @hybrid_property
     def _status(self):
         if self.certificate_issue_date and self.certificate_expiry_date and self.certificate_application_date and self.certificate_type and self.certificate_reference:
-            if self.time_delta_till_expiry.days < 0:
+            if self.time_delta_till_expiry.days < 0 and self.certificate_type != CertificateTypeEnum.DBS_Update_Service:
                 return "Certificate has now expired!", database.red 
-            elif self.time_delta_till_expiry.days < 60:
+            elif self.time_delta_till_expiry.days < 60 and self.certificate_type != CertificateTypeEnum.DBS_Update_Service:
                 return f"Expires in {self.time_delta_till_expiry.days} days!", database.orange 
             
             elif self.certificate_type == CertificateTypeEnum.DBS_Update_Service:
