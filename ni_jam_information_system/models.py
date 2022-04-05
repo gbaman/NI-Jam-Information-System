@@ -363,11 +363,15 @@ class WorkshopSlot(Base):
     slot_time_start = Column(Time, nullable=False)
     slot_time_end = Column(Time, nullable=False)
     slot_hidden = Column(Boolean, nullable=False)
+    slot_name = Column(String(45), nullable=True)
     workshops_in_slot: List[RaspberryJamWorkshop] = relationship("RaspberryJamWorkshop")
 
     @property
     def title(self):
-        return f"{self.slot_time_start} - {self.slot_time_end}"
+        if self.slot_name:
+            return f"{self.slot_name} ({self.slot_time_start.strftime('%H:%M')} - {self.slot_time_end.strftime('%H:%M')})"
+        else:
+            return f"{self.slot_time_start.strftime('%H:%M')} - {self.slot_time_end.strftime('%H:%M')}"
 
     @property
     def volunteers_busy_in_slot(self):

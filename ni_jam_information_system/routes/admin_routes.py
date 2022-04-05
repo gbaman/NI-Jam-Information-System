@@ -376,6 +376,7 @@ def jam_setup(slot_id=None, room_id=None):
         slot = database.get_time_slots_objects().filter(database.WorkshopSlot.slot_id == slot_id).first()
         slot_form.slot_time_start.default = slot.slot_time_start
         slot_form.slot_time_end.default = slot.slot_time_end
+        slot_form.slot_name.default = slot.slot_name
         slot_form.slot_id.default = slot.slot_id
         slot_form.process()
     elif room_id and request.method == "GET":
@@ -387,7 +388,7 @@ def jam_setup(slot_id=None, room_id=None):
         room_form.process()
     if request.method == 'POST' and (slot_form.validate()):
         if slot_form.slot_time_start.data < slot_form.slot_time_end.data:
-            database.add_slot(slot_form.slot_id.data, slot_form.slot_time_start.data, slot_form.slot_time_end.data)
+            database.add_slot(slot_form.slot_id.data, slot_form.slot_time_start.data, slot_form.slot_time_end.data, slot_form.slot_name.data)
         else:
             flash("Error - Start time is after end time!", "danger")
         return redirect(('/admin/jam_setup'))

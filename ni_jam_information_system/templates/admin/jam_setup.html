@@ -24,6 +24,7 @@
     <dl>
         {{ render_field(form_slot.slot_time_start, class = "form-control") }}
         {{ render_field(form_slot.slot_time_end, class = "form-control") }}
+        {{ render_field(form_slot.slot_name, class = "form-control") }}
         {{ form_slot.slot_id }}
     </dl>
     <p><input class="btn btn-primary" type=submit value="Add/edit time slot">
@@ -36,7 +37,7 @@
         <th>Slot ID</th>
         <th>Start time</th>
         <th>End time</th>
-        <th>Length</th>
+        <th>Slot name</th>
         <th>Edit</th>
         <th>Remove</th>
     </tr>
@@ -51,7 +52,7 @@
         <td>{{slot.slot_id}}</td>
         <td>{{slot.slot_time_start}}</td>
         <td>{{slot.slot_time_end}}</td>
-        <td>{{slot.slot_duration}}</td>
+        <td>{{slot.slot_name}}</td>
         <td><a href="/admin/jam_setup/slot/{{slot.slot_id}}" class="btn btn-success" role="button">Edit</a></td>
         <td><a href="/admin/jam_setup/remove_slot/{{slot.slot_id}}" class="btn btn-warning" role="button">Remove</a></td>
     </tr>

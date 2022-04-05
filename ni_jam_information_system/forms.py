@@ -115,6 +115,7 @@ class SlotForm(Form):
     slot_id = HiddenField("Workshop ID", default="")
     slot_time_start = TimeField("Slot time start", [validators.DataRequired()])
     slot_time_end = TimeField("Slot time finish", [validators.DataRequired()])
+    slot_name = StringField("Slot Name")
 
 
 class EquipmentAddToWorkshopForm(FlaskForm):

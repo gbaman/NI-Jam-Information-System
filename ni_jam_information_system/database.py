@@ -303,7 +303,7 @@ def get_workshop_from_workshop_id(workshop_id):
 def get_individual_time_slots_to_select():
     to_return = []
     for time_slots in db_session.query(WorkshopSlot).order_by(WorkshopSlot.slot_time_start.asc()):
-        to_return.append((time_slots.slot_id, str(time_slots.slot_time_start)))
+        to_return.append((time_slots.slot_id, str(time_slots.title)))
     return to_return
 
 
@@ -1012,7 +1012,7 @@ def enable_user(user_id, enable):
     db_session.commit()
 
 
-def add_slot(slot_id, slot_time_start, slot_time_end):
+def add_slot(slot_id, slot_time_start, slot_time_end, slot_name):
     if slot_id or slot_id == 0:  # Already existing slot
         slot = db_session.query(WorkshopSlot).filter(WorkshopSlot.slot_id == slot_id).first()
     else:  # New slot
@@ -1020,6 +1020,7 @@ def add_slot(slot_id, slot_time_start, slot_time_end):
     slot.slot_time_start = slot_time_start
     slot.slot_time_end = slot_time_end
     slot.slot_hidden = False
+    slot.slot_name = slot_name
     db_session.add(slot)
     db_session.commit()
 
