@@ -26,6 +26,7 @@ blue = "#00bbff"
 light_grey = "#ededed"
 light_blue = "#00dbc1"
 lighter_blue = "#54d1f7"
+light_red = "#ffb3b3"
 
 
 class LoginUserGroupEnum(Enum):
@@ -1435,3 +1436,55 @@ def reset_login_user_ics_uuid(user:LoginUser):
     user.ics_uuid = str(uuid.uuid4())
     db_session.commit()
     return user.ics_uuid
+
+
+def get_links(shortened_link=None, log=False):
+    if shortened_link:
+        link: Link = db_session.query(Link).filter(Link.link_short == shortened_link).first()
+        if link:
+            if not link.link_active:
+                return None
+            if log:
+                new_log = LinkLog(link_id=link.link_id)
+                db_session.add(new_log)
+                db_session.commit()
+            return [link]
+        else:
+            return None
+    else:
+        links: List[Link] = db_session.query(Link).all()
+        return links
+
+
+def add_link(link_short, link_full, owner:LoginUser):
+    new_link = Link()
+    new_link.link_short = link_short.strip().lower().replace(" ", "")
+    new_link.link_url = link_full.strip().lower().replace(" ", "")
+    new_link.user = owner
+    current_link:Link = db_session.query(Link).filter(Link.link_short == new_link.link_short).first()
+    if current_link:
+        return "danger", "Link already exists with that short text!"
+    else:
+        db_session.add(new_link)
+        db_session.commit()
+        return "success", "New link added"
+
+
+def remove_link(link_id):
+    link = db_session.query(Link).filter(Link.link_id == int(link_id)).first()
+    if link:
+        db_session.delete(link)
+        db_session.commit()
+        return "success", "Link removed"
+    else:
+        return "danger", "Link not found"
+
+
+def update_link_active(link_id, active):
+    link = db_session.query(Link).filter(Link.link_id == int(link_id)).first()
+    if link:
+        link.link_active = active
+        db_session.commit()
+        return "success", "Link updated"
+    else:
+        return "danger", "Link not found"

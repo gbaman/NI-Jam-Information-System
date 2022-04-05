@@ -85,6 +85,9 @@
                         {%  if modules_enabled.module_police_check %}
                         <li><a href="/admin/police_checks">Police checks</a></li>
                         {% endif %}
+                        {%  if modules_enabled.module_link %}
+                        <li><a href="/admin/links">Links</a></li>
+                        {% endif %}
                     </ul>
                 </li>
                 {%  if logged_in_user.group_id >= 4 %}

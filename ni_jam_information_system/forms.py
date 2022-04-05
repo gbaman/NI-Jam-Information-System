@@ -220,3 +220,8 @@ class PoliceCheckForm(Form):
     def __init__(self, *args, **kwargs):
         super(PoliceCheckForm, self).__init__(*args, **kwargs)
         self.certificate_type.choices = CertificateTypeEnum.dropdown_view()
+
+
+class AddLink(Form):
+    link_short = StringField("Shortened link", [validators.DataRequired()])
+    link_full = StringField("Full URL (including http:// or https://", [validators.DataRequired(), validators.URL()])

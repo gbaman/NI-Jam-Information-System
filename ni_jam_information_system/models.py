@@ -5,7 +5,7 @@ import enum
 import database
 import math
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, BigInteger, Time, Boolean, text, Enum
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, BigInteger, Time, Boolean, text, Enum, func
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -205,6 +205,10 @@ class LoginUser(Base):
             if workshop_return.jam_id == jam_id:
                 workshop_runs_return.append(workshop_return)
         return workshop_runs_return
+
+    @hybrid_property
+    def full_name(self):
+        return f"{self.first_name} {self.surname}"
 
 
 class PagePermission(Base):
@@ -610,6 +614,44 @@ class PoliceCheck(Base):
         if self.certificate_expiry_date and self.time_delta_till_expiry.days > 0:
             return True
         return False
+
+
+class LinkLog(Base):
+    __tablename__ = "link_logs"
+    link_log_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
+    link_id = Column(ForeignKey('links.link_id'), primary_key=False, nullable=False, index=True)
+    link_log_datetime = Column(DateTime, nullable=False, server_default=func.now())
+    link_log_ip_address = Column(String(15), nullable=True)
+
+
+class Link(Base):
+    __tablename__ = "links"
+    link_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
+    link_short = Column(String(45), nullable=False)
+    link_url = Column(String(200), nullable=True)
+    link_active = Column(Boolean, nullable=False, default=1)
+    link_create_date = Column(DateTime, nullable=False, server_default=func.now())
+    user_id = Column(ForeignKey('login_users.user_id'), primary_key=False, nullable=False, index=True)
+
+    file_id = Column(ForeignKey('workshop_files.file_id'), primary_key=False, nullable=True, index=True)
+
+    user = relationship("LoginUser", foreign_keys=user_id, uselist=False)
+    file = relationship("WorkshopFile", foreign_keys=file_id, uselist=False)
+    link_logs = relationship("LinkLog", cascade="all, delete-orphan")
+
+    @hybrid_property
+    def url(self):
+        if self.file_id:
+            return "/404"
+        else:
+            return self.link_url
+
+    @hybrid_property
+    def status_colour(self):
+        if self.link_active:
+            return database.green
+        else:
+            return database.light_red
 
 
 t_workshop_volunteers = Table(

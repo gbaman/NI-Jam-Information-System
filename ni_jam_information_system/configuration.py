@@ -20,6 +20,7 @@ class Modules:
     module_police_check = ["module_core", "module_police_check"]
     module_slack = ["module_core", "module_slack"]
     module_notification = ["module_core", "module_slack", "module_notification"]
+    module_link = ["module_core", "module_workshops"]
 
 
 def _get_config_file():

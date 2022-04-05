@@ -735,3 +735,10 @@ function updateLedgerButton(clicked_button, transaction_id){
     });
     
 }
+function confirmDeleteLink(link_id) {
+    alertify.confirm('Delete link', 'Are you sure to delete this link?', function () {
+            window.location.href = "/admin/links/u/remove/" + link_id;
+        }
+        , function () {
+        });
+}

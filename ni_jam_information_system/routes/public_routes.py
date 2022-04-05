@@ -209,3 +209,14 @@ def ics_generate(ics_uuid, jam_id=None):
         response.headers["Content-Type"] = "text/calendar"
         return response
     return abort(404)
+
+
+@public_routes.route("/s/<shortened_link>")
+@module_link_shortener_required
+def shortened_link_redirect(shortened_link):
+    links = database.get_links(shortened_link, log=True)
+    if links:
+        return redirect(links[0].link_url)
+    else:
+        return redirect("/404")
+

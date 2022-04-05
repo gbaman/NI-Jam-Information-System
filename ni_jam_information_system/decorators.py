@@ -205,6 +205,14 @@ def module_notification_required(f):
 
     return decorated_function
 
+
+def module_link_shortener_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        return _module_required(f, configuration.Modules.module_link, *args, **kwargs)
+
+    return decorated_function
+
 # --------------------------------------------- APIs --------------------------------------------- #
 
 

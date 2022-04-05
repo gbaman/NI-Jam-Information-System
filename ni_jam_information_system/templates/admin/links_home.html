@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h1>Shortened Links</h1>
+<p>The link shortening system allows for long links to be shortened down using the {{ shortened_base_url }} domain.<br> They can be useful in printed materials or for use on a board at the front of a classroom.<br>To directly link a NIJIS hosted resource, use the button found in the workshop files list.</p>
+{%include '_message_flash_helper.html'%}
+    
+<h2>New shortened link</h2>
+<form method="POST" enctype="multipart/form-data" style="max-width: 220px">
+<dl>
+    {{ render_field(form.link_short, class = "form-control") }}
+    {{ render_field(form.link_full, class = "form-control") }}
+</dl>
+<p><input class="btn btn-primary" type=submit value="Add link">
+</form>
+    
+<br>
+<h2>Current links</h2>
+<div>
+    <table class="table table-hover, table-bordered">
+        <tr bgcolor="#d3d3d3">
+            <th>Link short</th>
+            <th>Copy link</th>
+            <th>Owner</th>
+            <th>Created on</th>
+            <th>Active</th>
+            <th>File</th>
+            <th>Remove</th>
+            <th>URL</th>
+            <th>Hits</th>
+        </tr>
+        {% for link in links %}
+            <tr bgcolor="{{ link.status_colour }}">
+                <td>{{ shortened_base_url }}/s/<b>{{ link.link_short }}</b></td>
+                <td><button class="btn btn-primary" onclick='navigator.clipboard.writeText(&quot;{{ shortened_base_url }}/s/{{ link.link_short }}&quot;)'>Copy to clipboard</button></td>
+                <td>{{ link.user.full_name }}</td>
+                <td>{{ link.link_create_date.strftime('%Y-%m-%d') }}</td>
+                <td>{% if link.link_active %}<a href="/admin/links/u/disable/{{ link.link_id }}" target="_blank" class="btn btn-warning" role="button">Disable link</a> {% else %} <a href="/admin/links/u/enable/{{ link.link_id }}" class="btn btn-success" role="button">Enable link</a> {% endif %}</td>
+                <td>{% if link.file %}{{ link.file.file_title }}{% else %}N/A{% endif %}</td>
+                <td><button class="btn btn-danger" onclick='confirmDeleteLink({{ link.link_id }})'>Remove link</button></td>
+                <td>{{ link.url }}</td>
+                <td>{{ link.link_logs | length }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

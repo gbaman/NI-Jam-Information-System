@@ -575,6 +575,36 @@ def remove_police_check(certificate_table_id):
     return redirect(misc.redirect_url())
 
 
+@admin_routes.route("/admin/links", methods=['GET', 'POST'])
+@volunteer_required
+@module_link_shortener_required
+def links_home():
+    shortened_base_url = configuration.verify_config_item("general", "shortened_base_url")
+    if not shortened_base_url:
+        shortened_base_url = configuration.verify_config_item("general", "base_url")
+    form = forms.AddLink(request.form)
+    if request.method == 'POST' and form.validate():
+        status, message = database.add_link(form.link_short.data, form.link_full.data, logins.get_current_user())
+        flash(message, status)
+    links = database.get_links()
+    return render_template("admin/links_home.html", links=links, form=form, shortened_base_url=shortened_base_url)
+
+@admin_routes.route("/admin/links/u/<command>/<link_id>", methods=['GET', 'POST'])
+@volunteer_required
+@module_link_shortener_required
+def links_update(command, link_id):
+    if command == "remove":
+        status, message = database.remove_link(link_id)
+        flash(message, status)
+    elif command == "enable":
+        status, message = database.update_link_active(link_id, True)
+        flash(message, status)
+    elif command == "disable":
+        status, message = database.update_link_active(link_id, False)
+        flash(message, status)
+    return redirect(url_for("admin_routes.links_home"))
+
+
 ####################################### AJAX Routes #######################################
 
 
