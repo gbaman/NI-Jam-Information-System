@@ -25,7 +25,8 @@ BANK_TEXT_AUTO_FILL = {
     "TESCO STORES": "Tescos",
     "Amazon.co.uk": "Amazon",
     "AMZ*": "Amazon",
-    "HSBC": "HSBC"
+    "HSBC": "HSBC",
+    "TOTAL CHARGES TO": "HSBC"
 }
 
 
