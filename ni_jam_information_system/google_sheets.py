@@ -161,7 +161,7 @@ class Transaction():
 
     def get_row(self):
         offset = []
-        for i in range(0, self.offset):
+        for i in range(0, self.offset+1):
             offset.append("")
         if self.bank_date:
             bank_date = self.bank_date.strftime("%d/%m/%Y")
