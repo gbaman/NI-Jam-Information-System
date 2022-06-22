@@ -611,7 +611,7 @@ def links_update(command, link_id):
 
 
 @admin_routes.route("/admin/get_password_reset_code_ajax", methods=['GET', 'POST'])
-@super_admin_required
+@trustee_required
 @module_core_required
 def get_password_reset_code():
     user_id = request.form['user_id']
@@ -620,7 +620,7 @@ def get_password_reset_code():
 
 
 @admin_routes.route("/admin/upgrade_to_volunteer_permission_ajax", methods=['GET', 'POST'])
-@super_admin_required
+@trustee_required
 @module_core_required
 def upgrade_user_permission():
     user_id = request.form['user_id']
@@ -629,7 +629,7 @@ def upgrade_user_permission():
 
 
 @admin_routes.route("/admin/disable_volunteer_account_ajax", methods=['GET', 'POST'])
-@super_admin_required
+@trustee_required
 @module_core_required
 def disable_volunteer_account():
     user_id = request.form['user_id']
@@ -638,7 +638,7 @@ def disable_volunteer_account():
 
 
 @admin_routes.route("/admin/enable_volunteer_account_ajax", methods=['GET', 'POST'])
-@super_admin_required
+@trustee_required
 @module_core_required
 def enable_volunteer_account():
     user_id = request.form['user_id']
