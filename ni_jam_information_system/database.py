@@ -1459,7 +1459,7 @@ def get_links(shortened_link=None, log=False):
 def add_link(link_short, link_full, owner:LoginUser):
     new_link = Link()
     new_link.link_short = link_short.strip().lower().replace(" ", "")
-    new_link.link_url = link_full.strip().lower().replace(" ", "")
+    new_link.link_url = link_full.strip().replace(" ", "")
     new_link.user = owner
     current_link:Link = db_session.query(Link).filter(Link.link_short == new_link.link_short).first()
     if current_link:
