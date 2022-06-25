@@ -22,7 +22,7 @@
                     <td>
                         {% if jam_workshop.max_attendees > 0 %}
                             {% for attendee in jam_workshop.potential_attendees %}
-                                {% if attendee.attendee.ticket_type == "General Jam Attendee" or attendee.attendee.ticket_type == "First-timer" %}
+                                {% if attendee.attendee.ticket_type == "Returning Jam Attendee" or attendee.attendee.ticket_type == "First Time Jam Attendee" %}
                                     {% if attendee.bookable or attendee.attendee in jam_workshop.attendees %}
                                     
                                         {% if attendee.attendee not in jam_workshop.attendees %}
