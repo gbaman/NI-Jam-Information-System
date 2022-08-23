@@ -32,7 +32,8 @@ function printLabels() {
         url: "/print_labels",
         data: {
             equipment_id: $('#equipment_selector').val(),
-            quantity: $('#labels_to_print').val()
+            quantity: $('#labels_to_print').val(),
+            equipment_name: $('#equipment_selector').find("option:selected").text()
         },
         success: function (result) {
             // noinspection BadExpressionStatementJS
@@ -58,7 +59,8 @@ function reprintLabel() {
         url: "/reprint_label",
         data: {
             entry_id: $('#equipment_entry_selector').val(),
-            entry_code: $('#equipment_entry_selector').find("option:selected").text()
+            entry_code: $('#equipment_entry_selector').find("option:selected").text(),
+            equipment_name: $('#equipment_selector').find("option:selected").text()
         },
         success: function (result) {
             swal({
