@@ -186,7 +186,7 @@ def files_download(workshop_id, filename):
 @public_routes.route("/ics/<ics_uuid>.ics")
 @module_volunteer_signup_required
 def ics_generate(ics_uuid, jam_id=None):
-    hours_offset = 0
+    hours_offset = -1
     user = database.get_user_from_ics_uuid(ics_uuid)
     cal = ics.Calendar()
     if user:
