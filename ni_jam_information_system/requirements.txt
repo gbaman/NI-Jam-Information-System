@@ -16,3 +16,4 @@ beautifulsoup4
 slackclient
 ics
 cryptography
+pytz

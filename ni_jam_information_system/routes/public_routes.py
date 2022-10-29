@@ -1,6 +1,7 @@
 import random
 import time
 
+import pytz as pytz
 from flask import Blueprint, render_template, request, make_response, redirect, flash, send_file, abort
 import database
 from datetime import datetime, timedelta
@@ -11,6 +12,7 @@ import forms as forms
 from decorators import *
 import configuration
 import ics
+from dateutil import tz
 
 
 public_routes = Blueprint('public_routes', __name__,
@@ -184,14 +186,17 @@ def files_download(workshop_id, filename):
 @public_routes.route("/ics/<ics_uuid>.ics")
 @module_volunteer_signup_required
 def ics_generate(ics_uuid, jam_id=None):
+    hours_offset = 1
     user = database.get_user_from_ics_uuid(ics_uuid)
     cal = ics.Calendar()
     if user:
         volunteer_workshops = database.get_volunteer_signup_workshops_for_jam(jam_id, user)
+        london_tz = pytz.timezone('Europe/London')
+        utc_tz = pytz.timezone("Etc/UCT")
         for workshop in volunteer_workshops:
             event = ics.Event()
-            event.begin = datetime.strptime(f"{str(workshop.jam.date.date())} {workshop.slot.slot_time_start}", "%Y-%m-%d %H:%M:%S")
-            event.end = datetime.strptime(f"{str(workshop.jam.date.date())} {workshop.slot.slot_time_end}", "%Y-%m-%d %H:%M:%S")
+            event.begin = utc_tz.localize(datetime.strptime(f"{str(workshop.jam.date.date())} {workshop.slot.slot_time_start}", "%Y-%m-%d %H:%M:%S")).astimezone(london_tz) - timedelta(hours=hours_offset)
+            event.end = datetime.strptime(f"{str(workshop.jam.date.date())} {workshop.slot.slot_time_end}", "%Y-%m-%d %H:%M:%S").replace(tzinfo=tz.gettz('UTC')).astimezone(london_tz) - timedelta(hours=hours_offset)
             event.name = f"Jam - {workshop.workshop.workshop_title}"
             event.description = f"{workshop.workshop.workshop_description}\n\n Current volunteers\n {', '.join(' '.join((o.first_name, o.surname)) for o in workshop.users)}"
             event.location = workshop.workshop_room.room_name
