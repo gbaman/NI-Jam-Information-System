@@ -33,6 +33,7 @@
             <th>Meeting location</th>
             <th>Start time</th>
             <th>End time</th>
+            <th>Full name</th>
             <th>Remove</th>
         </tr>
         {% for meeting in meetings %}
@@ -42,6 +43,7 @@
                 <td>{{ meeting.meeting_location }}</td>
                 <td>{{ meeting.meeting_start_datetime }}</td>
                 <td>{{ meeting.meeting_end_datetime }}</td>
+                <td>{{ meeting.user.full_name }}</td>
                 <td><button class="btn btn-danger" onclick='confirmDeleteMeeting({{ meeting.meeting_id }})'>Remove meeting</button></td>
             </tr>
         {% endfor %}
