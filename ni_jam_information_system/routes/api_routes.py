@@ -38,6 +38,18 @@ def get_jam_info(token):
         return "[]"
 
 
+@api_routes.route("/api/current_jam_info_post", methods=['POST'])
+@module_api_required
+@api_key_required
+def get_jam_info_post():
+        jam = eventbrite_interactions.get_eventbrite_event_by_id(database.get_current_jam_id())
+        to_return = {
+            "name": jam["name"]["text"],
+            "jam_id": database.get_current_jam_id()
+        }
+        return json.dumps(to_return)
+
+
 @api_routes.route("/api/equipment/<token>")
 @module_api_required
 def get_equipment(token):
