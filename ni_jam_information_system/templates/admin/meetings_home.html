@@ -8,7 +8,7 @@
 <h2>Calendar feed</h2>
 <p>To sync meetings and <b>all past/future Jams</b> with your calendar, use the following custom iCal feed link with your calendar software.</p>
 <input class="form-control" type="text" size="100" value="{{ base_url }}/ics/{{ user.ics_uuid }}.ics" id="ics_url_all">
-<a href="{{ base_url }}/ics/{{ user.ics_uuid }}.ics" class="btn btn-primary">Add all Jams to calendar</a>
+<a href="{{ base_url }}/ics/{{ user.ics_uuid }}.ics" class="btn btn-primary">Add Jams and meetings to calendar</a>
     
 <h2>New meeting</h2>
 <form method="POST" enctype="multipart/form-data" style="max-width: 220px">
@@ -33,7 +33,7 @@
             <th>Meeting location</th>
             <th>Start time</th>
             <th>End time</th>
-            <th>Full name</th>
+            <th>Owner</th>
             <th>Remove</th>
         </tr>
         {% for meeting in meetings %}
