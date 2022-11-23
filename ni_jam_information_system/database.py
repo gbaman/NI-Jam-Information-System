@@ -1488,3 +1488,31 @@ def update_link_active(link_id, active):
         return "success", "Link updated"
     else:
         return "danger", "Link not found"
+
+
+def get_meetings() -> List[Meeting]:
+    meetings = db_session.query(Meeting).all()
+    return meetings
+
+
+def add_meeting(meeting_name, meeting_description, meeting_location, meeting_start_datetime, meeting_end_datetime, owner:LoginUser):
+    new_meeting = Meeting()
+    new_meeting.meeting_name = meeting_name
+    new_meeting.meeting_description = meeting_description
+    new_meeting.meeting_location = meeting_location
+    new_meeting.meeting_start_datetime = meeting_start_datetime
+    new_meeting.meeting_end_datetime = meeting_end_datetime
+    new_meeting.user = owner
+    db_session.add(new_meeting)
+    db_session.commit()
+    return "success", "New meeting added"
+
+
+def remove_meeting(meeting_id):
+    meeting = db_session.query(Meeting).filter(Meeting.meeting_id == int(meeting_id)).first()
+    if meeting:
+        db_session.delete(meeting)
+        db_session.commit()
+        return "success", "Meeting removed"
+    else:
+        return "danger", "Meeting not found"

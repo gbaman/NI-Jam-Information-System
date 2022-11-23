@@ -742,3 +742,11 @@ function confirmDeleteLink(link_id) {
         , function () {
         });
 }
+
+function confirmDeleteMeeting(meeting_id) {
+    alertify.confirm('Delete meeting', 'Are you sure to delete this meeting?', function () {
+            window.location.href = "/admin/meetings/u/remove/" + meeting_id;
+        }
+        , function () {
+        });
+}

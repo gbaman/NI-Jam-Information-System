@@ -605,6 +605,28 @@ def links_update(command, link_id):
     return redirect(url_for("admin_routes.links_home"))
 
 
+@admin_routes.route("/admin/meetings", methods=['GET', 'POST'])
+@volunteer_required
+@module_volunteer_signup_required
+def meetings_home():
+    form = forms.AddMeeting(request.form)
+    if request.method == 'POST' and form.validate():
+        status, message = database.add_meeting(meeting_name=form.meeting_name.data, meeting_description=form.meeting_description.data, meeting_location=form.meeting_location.data, meeting_start_datetime=form.meeting_start.data, meeting_end_datetime=form.meeting_end.data, owner=logins.get_current_user())
+        flash(message, status)
+    meetings = database.get_meetings()
+    return render_template("admin/meetings_home.html", meetings=meetings, form=form, user=request.logged_in_user)
+
+
+@admin_routes.route("/admin/meetings/u/<command>/<meeting_id>", methods=['GET', 'POST'])
+@volunteer_required
+@module_volunteer_signup_required
+def meetings_update(command, meeting_id):
+    if command == "remove":
+        status, message = database.remove_meeting(meeting_id)
+        flash(message, status)
+    return redirect(url_for("admin_routes.meetings_home"))
+
+
 ####################################### AJAX Routes #######################################
 
 

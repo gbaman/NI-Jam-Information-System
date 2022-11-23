@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h1>Meetings</h1>
+<p>The meetings schedule system allows for meetings to appear in volunteer calendars automatically.</p>
+{%include '_message_flash_helper.html'%}
+
+<h2>Calendar feed</h2>
+<p>To sync meetings and <b>all past/future Jams</b> with your calendar, use the following custom iCal feed link with your calendar software.</p>
+<input class="form-control" type="text" size="100" value="{{ base_url }}/ics/{{ user.ics_uuid }}.ics" id="ics_url_all">
+<a href="{{ base_url }}/ics/{{ user.ics_uuid }}.ics" class="btn btn-primary">Add all Jams to calendar</a>
+    
+<h2>New meeting</h2>
+<form method="POST" enctype="multipart/form-data" style="max-width: 220px">
+<dl>
+    {{ render_field(form.meeting_name, class = "form-control") }}
+    {{ render_field(form.meeting_description, class = "form-control") }}
+    {{ render_field(form.meeting_location, class = "form-control") }}
+    {{ render_field(form.meeting_start, class = "form-control") }}
+    {{ render_field(form.meeting_end, class = "form-control") }}
+
+</dl>
+<p><input class="btn btn-primary" type=submit value="Add meeting">
+</form>
+    
+<br>
+<h2>Current meetings</h2>
+<div>
+    <table class="table table-hover, table-bordered">
+        <tr bgcolor="#d3d3d3">
+            <th>Meeting name</th>
+            <th>Meeting description</th>
+            <th>Meeting location</th>
+            <th>Start time</th>
+            <th>End time</th>
+            <th>Remove</th>
+        </tr>
+        {% for meeting in meetings %}
+            <tr bgcolor="{{ meeting.status_colour }}">
+                <td>{{ meeting.meeting_name }}</td>
+                <td>{{ meeting.meeting_description }}</td>
+                <td>{{ meeting.meeting_location }}</td>
+                <td>{{ meeting.meeting_start_datetime }}</td>
+                <td>{{ meeting.meeting_end_datetime }}</td>
+                <td><button class="btn btn-danger" onclick='confirmDeleteMeeting({{ meeting.meeting_id }})'>Remove meeting</button></td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

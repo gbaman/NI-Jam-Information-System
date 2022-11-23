@@ -654,6 +654,27 @@ class Link(Base):
             return database.light_red
 
 
+class Meeting(Base):
+    __tablename__ = "meetings"
+    meeting_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
+    meeting_name = Column(String(45), nullable=False)
+    meeting_description = Column(String(45), nullable=False)
+    meeting_location = Column(String(45), nullable=True)
+    meeting_start_datetime = Column(DateTime, nullable=False)
+    meeting_end_datetime = Column(DateTime, nullable=False)
+    user_id = Column(ForeignKey('login_users.user_id'), primary_key=False, nullable=False, index=True)
+
+    user = relationship("LoginUser", foreign_keys=user_id, uselist=False)
+
+    @hybrid_property
+    def status_colour(self):
+        if self.meeting_id:
+            return database.green
+        else:
+            return database.light_red
+
+
+
 t_workshop_volunteers = Table(
     'workshop_volunteers', metadata,
     Column('user_id', ForeignKey('login_users.user_id'), primary_key=True, nullable=False, index=True),
