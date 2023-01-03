@@ -659,7 +659,7 @@ class Meeting(Base):
     meeting_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
     meeting_name = Column(String(45), nullable=False)
     meeting_description = Column(String(45), nullable=False)
-    meeting_location = Column(String(45), nullable=True)
+    meeting_location = Column(String(100), nullable=True)
     meeting_start_datetime = Column(DateTime, nullable=False)
     meeting_end_datetime = Column(DateTime, nullable=False)
     user_id = Column(ForeignKey('login_users.user_id'), primary_key=False, nullable=False, index=True)
