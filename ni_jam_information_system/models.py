@@ -398,6 +398,8 @@ class WorkshopFile(Base):
     file_type = Column(Enum(FileTypeEnum), nullable=False)
     workshop_id = Column(ForeignKey('workshop.workshop_id'), primary_key=True, nullable=False, index=True)
 
+    workshop = relationship("Workshop")
+
 
 class WorkshopEquipment(Base):
     __tablename__ = 'workshop_equipment'
@@ -652,6 +654,47 @@ class Link(Base):
             return database.green
         else:
             return database.light_red
+
+
+class Meeting(Base):
+    __tablename__ = "meetings"
+    meeting_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
+    meeting_name = Column(String(45), nullable=False)
+    meeting_description = Column(String(45), nullable=False)
+    meeting_location = Column(String(100), nullable=True)
+    meeting_start_datetime = Column(DateTime, nullable=False)
+    meeting_end_datetime = Column(DateTime, nullable=False)
+    user_id = Column(ForeignKey('login_users.user_id'), primary_key=False, nullable=False, index=True)
+
+    user = relationship("LoginUser", foreign_keys=user_id, uselist=False)
+
+    @hybrid_property
+    def status_colour(self):
+        if self.meeting_id:
+            return database.green
+        else:
+            return database.light_red
+
+
+class PrintQueue(Base):
+    __tablename__ = "print_queue"
+    queue_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
+    file_id = Column(ForeignKey('workshop_files.file_id'), primary_key=False, nullable=False, index=True)
+    created_user_id = Column(ForeignKey('login_users.user_id'), primary_key=False, nullable=False, index=True)
+    queue_quantity = Column(Integer, nullable=False)
+    queue_added_date = Column(DateTime, nullable=False)
+    completed_user_id = Column(ForeignKey('login_users.user_id'), primary_key=False, nullable=True, index=True)
+
+    created_user = relationship("LoginUser", foreign_keys=created_user_id, uselist=False)
+    completed_user = relationship("LoginUser", foreign_keys=completed_user_id, uselist=False)
+    file = relationship("WorkshopFile", foreign_keys=file_id, uselist=False)
+
+    @hybrid_property
+    def status_colour(self):
+        if self.completed_user_id:
+            return database.green
+        else:
+            return ""
 
 
 t_workshop_volunteers = Table(

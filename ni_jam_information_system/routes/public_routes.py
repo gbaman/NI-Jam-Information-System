@@ -209,6 +209,17 @@ def ics_generate(ics_uuid, jam_id=None):
                 event.make_all_day()
                 event.name = jam.name
                 cal.events.add(event)
+        if not jam_id:
+            meetings = database.get_meetings()
+            for meeting in meetings:
+                event = ics.Event()
+                event.begin = utc_tz.localize(meeting.meeting_start_datetime).astimezone(london_tz) - timedelta(hours=hours_offset)
+                event.end = utc_tz.localize(meeting.meeting_end_datetime).astimezone(london_tz) - timedelta(hours=hours_offset)
+                event.name = f"Jam meeting - {meeting.meeting_name}"
+                event.description = f"{meeting.meeting_description}\nOrganised by {meeting.user.full_name}"
+                event.location = meeting.meeting_location
+                cal.events.add(event)
+
         response = make_response(str(cal))
         response.headers["Content-Disposition"] = "attachment; filename=jam.ics"
         response.headers["Content-Type"] = "text/calendar"

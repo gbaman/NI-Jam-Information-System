@@ -36,6 +36,10 @@
 <a href="/admin/police_checks" class="btn btn-primary" role="button">Police Checks</a> <br>
 <br>
 {% endif %}
+{% if modules_enabled.module_volunteer_signup %}
+<a href="/admin/meetings" class="btn btn-primary" role="button">Meetings</a> <br>
+<br>
+{% endif %}
 
 {% if modules_enabled.module_equipment %}
 <h4>Inventory/Equipment</h4>

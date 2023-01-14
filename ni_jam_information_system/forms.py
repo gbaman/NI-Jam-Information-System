@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileRequired, FileAllowed
 from wtforms import Form, BooleanField, StringField, PasswordField, IntegerField, TextAreaField, RadioField, \
-    SelectField, validators, HiddenField, FileField, DateTimeField, FloatField
+    SelectField, validators, HiddenField, FileField, DateTimeField, FloatField, DateTimeLocalField
 from wtforms.fields import DateField
 from wtforms_components import TimeField
 
@@ -225,3 +225,11 @@ class PoliceCheckForm(Form):
 class AddLink(Form):
     link_short = StringField("Shortened link", [validators.DataRequired()])
     link_full = StringField("Full URL (including http:// or https://", [validators.DataRequired(), validators.URL()])
+
+
+class AddMeeting(Form):
+    meeting_name = StringField("Meeting name", [validators.DataRequired()])
+    meeting_description = StringField("Meeting description", [validators.DataRequired()])
+    meeting_location = StringField("Meeting location")
+    meeting_start = DateTimeLocalField("Meeting start time", format='%Y-%m-%dT%H:%M')
+    meeting_end = DateTimeLocalField("Meeting end time", format='%Y-%m-%dT%H:%M')
