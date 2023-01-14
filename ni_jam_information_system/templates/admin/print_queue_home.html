@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h1>Print Queue</h1>
+<p>All files scheduled for printing can be found below. To add to this list, click the Add to Print Queue button in the details page of any workshop.</p>
+{%include '_message_flash_helper.html'%}
+
+<br>
+<h2>Current print queue</h2>
+<div>
+    <table class="table table-hover, table-bordered">
+        <tr bgcolor="#d3d3d3">
+            <th>Queue added date</th>
+            <th>Queue added user</th>
+            <th>Workshop name</th>
+            <th>File title</th>
+            <th>Quantity requested</th>
+            <th>Download</th>
+            <th>Completed?</th>
+            <th>Remove</th>
+        </tr>
+        {% for print_item in queue %}
+            <tr bgcolor="{{ print_item.status_colour }}">
+                <td>{{ print_item.queue_added_date }}</td>
+                <td>{{ print_item.created_user.full_name }}</td>
+                <td>{{ print_item.file.workshop.workshop_title }}</td>
+                <td>{{ print_item.file.file_title }}</td>
+                <td>{{ print_item.queue_quantity }}</td>
+                <td><a href="/{{print_item.file.file_path}}" class="btn btn-primary" role="button">Download</a><br></td>
+                <td>{% if not print_item.completed_user %}<a href="/admin/print_queue/mark_complete/{{print_item.queue_id}}" class="btn btn-success" role="button">Printed</a><br>{% endif %}</td>
+                <td><a href="/admin/print_queue/remove/{{print_item.queue_id}}" class="btn btn-danger" role="button">Remove queue item</a><br></td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

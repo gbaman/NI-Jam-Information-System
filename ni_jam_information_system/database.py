@@ -1516,3 +1516,32 @@ def remove_meeting(meeting_id):
         return "success", "Meeting removed"
     else:
         return "danger", "Meeting not found"
+
+
+def get_print_queue(include_completed=True) -> List[PrintQueue]:
+    if include_completed:
+        queue = db_session.query(PrintQueue).all()
+    else:
+        queue = db_session.query(PrintQueue).filter(PrintQueue.completed_user_id).all()
+    return queue
+
+
+def add_file_to_print_queue(file_id, quantity, user:LoginUser):
+    queue_item = PrintQueue(file_id=file_id, created_user=user, queue_quantity=quantity, queue_added_date=datetime.datetime.now())
+    db_session.add(queue_item)
+    db_session.commit()
+    return queue_item
+
+
+def update_queue_item_status(queue_id, complete, complete_by_user: LoginUser = None):
+    query_item: PrintQueue = db_session.query(PrintQueue).filter(PrintQueue.queue_id == queue_id).first()
+    if complete:
+        query_item.completed_user = complete_by_user
+    else:
+        query_item.completed_user_id = None
+    db_session.commit()
+
+
+def remove_queue_item(queue_id):
+    query_item: PrintQueue = db_session.query(PrintQueue).filter(PrintQueue.queue_id == queue_id).delete()
+    db_session.commit()

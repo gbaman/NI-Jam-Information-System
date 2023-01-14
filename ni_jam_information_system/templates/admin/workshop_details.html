@@ -74,6 +74,7 @@
         <th>Visibility</th>
         <th>Path</th>
         <th>Download</th>
+        <th>Print Queue</th>
         <th>Delete</th>
     </tr>
 
@@ -85,6 +86,7 @@
         <td>{{workshop_file.file_permission}}</td>
         <td>{{workshop_file.file_path}}</td>
         <td><a href="/{{workshop_file.file_path}}" class="btn btn-primary" role="button">Download</a><br></td>
+        <td><button class="btn btn-success" onclick='addFileToPrintQueue({{ workshop_file.file_id }})'>Add to print queue</button></td>
         <td><a href="/admin/delete_workshop_file/{{workshop_file.file_id}}" class="btn btn-danger" role="button">Delete</a><br></td>
         </tr>
     {% endfor %}

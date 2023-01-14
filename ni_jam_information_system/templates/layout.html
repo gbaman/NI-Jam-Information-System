@@ -91,6 +91,9 @@
                         {%  if modules_enabled.module_volunteer_signup %}
                         <li><a href="/admin/meetings">Meetings</a></li>
                         {% endif %}
+                        {%  if modules_enabled.module_workshops %}
+                        <li><a href="/admin/print_queue">Print queue</a></li>
+                        {% endif %}
                     </ul>
                 </li>
                 {%  if logged_in_user.group_id >= 4 %}

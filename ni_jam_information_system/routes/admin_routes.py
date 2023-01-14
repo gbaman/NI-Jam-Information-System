@@ -627,6 +627,29 @@ def meetings_update(command, meeting_id):
     return redirect(url_for("admin_routes.meetings_home"))
 
 
+@admin_routes.route("/admin/print_queue", methods=['GET', 'POST'])
+@volunteer_required
+@module_workshops_required
+def print_queue_home():
+    queue = database.get_print_queue()
+    return render_template("admin/print_queue_home.html", queue=queue)
+
+
+@admin_routes.route("/admin/print_queue/mark_complete/<queue_id>", methods=['GET', 'POST'])
+@volunteer_required
+@module_workshops_required
+def print_queue_mark_complete(queue_id):
+    database.update_queue_item_status(queue_id, True, request.logged_in_user)
+    return redirect(url_for("admin_routes.print_queue_home"))
+
+
+@admin_routes.route("/admin/print_queue/remove/<queue_id>", methods=['GET', 'POST'])
+@volunteer_required
+@module_workshops_required
+def print_queue_remove(queue_id):
+    database.remove_queue_item(queue_id)
+    return redirect(url_for("admin_routes.print_queue_home"))
+
 ####################################### AJAX Routes #######################################
 
 
@@ -843,3 +866,13 @@ def update_dob_in_system():
         return " "
     except ValueError:
         pass
+
+
+@admin_routes.route("/admin/add_file_to_print_queue", methods=['GET', 'POST'])
+@volunteer_required
+@module_workshops_required
+def add_file_to_print_queue():
+    file_id = int(request.form["file_id"])
+    quantity = request.form["quantity"]
+    database.add_file_to_print_queue(file_id, quantity, request.logged_in_user)
+    return " "

@@ -750,3 +750,28 @@ function confirmDeleteMeeting(meeting_id) {
         , function () {
         });
 }
+
+
+function addFileToPrintQueue(file_id){
+    alertify.prompt('Print quantity', 'Enter the quantity of printouts requested', '1', function (evt, value) {
+    $.ajax({
+        type: "POST",
+        url: "/admin/add_file_to_print_queue",
+        data: {
+            file_id: file_id,
+            quantity: value
+        },
+        success: function (result) {
+            alertify.success('File added to print queue');
+        },
+        error: function (result) {
+            alertify.alert("Unable to add file to print queue...",
+                function(){
+                    window.location.reload();
+                });
+        }
+    });
+    }
+        , function () {
+        });
+}
