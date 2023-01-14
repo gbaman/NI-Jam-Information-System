@@ -197,7 +197,7 @@ def volunteer_attendance(event_id=None):
         database.add_volunteer_attendance(event_id, request.logged_in_user.user_id, int(literal_eval(form.attending_jam.data)), int(literal_eval(form.attending_setup.data)), int(literal_eval(form.attending_packdown.data)), int(literal_eval(form.attending_food.data)), form.notes.data, form.arrival_time.data)
 
         return redirect((f"/admin/volunteer_attendance{ f'/{event_id}' if event_id else ''}"), code=302)
-    return render_template("admin/volunteer_attendance.html", form=form, volunteer_attendances=volunteer_attendances, user_id=request.logged_in_user.user_id, selected_jam=database.get_jam_details(event_id), stats=stats, last_slack_reminder=database.get_configuration_item("slack_reminder_sent"), user_filled_in=user_filled_in, jams=database.get_jams_in_db())
+    return render_template("admin/volunteer_attendance.html", form=form, volunteer_attendances=volunteer_attendances, user_id=request.logged_in_user.user_id, selected_jam=database.get_jam_details(event_id), stats=stats, last_slack_reminder=database.get_configuration_item("slack_reminder_sent"), user_filled_in=user_filled_in, jams=database.get_jams_in_db(reverse=False))
 
 
 @admin_routes.route("/admin/manage_attendees")

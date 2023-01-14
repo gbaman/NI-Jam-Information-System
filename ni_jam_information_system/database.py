@@ -122,9 +122,9 @@ def add_eventbrite_jam(eventbrite_id, jam_name, date):  # Add a new Jam, plus a 
         db_session.commit()
 
 
-def get_jams_in_db() -> List[RaspberryJam]:
+def get_jams_in_db(reverse=False) -> List[RaspberryJam]:
     jams = db_session().query(RaspberryJam).all() 
-    return sorted(jams, key=lambda x: x.date, reverse=False)
+    return sorted(jams, key=lambda x: x.date, reverse=reverse)
 
 
 def add_workshop(workshop_id, workshop_title, workshop_description, workshop_limit, workshop_level, workshop_url, workshop_volunteer_requirements):
