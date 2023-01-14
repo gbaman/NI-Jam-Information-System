@@ -807,7 +807,7 @@ def check_in_attendee(attendee_id):
     db_session.commit()
 
 
-def get_jam_details(jam_id):
+def get_jam_details(jam_id) -> RaspberryJam:
     jam = db_session.query(RaspberryJam).filter(RaspberryJam.jam_id == jam_id).first()
     if jam:
         return jam

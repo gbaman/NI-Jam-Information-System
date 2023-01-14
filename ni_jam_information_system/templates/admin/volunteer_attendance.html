@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block content %}
-    {% if not user_filled_in %}
+    {% if not user_filled_in and not selected_jam.passed %}
         <script>
         alertify.alert("No entry found!", "No volunteer attendance entry has been found for this Jam, please add one ASAP below.");
         </script>
@@ -17,8 +17,20 @@
          <br>
     {% endif %}
 {% endif %}
+
+    <div class="dropdown">
+    <button class="btn btn-default dropdown-toggle" type="button" id="menu1" data-toggle="dropdown">Select a different Jam
+    <span class="caret"></span></button>
+    <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
+        {% for jam in jams %}
+      <li role="presentation"><a role="menuitem" tabindex="-1" href=/admin/volunteer_attendance/{{jam.jam_id}}>{{jam.name}}</a></li>
+        {% endfor %}
+    </ul>
+  </div>
 {%include '_message_flash_helper.html'%}
+    {% if not selected_jam.passed %}
 {%include 'admin/modify_attendance.html'%}
+    {% endif %}
 
 <div class="attendees">
     <table class="table table-hover, table-bordered">

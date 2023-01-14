@@ -248,6 +248,12 @@ class RaspberryJam(Base):
             replied.append(volunteer_attendance.user)
         return replied
 
+    @hybrid_property
+    def passed(self):
+        if self.date < datetime.datetime.now() + datetime.timedelta(days=1):
+            return True
+        return False
+
 
 class RaspberryJamWorkshop(Base):
     __tablename__ = 'raspberry_jam_workshop'
