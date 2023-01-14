@@ -946,7 +946,7 @@ def add_equipment_to_workshop(equipment_id, workshop_id, equipment_quantity, per
 def add_equipment_entries(equipment_id, quantity):
     return_nums = []
     equipment = get_equipment_by_id(equipment_id)
-    start_number = 0
+    start_number = 1
     if equipment.equipment_entries:
         start_number = equipment.equipment_entries[-1].equipment_entry_number + 1
     for num in range(0, quantity):

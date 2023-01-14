@@ -58,6 +58,7 @@ def get_equipment(token):
         data = ([dict(equipment_id=e.equipment_id, equipment_name=e.equipment_name, equipment_code=e.equipment_code, equipment_entries=[dict(equipment_entry_id=ee.equipment_entry_id, equipment_entry_number=str(ee.equipment_entry_number).zfill(3)) for ee in e.equipment_entries]) for e in equipment])
         data = json.dumps(data)
         return data
+    abort(401, "API key incorrect")
 
 
 @api_routes.route("/api/equipment_groups/<token>")
@@ -67,6 +68,7 @@ def get_equipment_groups(token):
         equipment_groups = database.get_equipment_groups()
         data = [dict(equipment_group_id=e.equipment_group_id, equipment_group_name=e.equipment_group_name) for e in equipment_groups]
         return json.dumps(data)
+    abort(401, "API key incorrect")
 
 
 @api_routes.route("/api/add_equipment_entries/<token>", methods=['POST'])
@@ -78,6 +80,7 @@ def add_equipment_entries(token):
 
         nums_created = database.add_equipment_entries(equipment_id, quantity)
         return json.dumps(nums_created)
+    abort(401, "API key incorrect")
 
 
 @api_routes.route("/api/add_equipment/", methods=['POST'])
