@@ -1,5 +1,0 @@
-requests
-flask
-brother_ql
-pillow
-python-barcode
