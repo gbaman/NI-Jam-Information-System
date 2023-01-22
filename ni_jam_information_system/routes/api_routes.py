@@ -5,6 +5,7 @@ import json
 import eventbrite_interactions
 from datetime import datetime, time
 
+import models
 from models import FileTypeEnum
 from secrets.config import *
 from decorators import *
@@ -42,14 +43,16 @@ def get_jam_info(token):
 @module_api_required
 @api_key_required
 def get_jam_info_post():
-        eventbrite_jam = eventbrite_interactions.get_eventbrite_event_by_id(database.get_current_jam_id())
-        current_jam = database.get_jam_details(database.get_current_jam_id())
-        to_return = {
-            "name": eventbrite_jam["name"]["text"],
-            "jam_id": current_jam.jam_id,
-            "event_source": current_jam.event_source.name
-        }
-        return json.dumps(to_return)
+    eventbrite_jam_name = None
+    current_jam = database.get_jam_details(database.get_current_jam_id())
+    if current_jam.event_source == models.EventSourceEnum.eventbrite:
+        eventbrite_jam_name = eventbrite_interactions.get_eventbrite_event_by_id(database.get_current_jam_id())["name"]["text"]
+    to_return = {
+        "name": eventbrite_jam_name,
+        "jam_id": current_jam.jam_id,
+        "event_source": current_jam.event_source.name
+    }
+    return json.dumps(to_return)
 
 
 @api_routes.route("/api/equipment/<token>")
