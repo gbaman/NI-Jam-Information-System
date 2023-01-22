@@ -42,10 +42,12 @@ def get_jam_info(token):
 @module_api_required
 @api_key_required
 def get_jam_info_post():
-        jam = eventbrite_interactions.get_eventbrite_event_by_id(database.get_current_jam_id())
+        eventbrite_jam = eventbrite_interactions.get_eventbrite_event_by_id(database.get_current_jam_id())
+        current_jam = database.get_jam_details(database.get_current_jam_id())
         to_return = {
-            "name": jam["name"]["text"],
-            "jam_id": database.get_current_jam_id()
+            "name": eventbrite_jam["name"]["text"],
+            "jam_id": current_jam.jam_id,
+            "event_source": current_jam.event_source.name
         }
         return json.dumps(to_return)
 
