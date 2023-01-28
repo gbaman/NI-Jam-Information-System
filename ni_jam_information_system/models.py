@@ -250,7 +250,7 @@ class RaspberryJam(Base):
 
     @hybrid_property
     def passed(self):
-        if self.date < datetime.datetime.now() + datetime.timedelta(days=1):
+        if datetime.datetime.now() > datetime.datetime.combine(self.date.date(), datetime.time.max):
             return True
         return False
 
