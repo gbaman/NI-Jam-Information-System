@@ -130,7 +130,7 @@ def delete_workshop(workshop_id):
 @module_workshops_required
 def archive_workshop(workshop_id):
     database.archive_workshop(workshop_id)
-    return redirect(('admin/manage_workshop_catalog'))
+    return redirect('/admin/manage_workshop_catalog')
 
 
 @admin_routes.route('/admin/workshops', methods=['GET', 'POST'])
