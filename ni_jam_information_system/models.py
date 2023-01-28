@@ -1,26 +1,34 @@
 import datetime
-import enum
 from typing import List
 import enum
 import database
 import math
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table, BigInteger, Time, Boolean, text, Enum, func
-from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker, relationship
-from sqlalchemy.ext.declarative import declarative_base
-from secrets.config import db_user, db_pass, db_name, db_host
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.hybrid import hybrid_property
 
+class CustomBaseModel:
+    #  Needed to work around https://docs.sqlalchemy.org/en/20/errors.html#error-zlpr
+    __allow_unmapped__ = True
 
-engine = create_engine('mysql+pymysql://{}:{}@{}/{}?charset=utf8'.format(db_user, db_pass, db_host, db_name))
-db_session = scoped_session(sessionmaker(autocommit=False,
-                                         autoflush=False,
-                                         bind=engine))
 
-Base = declarative_base()
-Base.query = db_session.query_property()
-metadata = Base.metadata
+# Migration from SQLAlchemy to Flask-SQLAlchemy
+db = SQLAlchemy(model_class=CustomBaseModel)
+Base = db.Model
+Column = db.Column
+Integer = db.Integer
+DateTime = db.DateTime
+String = db.String
+Float = db.Float
+relationship = db.relationship
+ForeignKey = db.ForeignKey
+Boolean = db.Boolean
+Table = db.Table
+BigInteger = db.BigInteger
+Time = db.Time
+text = db.text
+Enum = db.Enum
+func = db.func
 
 
 class EventSourceEnum(enum.Enum):
@@ -704,7 +712,7 @@ class PrintQueue(Base):
 
 
 t_workshop_volunteers = Table(
-    'workshop_volunteers', metadata,
+    'workshop_volunteers', db.metadata,
     Column('user_id', ForeignKey('login_users.user_id'), primary_key=True, nullable=False, index=True),
     Column('workshop_run_id', ForeignKey('raspberry_jam_workshop.workshop_run_id'), primary_key=True, nullable=False, index=True)
 )

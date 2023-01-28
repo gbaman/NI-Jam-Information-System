@@ -23,10 +23,10 @@ class CreateWorkshopForm(Form):
 
 
 class AddWorkshopToJam(Form):
-    workshop = SelectField("Workshop", choices=get_workshops_to_select())
-    volunteer = SelectField("Coordinator", choices=get_volunteers_to_select())
-    slot = SelectField("Time slot", choices=get_individual_time_slots_to_select())
-    room = SelectField("Room", choices=get_workshop_rooms())
+    workshop = SelectField("Workshop")
+    volunteer = SelectField("Coordinator")
+    slot = SelectField("Time slot")
+    room = SelectField("Room")
     pilot = SelectField("Pilot", choices=[("False", "False"), ("True", "True")])
     pair = SelectField("Pairs required", choices=[("False", "False"), ("True", "True")])
 
@@ -34,6 +34,8 @@ class AddWorkshopToJam(Form):
         super(AddWorkshopToJam, self).__init__(*args, **kwargs)
         self.workshop.choices = [(workshop.workshop_id, workshop.workshop_name_file_status) for workshop in get_workshops_to_select()]
         self.volunteer.choices = [(-1, "None")] + get_volunteers_to_select()
+        self.room.choices = get_workshop_rooms()
+        self.slot.choices = get_individual_time_slots_to_select()
         self.room.choices = get_workshop_rooms()
 
 
@@ -97,7 +99,7 @@ class InventoryForm(Form):
 class AddEquipmentForm(Form):
     equipment_title = StringField("Equipment title", [validators.DataRequired()])
     equipment_code = StringField("Equipment code", [validators.DataRequired(), validators.Length(3, 3)])
-    equipment_group = SelectField("Equipment group", choices=[(str(group.equipment_group_id), group.equipment_group_name) for group in get_equipment_groups()])
+    equipment_group = SelectField("Equipment group")
 
     def __init__(self, *args, **kwargs):
         super(AddEquipmentForm, self).__init__(*args, **kwargs)
