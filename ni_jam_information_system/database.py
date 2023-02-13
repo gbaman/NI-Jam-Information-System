@@ -874,13 +874,13 @@ def get_equipment_in_inventory(inventory_id):
     equipment = []
     for equipment_entry in equipment_entries:
         if equipment_entry.attached_equipment not in equipment:
-            equipment_entry.attached_equipment.equipment_entries = []
+            equipment_entry.attached_equipment.equipment_entries1 = []
             equipment.append(equipment_entry.attached_equipment)
-        equipment_entry.attached_equipment.equipment_entries.append(equipment_entry)
+        equipment_entry.attached_equipment.equipment_entries1.append(equipment_entry)
 
     for single_equipment in equipment:  # Add quantities on to individual entries
         single_equipment.total_quantity = 0
-        for equipment_entry in single_equipment.equipment_entries:
+        for equipment_entry in single_equipment.equipment_entries1:
             for inventory in equipment_entry.equipment_inventories:
                 if inventory.inventory_id == inventory_id:
                     equipment_entry.equipment_quantity = inventory.entry_quantity
@@ -889,17 +889,20 @@ def get_equipment_in_inventory(inventory_id):
     return equipment
 
 
-def get_all_equipment(manual_add_only=False):
+def get_all_equipment(manual_add_only=False, filter_by_id=None) -> List[Equipment]:
     """
     :param manual_add_only: If is set for manual adding, don't return any equipment that has multiple entries in the system
     """
     if manual_add_only:
         equipment = db_session.query(Equipment).filter(or_(and_(EquipmentEntry.equipment_entry_number == -1, Equipment.equipment_id == EquipmentEntry.equipment_id), not_(Equipment.equipment_entries.any())))
 
+    elif filter_by_id and filter_by_id != -1:
+        equipment = db_session.query(Equipment).filter(Equipment.equipment_id == filter_by_id)
+
     else:
         equipment = db_session.query(Equipment)
 
-    return equipment
+    return sorted(equipment, key=lambda x: x.equipment_id)
 
 
 def get_all_equipment_for_workshop(workshop_id):
@@ -943,6 +946,8 @@ def add_equipment_entries(equipment_id, quantity):
     start_number = 1
     if equipment.equipment_entries:
         start_number = equipment.equipment_entries[-1].equipment_entry_number + 1
+        if start_number < 1:
+            start_number = 1
     for num in range(0, quantity):
         new_entry = EquipmentEntry(equipment_id=equipment_id, equipment_entry_number=start_number+num)
         db_session.add(new_entry)

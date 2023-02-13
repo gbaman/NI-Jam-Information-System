@@ -26,8 +26,10 @@
           {% endif %}
         {% endwith %}
 
-<h3>Current Equipment</h3>
 
+
+<h3>Current Equipment</h3>
+<a href="/admin/manage_single_equipment/-1" class="btn btn-success" role="button">View all equipment entries</a>
 <table class="table table-hover, table-bordered">
     <tr bgcolor="#d3d3d3">
         <th>Title</th>
@@ -42,7 +44,7 @@
         <td>{{single_equipment.equipment_code}}</td>
         <td>{{single_equipment.equipment_group.equipment_group_name}}</td>
         <td>{{single_equipment.equipment_entries|count}}</td>
-        <td><a href="/admin/manage_inventory/" class="btn btn-success" role="button">Show</a></td>
+        <td><a href="/admin/manage_single_equipment/{{ single_equipment.equipment_id }}" class="btn btn-success" role="button">Show</a></td>
     </tr>
     {% endfor %}
 </table>

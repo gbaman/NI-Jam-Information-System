@@ -350,6 +350,13 @@ def manage_equipment():
     return render_template("admin/manage_equipment.html", form=form, equipment=database.get_all_equipment())
 
 
+@admin_routes.route("/admin/manage_single_equipment/<equipment_id>", methods=['GET', 'POST'])
+@volunteer_required
+@module_equipment_required
+def manage_single_equipment(equipment_id):
+    return render_template("admin/manage_single_equipment.html", equipment=database.get_all_equipment(filter_by_id=int(equipment_id)))
+
+
 @admin_routes.route("/admin/wrangler_overview_legacy", methods=['GET', 'POST'])
 @volunteer_required
 @module_volunteer_signup_required
@@ -773,7 +780,7 @@ def select_inventory():
 def get_inventory_equipment():
     inventory_id = int(request.form['inventory_id'])
     equipment = database.get_equipment_in_inventory(inventory_id)
-    to_send = ([dict(equipment_id=e.equipment_id, equipment_name=e.equipment_name, equipment_code=e.equipment_code, total_quantity=e.total_quantity, equipment_entries=[dict(equipment_entry_id=ee.equipment_entry_id, equipment_entry_number=str(ee.equipment_entry_number).zfill(3), equipment_quantity=ee.equipment_quantity) for ee in e.equipment_entries]) for e in equipment])
+    to_send = ([dict(equipment_id=e.equipment_id, equipment_name=e.equipment_name, equipment_code=e.equipment_code, total_quantity=e.total_quantity, equipment_entries=[dict(equipment_entry_id=ee.equipment_entry_id, equipment_entry_number=str(ee.equipment_entry_number).zfill(3), equipment_quantity=ee.equipment_quantity) for ee in e.equipment_entries1]) for e in equipment])
     return json.dumps(to_send)
 
 
