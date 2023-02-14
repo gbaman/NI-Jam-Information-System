@@ -781,6 +781,10 @@ def get_current_jam_id():
     return 0
 
 
+def get_current_jam() -> RaspberryJam:
+    jam_id = db_session.query(Configuration).filter(Configuration.config_name == "jam_id").first()
+    return get_jam_details(jam_id.config_value)
+
 def check_out_attendee(attendee_id):
     if len(attendee_id) < 6:  # Check if volunteer
         volunteer_attendance = db_session.query(VolunteerAttendance).join(LoginUser).filter_by(user_id=attendee_id).filter(VolunteerAttendance.jam_id == get_current_jam_id()).first()
@@ -1549,3 +1553,16 @@ def remove_queue_item(queue_id):
 def get_all_jams_between_dates(start, end=datetime.datetime.now(), event_source="eventbrite") -> List[RaspberryJam]:
     jams = db_session().query(RaspberryJam).filter(and_(RaspberryJam.date <= end, RaspberryJam.date >= start)).filter(RaspberryJam.event_source == event_source).all()
     return jams
+
+
+def add_possible_workshop(workshop_id, user_id, jam_id):
+    current_possible_workshop = db_session().query(PossibleUpcomingWorkshop).filter(PossibleUpcomingWorkshop.workshop_id == int(workshop_id), PossibleUpcomingWorkshop.jam_id == jam_id).first()
+    if not current_possible_workshop:
+        db_session.add(PossibleUpcomingWorkshop(jam_id=jam_id, workshop_id=int(workshop_id), added_by_user_id=user_id))
+        db_session.commit()
+
+def remove_possible_workshop(possible_id):
+    current_possible_workshop = db_session().query(PossibleUpcomingWorkshop).filter(PossibleUpcomingWorkshop.possible_id == int(possible_id))
+    if current_possible_workshop:
+        current_possible_workshop.delete()
+        db_session.commit()

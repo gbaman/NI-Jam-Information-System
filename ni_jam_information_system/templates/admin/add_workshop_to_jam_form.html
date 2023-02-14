@@ -3,6 +3,7 @@
 {% block content %}
 <h2>Workshop scheduling</h2>
 <p>Use the following section to add workshops from the Jam catalog to the upcoming Jam.</p>
+<a href="/admin/possible_workshops_for_jam" class="btn btn-info" role="button">View possible workshops for upcoming Jam</a>
 <form method=post>
   <dl>
     {{ render_field(form.workshop, class="selectpicker", **{'data-live-search':'true'}) }}

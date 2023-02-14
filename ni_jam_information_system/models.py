@@ -241,6 +241,7 @@ class RaspberryJam(Base):
     volunteer_attendance = relationship('VolunteerAttendance')
     attendees = relationship('Attendee')
     workshops = relationship('Workshop', secondary='raspberry_jam_workshop')
+    possible_workshops: List["PossibleUpcomingWorkshop"] = relationship('PossibleUpcomingWorkshop')
 
     @hybrid_property
     def volunteers_attending_jam(self):
@@ -710,6 +711,19 @@ class PrintQueue(Base):
             return database.green
         else:
             return ""
+
+
+class PossibleUpcomingWorkshop(Base):
+    __tablename__ = 'possible_upcoming_workshop'
+
+    possible_id = Column(Integer, primary_key=True, nullable=False, unique=True, autoincrement=True)
+    jam_id = Column(ForeignKey('raspberry_jam.jam_id'), primary_key=True, nullable=False, index=True)
+    workshop_id = Column(ForeignKey('workshop.workshop_id'), primary_key=True, nullable=False, index=True)
+    added_by_user_id = Column(ForeignKey('login_users.user_id'), primary_key=False, nullable=False, index=True)
+
+    added_by_user = relationship("LoginUser", foreign_keys=added_by_user_id, uselist=False)
+    jam = relationship('RaspberryJam')
+    workshop: Workshop = relationship('Workshop')
 
 
 t_workshop_volunteers = Table(

@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h1>Possible workshops for upcoming Jam</h1>
+<p>To add a workshop to this page, click the Add button in <a href="/admin/manage_workshop_catalog">Manage Workshops in Catalog</a>.</p>
+{%include '_message_flash_helper.html'%}
+
+<br>
+<h2>Current selected workshops</h2>
+<div>
+    <table class="table table-hover, table-bordered">
+        <tr bgcolor="#d3d3d3">
+            <th>Workshop name</th>
+            <th>Workshop details</th>
+            <th>Remove</th>
+            {% for jam in jams %}
+                    <th><a href="/public_schedule/{{ jam.jam_id }}">{{ jam.date.strftime("%b %Y") }}</a></th>
+            {% endfor %}
+        </tr>
+        {% for possible_workshop in possible_workshops %}
+            <tr>
+                <td>{{ possible_workshop.workshop.workshop_title }}</td>
+                <td><a href="/admin/workshop_details/{{possible_workshop.workshop.workshop_id}}" class="btn btn-primary" role="button">Details/files</a></td>
+                <td><a href="/admin/possible_workshops_for_jam/remove/{{possible_workshop.possible_id}}" class="btn btn-danger" role="button">Remove workshop</a><br></td>
+                {% for jam in jams %}
+                {% if possible_workshop.workshop in jam.workshops %}
+                    <td>✅</td>
+                {% else %}
+                    <td>❌</td>
+                {% endif %}
+            {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

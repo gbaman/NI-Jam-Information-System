@@ -657,6 +657,32 @@ def print_queue_remove(queue_id):
     database.remove_queue_item(queue_id)
     return redirect(url_for("admin_routes.print_queue_home"))
 
+
+@admin_routes.route("/admin/possible_workshops_for_jam", methods=['GET', 'POST'])
+@volunteer_required
+@module_workshops_required
+def possible_workshops_for_jam_home():
+    current_jam = database.get_current_jam()
+    possible_workshops = current_jam.possible_workshops
+    return render_template("admin/possible_workshops_for_jam.html", possible_workshops=possible_workshops, jams=database.get_all_jams_between_dates(datetime.datetime.now() - datetime.timedelta(days=366)))
+
+
+@admin_routes.route("/admin/possible_workshops_for_jam/add/<workshop_id>")
+@volunteer_required
+@module_workshops_required
+def possible_workshops_for_jam_add(workshop_id):
+    database.add_possible_workshop(workshop_id, user_id=request.logged_in_user.user_id, jam_id=database.get_current_jam_id())
+    flash("Added to possible upcoming workshops for Jam list", "success")
+    return redirect(url_for("admin_routes.add_workshop_to_catalog"))
+
+
+@admin_routes.route("/admin/possible_workshops_for_jam/remove/<possible_id>")
+@volunteer_required
+@module_workshops_required
+def possible_workshops_for_jam_remove(possible_id):
+    database.remove_possible_workshop(possible_id)
+    return redirect(url_for("admin_routes.possible_workshops_for_jam_home"))
+
 ####################################### AJAX Routes #######################################
 
 

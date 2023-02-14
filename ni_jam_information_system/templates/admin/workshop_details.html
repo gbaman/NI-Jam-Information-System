@@ -25,7 +25,7 @@
     <table>
     <tr>
         {% for jam in jams %}
-                <th>{{ jam.date.strftime("%b %Y") }}</th>
+                <th><a href="/public_schedule/{{ jam.jam_id }}">{{ jam.date.strftime("%b %Y") }}</a></th>
             {% endfor %}
     </tr>
     <tr>
