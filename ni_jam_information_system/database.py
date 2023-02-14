@@ -291,7 +291,7 @@ def get_workshops_to_select(show_archived=False):
         return workshops.filter((Workshop.workshop_archived == 0) | (Workshop.workshop_archived == None))
 
 
-def get_workshop_from_workshop_id(workshop_id):
+def get_workshop_from_workshop_id(workshop_id) -> Workshop:
     return db_session.query(Workshop).filter(Workshop.workshop_id == workshop_id).first()
 
 
@@ -1544,3 +1544,8 @@ def update_queue_item_status(queue_id, complete, complete_by_user: LoginUser = N
 def remove_queue_item(queue_id):
     query_item: PrintQueue = db_session.query(PrintQueue).filter(PrintQueue.queue_id == queue_id).delete()
     db_session.commit()
+
+
+def get_all_jams_between_dates(start, end=datetime.datetime.now(), event_source="eventbrite") -> List[RaspberryJam]:
+    jams = db_session().query(RaspberryJam).filter(and_(RaspberryJam.date <= end, RaspberryJam.date >= start)).filter(RaspberryJam.event_source == event_source).all()
+    return jams

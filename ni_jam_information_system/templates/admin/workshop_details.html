@@ -21,6 +21,24 @@
           {% endif %}
         {% endwith %}
 
+    <h2>Workshop usage</h2>
+    <table>
+    <tr>
+        {% for jam in jams %}
+                <th>{{ jam.date.strftime("%b %Y") }}</th>
+            {% endfor %}
+    </tr>
+    <tr>
+        {% for jam in jams %}
+            {% if workshop in jam.workshops %}
+                <td>✅</td>
+            {% else %}
+                <td>❌</td>
+            {% endif %}
+        {% endfor %}
+    </tr>
+
+    </table>
 
 <h2>Workshop equipment</h2>
 

@@ -240,6 +240,7 @@ class RaspberryJam(Base):
     event_source = Column(Enum(EventSourceEnum))
     volunteer_attendance = relationship('VolunteerAttendance')
     attendees = relationship('Attendee')
+    workshops = relationship('Workshop', secondary='raspberry_jam_workshop')
 
     @hybrid_property
     def volunteers_attending_jam(self):

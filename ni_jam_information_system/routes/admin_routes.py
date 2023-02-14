@@ -293,7 +293,7 @@ def workshop_details(workshop_id):
         return redirect(url_for('admin_routes.workshop_details', workshop_id=workshop_id))
 
     workshop = database.get_workshop_from_workshop_id(workshop_id)
-    return render_template("admin/workshop_details.html", workshop=workshop, file_form=file_form, equipment_form=equipment_form, equipments=database.get_all_equipment_for_workshop(workshop_id), badge_form=badge_form)
+    return render_template("admin/workshop_details.html", workshop=workshop, file_form=file_form, equipment_form=equipment_form, equipments=database.get_all_equipment_for_workshop(workshop_id), badge_form=badge_form, jams=database.get_all_jams_between_dates(datetime.datetime.now() - datetime.timedelta(days=366)))
 
 
 @admin_routes.route("/admin/delete_workshop_file/<file_id>")
