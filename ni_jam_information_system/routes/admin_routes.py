@@ -664,7 +664,7 @@ def print_queue_remove(queue_id):
 def possible_workshops_for_jam_home():
     current_jam = database.get_current_jam()
     possible_workshops = current_jam.possible_workshops
-    return render_template("admin/possible_workshops_for_jam.html", possible_workshops=possible_workshops, jams=database.get_all_jams_between_dates(datetime.datetime.now() - datetime.timedelta(days=366)))
+    return render_template("admin/possible_workshops_for_jam.html", possible_workshops=possible_workshops, jams=database.get_all_jams_between_dates(datetime.datetime.now() - datetime.timedelta(days=366)), current_jam=current_jam)
 
 
 @admin_routes.route("/admin/possible_workshops_for_jam/add/<workshop_id>")
