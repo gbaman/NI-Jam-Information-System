@@ -252,6 +252,14 @@ class RaspberryJam(Base):
         return attending
 
     @hybrid_property
+    def volunteers_attending_jam_main(self):
+        attending = []
+        for volunteer_attendance in self.volunteer_attendance:
+            if volunteer_attendance.volunteer_attending:
+                attending.append(volunteer_attendance.user)
+        return attending
+
+    @hybrid_property
     def volunteer_replied_attendance(self):
         replied = []
         for volunteer_attendance in self.volunteer_attendance:
