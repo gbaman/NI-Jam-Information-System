@@ -664,16 +664,7 @@ def print_queue_remove(queue_id):
 def possible_workshops_for_jam_home():
     current_jam = database.get_current_jam()
     possible_workshops = current_jam.possible_workshops
-    return render_template("admin/possible_workshops_for_jam.html", possible_workshops=possible_workshops, jams=database.get_all_jams_between_dates(datetime.datetime.now() - datetime.timedelta(days=366)), current_jam=current_jam)
-
-
-@admin_routes.route("/admin/possible_workshops_for_jam/add/<workshop_id>")
-@volunteer_required
-@module_workshops_required
-def possible_workshops_for_jam_add(workshop_id):
-    database.add_possible_workshop(workshop_id, user_id=request.logged_in_user.user_id, jam_id=database.get_current_jam_id())
-    flash("Added to possible upcoming workshops for Jam list", "success")
-    return redirect(url_for("admin_routes.add_workshop_to_catalog"))
+    return render_template("admin/possible_workshops_for_jam.html", possible_workshops=sorted(possible_workshops, key=lambda x: x.workshop.workshop_level, reverse=False), jams=database.get_all_jams_between_dates(datetime.datetime.now() - datetime.timedelta(days=366)), current_jam=current_jam)
 
 
 @admin_routes.route("/admin/possible_workshops_for_jam/remove/<possible_id>")
@@ -686,6 +677,14 @@ def possible_workshops_for_jam_remove(possible_id):
 ####################################### AJAX Routes #######################################
 
 
+@admin_routes.route("/admin/possible_workshops_for_jam/add_ajax", methods=['GET', 'POST'])
+@volunteer_required
+@module_workshops_required
+def possible_workshops_for_jam_add():
+    workshop_id = request.form['workshop_id']
+    database.add_possible_workshop(workshop_id, user_id=request.logged_in_user.user_id, jam_id=database.get_current_jam_id())
+    flash("Added to possible upcoming workshops for Jam list", "success")
+    return redirect(url_for("admin_routes.add_workshop_to_catalog"))
 
 
 @admin_routes.route("/admin/get_password_reset_code_ajax", methods=['GET', 'POST'])

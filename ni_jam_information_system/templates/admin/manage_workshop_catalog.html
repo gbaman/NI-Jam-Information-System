@@ -32,7 +32,7 @@
         <td>{{workshop.workshop_level}}</td>
         <td>{% if workshop.workshop_hidden %} True {% else %} False {% endif %} </td>
         <td><a href="/admin/workshop_details/{{workshop.workshop_id}}" class="btn btn-primary" role="button">Details/Files ({{workshop.workshop_files|length}})</a></td>
-        <td><a href="/admin/possible_workshops_for_jam/add/{{workshop.workshop_id}}" class="btn btn-info" role="button">Add</a></td>
+        <td><button class="btn btn-info" onclick='addWorkshopToPossible({{ workshop.workshop_id }})'>Add</button></td>
         <td><a href="{{workshop.workshop_url}}" class="btn btn-success {% if not workshop.workshop_url %} disabled {% endif %}" role="button">URL</a></td>
         <td><a href="/admin/manage_workshop_catalog/{{workshop.workshop_id}}" class="btn btn-info" role="button">Edit</a></td>
         <td><a href="/admin/archive_workshop/{{workshop.workshop_id}}" class="btn btn-warning" role="button">Archive</a></td>

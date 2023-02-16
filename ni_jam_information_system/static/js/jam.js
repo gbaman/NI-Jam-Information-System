@@ -775,3 +775,22 @@ function addFileToPrintQueue(file_id){
         , function () {
         });
 }
+
+function addWorkshopToPossible(workshop_id){
+    $.ajax({
+        type: "POST",
+        url: "/admin/possible_workshops_for_jam/add_ajax",
+        data: {
+            workshop_id: workshop_id,
+        },
+        success: function (result) {
+            alertify.success('Workshop added to possible workshops list');
+        },
+        error: function (result) {
+            alertify.alert("Unable to add workshop to list",
+                function(){
+                    window.location.reload();
+                });
+        }
+    });
+}
