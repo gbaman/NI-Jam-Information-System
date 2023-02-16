@@ -26,7 +26,7 @@
                 <td>{{ print_item.file.workshop.workshop_title }}</td>
                 <td>{{ print_item.file.file_title }}</td>
                 <td>{{ print_item.queue_quantity }}</td>
-                <td><a href="/{{print_item.file.file_path}}" class="btn btn-primary" role="button">Download</a><br></td>
+                <td><a href="/{{print_item.file.file_path}}" target="_blank" class="btn btn-primary" role="button">Download</a><br></td>
                 <td>{% if not print_item.completed_user %}<a href="/admin/print_queue/mark_complete/{{print_item.queue_id}}" class="btn btn-success" role="button">Printed</a><br>{% endif %}</td>
                 <td><a href="/admin/print_queue/remove/{{print_item.queue_id}}" class="btn btn-danger" role="button">Remove queue item</a><br></td>
             </tr>
