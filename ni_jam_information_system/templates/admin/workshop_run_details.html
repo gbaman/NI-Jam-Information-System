@@ -25,6 +25,7 @@
     <tr bgcolor="#d3d3d3">
         <th>Attendee ID</th>
         <th>Attendee name</th>
+        <th>Attendee age</th>
         <th>Badge</th>
         <th>PiNet Username (click to edit)</th>
     </tr>
@@ -32,6 +33,7 @@
         <tr{% if attendee.attendee_login and jam_workshop.workshop.workshop_badge in attendee.attendee_login.attendee_badges %} bgcolor="#c4fc9f" {% endif %}>
             <td>{{ attendee.attendee_id }}</td>
             <td>{{ attendee.first_name }} {{ attendee.surname }}</td>
+        <td>{{ attendee.age }}</td>
         {% if attendee.attendee_login and jam_workshop.workshop.workshop_badge in attendee.attendee_login.attendee_badges %}
             <td><button id="award_badge_button_{{ attendee.attendee_id }}" data-id="{{jam_workshop.workshop_id}}" class="btn btn-danger {% if not attendee.attendee_login_id %} disabled {% endif %}"
                         onclick="updateWorkshopBadgeAward({{ attendee.attendee_id }}, {{ jam_workshop.workshop.workshop_badge.badge_id }}, this, null)" value="val_2" name="but2">Remove
