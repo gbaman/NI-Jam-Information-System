@@ -14,6 +14,10 @@ import configuration
 import ics
 from dateutil import tz
 
+# Used for manual timezone offset. Offset from UTC in hours.
+# Needed for support of daylight savings time, as no automatic way built in supporting this.
+# BST = 1, GMT = 0
+HOURS_OFFSET = 0
 
 public_routes = Blueprint('public_routes', __name__,
                         template_folder='templates')
@@ -186,7 +190,6 @@ def files_download(workshop_id, filename):
 @public_routes.route("/ics/<ics_uuid>.ics")
 @module_volunteer_signup_required
 def ics_generate(ics_uuid, jam_id=None):
-    hours_offset = 1
     user = database.get_user_from_ics_uuid(ics_uuid)
     cal = ics.Calendar()
     if user:
@@ -195,8 +198,8 @@ def ics_generate(ics_uuid, jam_id=None):
         utc_tz = pytz.timezone("Etc/UCT")
         for workshop in volunteer_workshops:
             event = ics.Event()
-            event.begin = utc_tz.localize(datetime.strptime(f"{str(workshop.jam.date.date())} {workshop.slot.slot_time_start}", "%Y-%m-%d %H:%M:%S")).astimezone(london_tz) - timedelta(hours=hours_offset)
-            event.end = datetime.strptime(f"{str(workshop.jam.date.date())} {workshop.slot.slot_time_end}", "%Y-%m-%d %H:%M:%S").replace(tzinfo=tz.gettz('UTC')).astimezone(london_tz) - timedelta(hours=hours_offset)
+            event.begin = utc_tz.localize(datetime.strptime(f"{str(workshop.jam.date.date())} {workshop.slot.slot_time_start}", "%Y-%m-%d %H:%M:%S")).astimezone(london_tz) - timedelta(hours=HOURS_OFFSET)
+            event.end = datetime.strptime(f"{str(workshop.jam.date.date())} {workshop.slot.slot_time_end}", "%Y-%m-%d %H:%M:%S").replace(tzinfo=tz.gettz('UTC')).astimezone(london_tz) - timedelta(hours=HOURS_OFFSET)
             event.name = f"Jam - {workshop.workshop.workshop_title}"
             event.description = f"{workshop.workshop.workshop_description}\n\n Current volunteers\n {', '.join(' '.join((o.first_name, o.surname)) for o in workshop.users)}"
             event.location = workshop.workshop_room.room_name
@@ -213,8 +216,8 @@ def ics_generate(ics_uuid, jam_id=None):
             meetings = database.get_meetings()
             for meeting in meetings:
                 event = ics.Event()
-                event.begin = utc_tz.localize(meeting.meeting_start_datetime).astimezone(london_tz) - timedelta(hours=hours_offset)
-                event.end = utc_tz.localize(meeting.meeting_end_datetime).astimezone(london_tz) - timedelta(hours=hours_offset)
+                event.begin = utc_tz.localize(meeting.meeting_start_datetime).astimezone(london_tz) - timedelta(hours=HOURS_OFFSET)
+                event.end = utc_tz.localize(meeting.meeting_end_datetime).astimezone(london_tz) - timedelta(hours=HOURS_OFFSET)
                 event.name = f"Jam meeting - {meeting.meeting_name}"
                 event.description = f"{meeting.meeting_description}\nOrganised by {meeting.user.full_name}"
                 event.location = meeting.meeting_location
