@@ -701,8 +701,10 @@ def get_password_reset_code():
 @module_core_required
 def upgrade_user_permission():
     user_id = request.form['user_id']
-    database.set_group_for_user(user_id, 3)
-    return ""
+    user = database.get_login_user_from_user_id(user_id)
+    if user.group_id < 3:
+        database.set_group_for_user(user_id, 3)
+        return ""
 
 
 @admin_routes.route("/admin/disable_volunteer_account_ajax", methods=['GET', 'POST'])

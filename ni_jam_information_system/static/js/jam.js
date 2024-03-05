@@ -167,7 +167,7 @@ function upgradeToVolunteerPermission(user_id) {
             window.location.reload();
         },
         error: function (result) {
-            alert('Error upgrading permission');
+            alert('Error upgrading permission or permission level change not supported.');
             window.location.reload();
         }
     });
