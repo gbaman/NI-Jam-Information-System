@@ -40,6 +40,7 @@
             </tr>
 
             {% for time_slot in time_slots %}
+                {% if time_slot.public_workshops %}
                 <tr>
                 <th>{{ time_slot.title }}</th>
                 {% for room in time_slot.rooms %}
@@ -52,6 +53,7 @@
                     {% endif %}
                 {% endfor %}
                 </tr>
+                {% endif %}
             {% endfor %}
 
         </table>

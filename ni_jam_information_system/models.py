@@ -410,6 +410,14 @@ class WorkshopSlot(Base):
                 volunteers = [*volunteers, *workshop.users] # Merge lists together
         return volunteers
 
+    @property
+    def public_workshops(self):
+        public_workshops = []
+        for workshop in self.workshops_in_slot:
+            if not workshop.workshop.workshop_hidden:
+                public_workshops.append(workshop)
+        return public_workshops
+
 
 class WorkshopFile(Base):
     __tablename__ = 'workshop_files'
