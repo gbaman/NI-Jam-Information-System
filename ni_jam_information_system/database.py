@@ -89,29 +89,31 @@ def add_eventbrite_jam(eventbrite_id, jam_name, date):  # Add a new Jam, plus a 
     if configuration.verify_config_item_bool("general", "new_jam_add_default_events"):
         car_parking_workshop = db_session.query(Workshop).filter(Workshop.workshop_title == "Car Parking").first()
         car_parking_room = db_session.query(WorkshopRoom).filter(WorkshopRoom.room_name == "Car Park").first()
-        car_parking = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=car_parking_workshop.workshop_id, workshop_room_id=car_parking_room.room_id, slot_id=0, pilot=0)
-        db_session.add(car_parking)  # Add car parking into slot 0
+        if car_parking_workshop and car_parking_room:
+            car_parking = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=car_parking_workshop.workshop_id, workshop_room_id=car_parking_room.room_id, slot_id=0, pilot=0)
+            db_session.add(car_parking)  # Add car parking into slot 0
 
         front_desk_workshop = db_session.query(Workshop).filter(Workshop.workshop_title == "Front desk").first()
         front_desk_registration_room = db_session.query(WorkshopRoom).filter(WorkshopRoom.room_name == "Front Desk Registration").first()
         front_desk_room = db_session.query(WorkshopRoom).filter(WorkshopRoom.room_name == "Front Desk General").first()
-        front_desk = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=front_desk_workshop.workshop_id, workshop_room_id=front_desk_registration_room.room_id, slot_id=0, pilot=0)
+        if front_desk_workshop and front_desk_registration_room and front_desk_room:
+            front_desk = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=front_desk_workshop.workshop_id, workshop_room_id=front_desk_registration_room.room_id, slot_id=0, pilot=0)
+            db_session.add(front_desk)  # Add front desk registration
 
-        db_session.add(front_desk)  # Add front desk registration
-
-        front_desk = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=front_desk_workshop.workshop_id, workshop_room_id=front_desk_room.room_id, slot_id=1, pilot=0)
-        db_session.add(front_desk)
-        front_desk = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=front_desk_workshop.workshop_id, workshop_room_id=front_desk_room.room_id, slot_id=2, pilot=0)
-        db_session.add(front_desk)
-        front_desk = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=front_desk_workshop.workshop_id, workshop_room_id=front_desk_room.room_id, slot_id=3, pilot=0)
-        db_session.add(front_desk)
-        front_desk = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=front_desk_workshop.workshop_id, workshop_room_id=front_desk_room.room_id, slot_id=4, pilot=0)
-        db_session.add(front_desk)  # Add 4th normal front desk
+            front_desk = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=front_desk_workshop.workshop_id, workshop_room_id=front_desk_room.room_id, slot_id=1, pilot=0)
+            db_session.add(front_desk)
+            front_desk = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=front_desk_workshop.workshop_id, workshop_room_id=front_desk_room.room_id, slot_id=2, pilot=0)
+            db_session.add(front_desk)
+            front_desk = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=front_desk_workshop.workshop_id, workshop_room_id=front_desk_room.room_id, slot_id=3, pilot=0)
+            db_session.add(front_desk)
+            front_desk = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=front_desk_workshop.workshop_id, workshop_room_id=front_desk_room.room_id, slot_id=4, pilot=0)
+            db_session.add(front_desk)  # Add 4th normal front desk
 
         break_room = db_session.query(WorkshopRoom).filter(WorkshopRoom.room_name == "Foyer (ground floor)").first()
         break_workshop = db_session.query(Workshop).filter(Workshop.workshop_title == "Break time").first()
-        break_time = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=break_workshop.workshop_id, workshop_room_id=break_room.room_id, slot_id=3, pilot=0)
-        db_session.add(break_time)  # Add break time into break session
+        if break_room and break_workshop:
+            break_time = RaspberryJamWorkshop(jam_id=jam.jam_id, workshop_id=break_workshop.workshop_id, workshop_room_id=break_room.room_id, slot_id=3, pilot=0)
+            db_session.add(break_time)  # Add break time into break session
 
         db_session.commit()
 
