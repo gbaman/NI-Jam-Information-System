@@ -1,7 +1,7 @@
 import uuid
 from flask import Flask, render_template, request
 from flask_mail import Mail
-from flask_uploads import UploadSet, configure_uploads, ALL
+from flask_reuploads import UploadSet, configure_uploads, ALL
 from secrets.config import db_user, db_pass, db_name, db_host
 
 import logins
