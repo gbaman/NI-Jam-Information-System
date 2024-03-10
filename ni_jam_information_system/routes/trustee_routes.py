@@ -165,7 +165,7 @@ def ledger_upload_link(transaction_id):
             if not expense.payment_made_date:
                 continue
 
-            if abs((t.bank_date - expense.payment_made_date).days) < 6 and transaction.paid_out == expense.value and expense.paid_by_id:
+            if abs((t.bank_date - expense.payment_made_date).days) < 8 and transaction.paid_out == expense.value and expense.paid_by_id:
                 if int(expense.expense_id) not in already_matched_expenses:
                     nearby_expenses.append(expense)
     return render_template("trustee/ledger_upload_link.html", transaction=t, expenses=nearby_expenses, form=form)
