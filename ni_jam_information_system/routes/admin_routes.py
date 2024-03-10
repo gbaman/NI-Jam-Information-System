@@ -228,7 +228,7 @@ def manage_attendees():
 
     jam_attendees = sorted(jam_attendees, key=lambda x: x.current_location, reverse=False)
     attendee_logins = database.get_attendee_logins()
-    return render_template("admin/manage_attendees.html", attendees=jam_attendees, attendee_logins=attendee_logins)
+    return render_template("admin/manage_attendees.html", attendees=jam_attendees, attendee_logins=attendee_logins, selected_jam=database.get_current_jam(), max=15)
 
 
 @admin_routes.route("/admin/fire_list")

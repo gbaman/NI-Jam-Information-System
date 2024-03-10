@@ -1,5 +1,5 @@
 import datetime
-from typing import List
+from typing import List, Dict
 import enum
 import database
 import math
@@ -271,6 +271,21 @@ class RaspberryJam(Base):
         if datetime.datetime.now() > datetime.datetime.combine(self.date.date(), datetime.time.max):
             return True
         return False
+
+    @hybrid_property
+    def attendee_ages_non_parents(self) -> Dict[int, int]:
+        attendee_ages_dict = {}
+
+        for index in range(4, 18):
+            attendee_ages_dict[index] = 0
+
+        for attendee in self.attendees:
+            if not "parent" in attendee.ticket_type.lower():
+                if attendee.age in attendee_ages_dict:
+                    attendee_ages_dict[attendee.age] += 1
+                else:
+                    attendee_ages_dict[attendee.age] = 1
+        return dict(sorted(attendee_ages_dict.items()))
 
 
 class RaspberryJamWorkshop(Base):

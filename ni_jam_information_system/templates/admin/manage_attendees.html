@@ -60,4 +60,73 @@
         {% endfor %}
     </table>
 </div>
+    <h2>Attendee data</h2>
+    <p>The chart below includes non parent tickets only.</p>
+    <canvas id="chart" width="600" height="400"></canvas>
+    <script>
+      // get bar chart canvas
+var ctx = document.getElementById("chart").getContext("2d");
+
+// Function to get color based on age
+function getColor(age) {
+    return age > 18 ? 'rgba(255, 0, 0, 0.2)' : 'rgba(70,130,255,0.2)';
+}
+
+// Function to get border color based on age
+function getBorderColor(age) {
+    return age > 18 ? 'rgba(255, 0, 0, 1)' : 'rgba(70,130,255,1)';
+}
+
+// bar chart data
+var data = {
+    labels: [
+        {% for age in selected_jam.attendee_ages_non_parents.keys() %}
+            "{{ age }}",
+        {% endfor %}
+    ],
+    datasets: [{
+        label: "Ticket count by age", // set label to an empty string
+        backgroundColor: [
+            {% for age in selected_jam.attendee_ages_non_parents.keys() %}
+                getColor({{ age }}),
+            {% endfor %}
+        ],
+        borderColor: [
+            {% for age in selected_jam.attendee_ages_non_parents.keys() %}
+                getBorderColor({{ age }}),
+            {% endfor %}
+        ],
+        data: [
+            {% for age in selected_jam.attendee_ages_non_parents.values() %}
+            "{{ age }}",
+        {% endfor %}
+        ]
+    }]
+};
+
+// bar chart options
+var options = {
+    legend: {
+        display: false
+    },
+    scales: {
+        yAxes: [{
+            ticks: {
+                beginAtZero: true,
+                steps: 10,
+                stepValue: 5,
+                max: {{max}}
+            }
+        }]
+    }
+};
+
+// draw bar chart
+new Chart(ctx, {
+    type: 'bar',
+    data: data,
+    options: options
+});
+
+    </script>
 {% endblock %}
