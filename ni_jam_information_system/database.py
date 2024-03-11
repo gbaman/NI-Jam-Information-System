@@ -123,7 +123,7 @@ def get_jams_in_db(reverse=False) -> List[RaspberryJam]:
     return sorted(jams, key=lambda x: x.date, reverse=reverse)
 
 
-def add_workshop(workshop_id, workshop_title, workshop_description, workshop_limit, workshop_level, workshop_url, workshop_volunteer_requirements):
+def add_workshop(workshop_id, workshop_title, workshop_description, workshop_limit, workshop_level, workshop_url, workshop_volunteer_requirements, workshop_recommended_min_age):
 
     if workshop_id or workshop_id == 0:  # If workshop already exists
         workshop = db_session.query(Workshop).filter(Workshop.workshop_id == workshop_id).first()
@@ -133,8 +133,9 @@ def add_workshop(workshop_id, workshop_title, workshop_description, workshop_lim
         workshop.workshop_level = workshop_level
         workshop.workshop_url = workshop_url
         workshop.workshop_volunteer_requirements = workshop_volunteer_requirements
+        workshop.workshop_recommended_min_age = workshop_recommended_min_age
     else:  # If new workshop
-        workshop = Workshop(workshop_title=workshop_title, workshop_description=workshop_description, workshop_limit=workshop_limit, workshop_level=workshop_level, workshop_hidden=0, workshop_url=workshop_url, workshop_volunteer_requirements=workshop_volunteer_requirements)
+        workshop = Workshop(workshop_title=workshop_title, workshop_description=workshop_description, workshop_limit=workshop_limit, workshop_level=workshop_level, workshop_hidden=0, workshop_url=workshop_url, workshop_volunteer_requirements=workshop_volunteer_requirements, workshop_recommended_min_age=workshop_recommended_min_age)
         db_session.add(workshop)
     db_session.commit()
 

@@ -360,6 +360,7 @@ class Workshop(Base):
     workshop_url = Column(String(300))
     workshop_volunteer_requirements = Column(Integer)
     workshop_archived = Column(Integer)
+    workshop_recommended_min_age = Column(Integer, nullable=True)
 
     workshop_files: List["WorkshopFile"] = relationship('WorkshopFile')
     #workshop_equipment = relationship("Equipment", secondary="workshop_equipment")

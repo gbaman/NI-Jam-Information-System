@@ -93,11 +93,12 @@ def add_workshop_to_catalog(workshop_id = None):
         form.workshop_limit.default = workshop.workshop_limit
         form.workshop_level.default = workshop.workshop_level
         form.workshop_url.default = workshop.workshop_url
+        form.workshop_recommended_min_age.default = workshop.workshop_recommended_min_age
         form.workshop_id.default = workshop.workshop_id
         form.workshop_volunteer_requirements.default = workshop.workshop_volunteer_requirements
         form.process()
     if request.method == 'POST' and form.validate():
-        database.add_workshop(form.workshop_id.data, form.workshop_title.data, form.workshop_description.data, form.workshop_limit.data, form.workshop_level.data, form.workshop_url.data, form.workshop_volunteer_requirements.data)
+        database.add_workshop(form.workshop_id.data, form.workshop_title.data, form.workshop_description.data, form.workshop_limit.data, form.workshop_level.data, form.workshop_url.data, form.workshop_volunteer_requirements.data, form.workshop_recommended_min_age.data)
         return redirect(url_for('admin_routes.add_workshop_to_catalog'))
     return render_template('admin/manage_workshop_catalog.html', form=form, workshops=database.get_workshops_to_select())
 
