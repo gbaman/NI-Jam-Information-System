@@ -128,7 +128,11 @@
             
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="/logout"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>
+                {# Show logout button if user is logged in as an attendee or a volunteer #}
+                {% if logged_in_user or logged_in_attendees %}
+                    <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+                {% endif %}
+
                 {% if logged_in_user %}
                     <li><a href="/admin/admin_home"> {{ logged_in_user.first_name|capitalize }} {{ logged_in_user.surname|capitalize }}</a></li>
                 {% else %}

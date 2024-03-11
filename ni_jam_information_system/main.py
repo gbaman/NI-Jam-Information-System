@@ -93,7 +93,8 @@ def inject_config_data():
 
 @app.context_processor
 def inject_user_data():
-    return dict(logged_in_user=database.get_user_from_cookie(request.cookies.get('jam_login')))
+    return dict(logged_in_user=database.get_user_from_cookie(request.cookies.get('jam_login')),
+                logged_in_attendees=database.get_attendees_in_order(request.cookies.get('jam_order_id'), current_jam=True, ignore_parent_tickets=False).all())
 
 
 @app.template_filter("remove_duplicates")
