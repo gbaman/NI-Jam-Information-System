@@ -50,7 +50,7 @@
                     <td id="{{ room.workshop.workshop_run_id }}" bgcolor={{room.workshop.bg_colour}} style="text-align: center; vertical-align:top"> <p> {% if room.workshop.pair %}<img height="20" width="20" src="/static/img/pair-programming.svg"> {% endif %} {% if room.workshop.pilot %} <i class="fas fa-flask"></i> {% endif %} <b>{{room.workshop.workshop.workshop_title}}</b> {% if room.workshop.pilot %} <i class="fas fa-flask"></i> {% endif %}{% if room.workshop.pair %}<img height="20" width="20" src="/static/img/pair-programming.svg"> {% endif %} <br>  {{room.workshop.attendees|length}}/{{room.workshop.max_attendees}}
                         <br><span style="font-size: medium">{{room.workshop.workshop.workshop_description}}</span>
                     {% if room.workshop.workshop.workshop_recommended_min_age %}
-                        <br><span style="font-size: medium">⚠️ Minimum recommended age : <b>{{room.workshop.workshop.workshop_recommended_min_age}} years old</b> ⚠️</span>
+                        <br><hr><span style="font-size: medium">⚠ Minimum recommended age : <b>{{room.workshop.workshop.workshop_recommended_min_age}} years old</b> ⚠</span>
                         {% endif %}
                     </p></td>
                     {% endif %}

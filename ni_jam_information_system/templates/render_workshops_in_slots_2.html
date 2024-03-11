@@ -16,7 +16,7 @@
                 <tr>
                     <td>{% if jam_workshop.workshop.pilot %} <i class="fas fa-flask"></i> {% endif %} {{jam_workshop.workshop.workshop_title}} {% if jam_workshop.workshop.pilot %} <i class="fas fa-flask"></i> {% endif %} </td>
                     <td>{{jam_workshop.workshop_room.room_name}}</td>
-                    <td>{{jam_workshop.workshop.workshop_description}}<br>⚠️ Minimum recommended age : <b>{{jam_workshop.workshop.workshop_recommended_min_age}} years old</b> ⚠️</td>
+                    <td>{{jam_workshop.workshop.workshop_description}}{% if jam_workshop.workshop.workshop_recommended_min_age %}<br>⚠️ Minimum recommended age : <b>{{jam_workshop.workshop.workshop_recommended_min_age}} years old</b> ⚠️{% endif %}</td>
                     <td><p id="{{jam_workshop.workshop_run_id}}-max-attendees">{{ jam_workshop.attendees|length }}/{{jam_workshop.max_attendees}}</p></td>
                     
                     <td>
