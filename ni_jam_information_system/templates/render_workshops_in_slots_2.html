@@ -16,7 +16,7 @@
                 <tr>
                     <td>{% if jam_workshop.workshop.pilot %} <i class="fas fa-flask"></i> {% endif %} {{jam_workshop.workshop.workshop_title}} {% if jam_workshop.workshop.pilot %} <i class="fas fa-flask"></i> {% endif %} </td>
                     <td>{{jam_workshop.workshop_room.room_name}}</td>
-                    <td>{{jam_workshop.workshop.workshop_description}}</td>
+                    <td>{{jam_workshop.workshop.workshop_description}}<br>⚠️ Minimum recommended age : <b>{{jam_workshop.workshop.workshop_recommended_min_age}} years old</b> ⚠️</td>
                     <td><p id="{{jam_workshop.workshop_run_id}}-max-attendees">{{ jam_workshop.attendees|length }}/{{jam_workshop.max_attendees}}</p></td>
                     
                     <td>
@@ -26,8 +26,13 @@
                                     {% if attendee.bookable or attendee.attendee in jam_workshop.attendees %}
                                     
                                         {% if attendee.attendee not in jam_workshop.attendees %}
+                                            {# If alerts for this particular workshop (can come from workshop or slot) #}
                                             {% if attendee.alert and attendee.attendee.alert.workshop_id and not attendee.attendee.alert.workshop_id == jam_workshop.workshop.workshop_id and attendee.attendee.alert.slot_id == slot.slot_id %}
                                                 <button style="margin: 3px; float: left" onclick="bookWorkshopAlert('{{jam_workshop.workshop_run_id}}' ,'{{attendee.attendee.attendee_id}}', '{{ attendee.alert.alert_message }}')" type="button" class="btn btn-danger" id="{{jam_workshop.workshop_run_id}}-{{attendee.attendee.attendee_id}}" data-toggle="tooltip" data-placement="top" >{{attendee.attendee.first_name}} {{attendee.attendee.surname}}</button>
+                                            {# If no built in alerts, but the min age for the workshop is set and the attendee is below this #}
+                                            {% elif jam_workshop.workshop.workshop_recommended_min_age and attendee.attendee.age and attendee.attendee.age < jam_workshop.workshop.workshop_recommended_min_age %}
+                                                <button style="margin: 3px; float: left" onclick="bookWorkshopAlert('{{jam_workshop.workshop_run_id}}' ,'{{attendee.attendee.attendee_id}}', 'This workshop has a recommended minimum age of <b>{{ jam_workshop.workshop.workshop_recommended_min_age }} years old</b> and {{attendee.attendee.first_name}} is <b>{{attendee.attendee.age}} years old</b>. Are you sure you want to proceed?')" type="button" class="btn btn-danger" id="{{jam_workshop.workshop_run_id}}-{{attendee.attendee.attendee_id}}" data-toggle="tooltip" data-placement="top" >{{attendee.attendee.first_name}} {{attendee.attendee.surname}}</button>
+                                            {# If no alerts #}
                                             {% else %}
                                                 <button style="margin: 3px; float: left" onclick="bookWorkshop('{{jam_workshop.workshop_run_id}}' ,'{{attendee.attendee.attendee_id}}')" type="button" class="btn btn-danger" id="{{jam_workshop.workshop_run_id}}-{{attendee.attendee.attendee_id}}" data-toggle="tooltip" data-placement="top" >{{attendee.attendee.first_name}} {{attendee.attendee.surname}}</button>
                                             {% endif %}
