@@ -9,6 +9,7 @@ import database as database
 import configuration
 from secrets import config
 import models
+from log_config import access_logger, info_logger
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = 'mysql+pymysql://{}:{}@{}/{}?charset=utf8'.format(db_user, db_pass, db_host, db_name)
@@ -100,6 +101,24 @@ def before_request():
 def inject_user_data():
     return dict(logged_in_user=g.user,
                 logged_in_attendees=database.get_attendees_in_order(request.cookies.get('jam_order_id'), current_jam=True, ignore_parent_tickets=False).all())
+
+
+@app.after_request
+def after_request(response):
+    # Don't log static files
+    if request.path.startswith("/static/js") or request.path.startswith("/static/css") or request.path.startswith("/static/img") or request.path.startswith("/static/fonts"):
+        return response
+
+    if configuration.verify_config_item_bool("logging", "info_log_enabled"):
+        log_entry = f"{request.remote_addr} - {request.method} {request.path} - {response.status_code} - {request.user_agent}"
+        info_logger.info(log_entry)
+
+    if g.user:
+        if configuration.verify_config_item_bool("logging", "access_log_enabled"):
+            login_entry = f"User {g.user.user_id} ({g.user.first_name} {g.user.surname}) accessed {request.path} with method {request.method} from {request.remote_addr}"
+            access_logger.info(login_entry)
+
+    return response
 
 
 @app.template_filter("remove_duplicates")
