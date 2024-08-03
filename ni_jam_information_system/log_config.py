@@ -15,7 +15,7 @@ access_logger = logging.getLogger('access')
 access_logger.setLevel(logging.INFO)
 access_logger.addHandler(access_handler)
 
-# Configure the login access logger
+# Configure the info handler (for everything else, including accesses)
 info_handler = RotatingFileHandler('logs/info.log', maxBytes=10000, backupCount=1)
 info_handler.setLevel(logging.INFO)
 info_handler.setFormatter(logging.Formatter(log_format))
