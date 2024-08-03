@@ -1,5 +1,5 @@
 import uuid
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, g
 from flask_mail import Mail
 from flask_reuploads import UploadSet, configure_uploads, ALL
 from secrets.config import db_user, db_pass, db_name, db_host
@@ -91,9 +91,14 @@ def inject_config_data():
                 base_url=configuration.verify_config_item("general", "base_url"))
 
 
+@app.before_request
+def before_request():
+    g.user = database.get_user_from_cookie(request.cookies.get('jam_login'))
+
+
 @app.context_processor
 def inject_user_data():
-    return dict(logged_in_user=database.get_user_from_cookie(request.cookies.get('jam_login')),
+    return dict(logged_in_user=g.user,
                 logged_in_attendees=database.get_attendees_in_order(request.cookies.get('jam_order_id'), current_jam=True, ignore_parent_tickets=False).all())
 
 
